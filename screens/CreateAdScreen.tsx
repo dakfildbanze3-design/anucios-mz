@@ -15,7 +15,8 @@ import {
   Palette,
   Link as LinkIcon,
   Copy,
-  ImagePlus
+  ImagePlus,
+  Code
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { Ad } from '../types';
@@ -106,12 +107,34 @@ export const CreateAdScreen: React.FC<CreateAdScreenProps> = ({
             }
         }
 
-        // 3. Handle Text URL (Copying a specific image link)
+        // 3. Handle Text (URL or Raw HTML Code)
         if (!foundImages) {
             const text = e.clipboardData?.getData('text');
             if (text) {
-                // Simple check if it looks like a URL or Data URI
-                if (text.startsWith('http') || text.startsWith('data:image')) {
+                // Check if it's raw HTML containing images (e.g. copied code)
+                if (text.includes('<img')) {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(text, 'text/html');
+                    const images = doc.querySelectorAll('img');
+                    const newUrls: string[] = [];
+                    images.forEach(img => {
+                        if (img.src && (img.src.startsWith('http') || img.src.startsWith('data:image'))) {
+                            newUrls.push(img.src);
+                        }
+                    });
+                    
+                    if (newUrls.length > 0) {
+                        setMediaItems(prev => {
+                            const available = 10 - prev.length;
+                            return [...prev, ...newUrls.slice(0, available).map(url => ({ url }))];
+                        });
+                        showToast(`${newUrls.length} imagens extraídas do código!`, 'success');
+                        foundImages = true;
+                    }
+                }
+
+                // Fallback: Check if it is a direct URL
+                if (!foundImages && (text.startsWith('http') || text.startsWith('data:image'))) {
                     setMediaItems(prev => [...prev, { url: text }].slice(0, 10));
                     showToast("Link de imagem adicionado!", 'success');
                 }
@@ -134,6 +157,32 @@ export const CreateAdScreen: React.FC<CreateAdScreenProps> = ({
     const url = window.prompt("Insira o link da imagem (URL):");
     if (url && (url.startsWith('http') || url.startsWith('data:'))) {
         setMediaItems(prev => [...prev, { url }].slice(0, 10));
+    }
+  };
+
+  const handleTriggerHtml = () => {
+    const html = window.prompt("Cole o código HTML contendo imagens (Ex: <img src='...'>):");
+    if (!html) return;
+
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    const images = doc.querySelectorAll('img');
+    const newUrls: string[] = [];
+
+    images.forEach(img => {
+        if (img.src && (img.src.startsWith('http') || img.src.startsWith('data:image'))) {
+            newUrls.push(img.src);
+        }
+    });
+
+    if (newUrls.length > 0) {
+        setMediaItems(prev => {
+            const available = 10 - prev.length;
+            return [...prev, ...newUrls.slice(0, available).map(url => ({ url }))];
+        });
+        showToast(`${newUrls.length} imagens extraídas!`, 'success');
+    } else {
+        showToast("Nenhuma imagem válida encontrada no código.", "error");
     }
   };
 
@@ -342,6 +391,17 @@ export const CreateAdScreen: React.FC<CreateAdScreenProps> = ({
                       <span className="text-[10px] font-bold text-gray-600 uppercase">Link URL</span>
                   </button>
 
+                  <button 
+                      onClick={handleTriggerHtml}
+                      type="button"
+                      className="aspect-square rounded-xl bg-gray-50 border-2 border-dashed border-gray-300 flex flex-col items-center justify-center gap-1 text-primary hover:bg-gray-100 hover:border-gray-400 transition-all active:scale-95 group"
+                  >
+                      <div className="p-2 bg-white rounded-full shadow-sm group-hover:scale-110 transition-transform">
+                          <Code size={20} className="text-gray-600" />
+                      </div>
+                      <span className="text-[10px] font-bold text-gray-600 uppercase">HTML</span>
+                  </button>
+
                   {mediaItems.map((item, idx) => (
                       <div key={idx} className="relative aspect-square rounded-xl overflow-hidden bg-gray-100 border border-gray-200 shadow-sm group animate-in zoom-in-50 duration-200">
                           <img src={item.url} alt={`Preview ${idx}`} className="w-full h-full object-cover" />
@@ -366,7 +426,7 @@ export const CreateAdScreen: React.FC<CreateAdScreenProps> = ({
                       <Copy size={16} />
                   </div>
                   <div className="text-xs text-gray-600">
-                      <span className="font-bold text-gray-800">Dica:</span> Pode copiar imagens de sites ou do seu computador e <span className="font-bold">Colar (Ctrl+V)</span> diretamente aqui.
+                      <span className="font-bold text-gray-800">Dica:</span> Pode copiar imagens de sites ou código HTML e <span className="font-bold">Colar (Ctrl+V)</span> diretamente aqui.
                   </div>
               </div>
           </div>
