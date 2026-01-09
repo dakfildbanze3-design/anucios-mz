@@ -20,7 +20,12 @@ import {
   LogOut,
   Crown,
   LayoutGrid,
-  Palette
+  Palette,
+  Car,
+  Home,
+  Smartphone,
+  ShoppingBag,
+  Grid
 } from 'lucide-react';
 import { Ad, ScreenName } from '../types';
 import { Session } from '@supabase/supabase-js';
@@ -44,11 +49,11 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
   const [currentLanguage, setCurrentLanguage] = useState<'PT' | 'EN'>('PT');
 
   const categories = [
-    { id: 'all', label: 'Todos' },
-    { id: 'vehicle', label: 'Veículos' },
-    { id: 'real-estate', label: 'Imóveis' },
-    { id: 'electronics', label: 'Eletrônicos' },
-    { id: 'other', label: 'Outros' }
+    { id: 'all', label: 'Todos', icon: Grid },
+    { id: 'vehicle', label: 'Veículos', icon: Car },
+    { id: 'real-estate', label: 'Imóveis', icon: Home },
+    { id: 'electronics', label: 'Eletrónicos', icon: Smartphone },
+    { id: 'other', label: 'Outros', icon: ShoppingBag }
   ];
 
   const filteredAds = ads.filter(ad => {
@@ -93,59 +98,179 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
   const userName = session?.user?.user_metadata?.full_name || session?.user?.email?.split('@')[0];
 
   return (
-    <div className="flex flex-col min-h-screen pb-28 relative bg-background-light">
-      {/* Sticky Header */}
-      <header className="sticky top-0 z-50 bg-surface-light border-b border-gray-200 shadow-sm">
-        <div className="max-w-[1920px] mx-auto">
-          <div className="flex items-center justify-between px-4 py-3">
-            <div className="flex items-center gap-3">
-              <button className="p-2 -ml-2 rounded-full hover:bg-gray-100 text-gray-600 lg:hidden">
-                <Menu size={24} />
-              </button>
-              
-              {/* BRAND LOGO */}
-              <div className="flex items-center gap-1.5 pt-1 cursor-pointer select-none" onClick={() => setActiveCategory('all')}>
-                <div className="relative">
-                  <span className="font-hand text-2xl md:text-3xl text-[#111318] leading-none">Anúncios</span>
-                  <svg viewBox="0 0 100 20" className="absolute -bottom-2 -left-1 w-full h-auto text-[#111318] -rotate-1 opacity-90">
-                     <path d="M2,10 Q40,16 90,4" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" />
-                  </svg>
-                </div>
-                <span className="font-display text-2xl md:text-3xl font-black text-primary italic">MZ</span>
-              </div>
-            </div>
-            
-            {/* Desktop Search - Hidden on mobile, visible on lg */}
-            <div className="hidden lg:block flex-1 max-w-xl px-8">
-              <div className="relative group">
-                <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400 group-focus-within:text-primary transition-colors">
-                  <Search size={20} />
-                </span>
-                <input 
-                  className="w-full py-2.5 pl-10 pr-4 bg-gray-100 border-none rounded-xl text-sm focus:ring-2 focus:ring-primary focus:bg-white placeholder-gray-500 transition-all shadow-inner outline-none" 
-                  placeholder="Pesquisar anúncios..." 
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2">
-              {/* Desktop Create Button */}
-              <button 
-                onClick={() => onNavigate('CREATE_AD')}
-                className="hidden md:flex items-center gap-2 bg-primary hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-bold transition-all shadow-lg shadow-blue-500/20 active:scale-95"
-              >
-                <Plus size={20} />
-                <span>Anunciar</span>
-              </button>
-
+    <div className="flex min-h-screen bg-background-light relative">
+      
+      {/* =======================
+          DESKTOP SIDEBAR 
+         ======================= */}
+      <aside className="hidden lg:flex flex-col w-72 fixed inset-y-0 left-0 bg-white border-r border-gray-200 z-50">
+        {/* Sidebar Header / Logo */}
+        <div className="h-[73px] flex items-center px-6 border-b border-gray-100">
+           <div className="flex items-center gap-1.5 cursor-pointer select-none" onClick={() => setActiveCategory('all')}>
               <div className="relative">
-                {/* Profile Icon Trigger */}
+                <span className="font-hand text-2xl text-[#111318] leading-none">Anúncios</span>
+                <svg viewBox="0 0 100 20" className="absolute -bottom-2 -left-1 w-full h-auto text-[#111318] -rotate-1 opacity-90">
+                    <path d="M2,10 Q40,16 90,4" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" />
+                </svg>
+              </div>
+              <span className="font-display text-2xl font-black text-primary italic">MZ</span>
+            </div>
+        </div>
+
+        {/* Sidebar Content */}
+        <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-6">
+            
+            {/* Create Button */}
+            <button 
+                onClick={() => onNavigate('CREATE_AD')}
+                className="w-full bg-primary hover:bg-blue-700 text-white py-3.5 rounded-xl font-bold transition-all shadow-lg shadow-blue-500/20 active:scale-[0.98] flex items-center justify-center gap-2"
+            >
+                <Plus size={20} />
+                <span>Anunciar Agora</span>
+            </button>
+
+            {/* Menu Links */}
+            <div className="flex flex-col gap-1">
+                <p className="px-3 text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Menu</p>
+                
+                <button 
+                  onClick={() => onNavigate('HOME')}
+                  className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeCategory === 'all' && searchQuery === '' ? 'bg-blue-50 text-primary' : 'text-gray-600 hover:bg-gray-50'}`}
+                >
+                    <Grid size={18} />
+                    <span>Início</span>
+                </button>
+
+                {session && (
+                    <button 
+                        onClick={() => onNavigate('PROFILE')}
+                        className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
+                    >
+                        <User size={18} />
+                        <span>Meu Perfil</span>
+                    </button>
+                )}
+                
+                <button 
+                    onClick={() => onNavigate('FEATURED_ADS')}
+                    className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
+                >
+                    <Zap size={18} />
+                    <span>Destaques</span>
+                </button>
+            </div>
+
+            {/* Categories */}
+            <div className="flex flex-col gap-1">
+                <p className="px-3 text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Categorias</p>
+                {categories.map((cat) => (
+                    <button
+                        key={cat.id}
+                        onClick={() => setActiveCategory(cat.id)}
+                        className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                            activeCategory === cat.id 
+                            ? 'bg-blue-50 text-primary font-bold' 
+                            : 'text-gray-600 hover:bg-gray-50'
+                        }`}
+                    >
+                        <cat.icon size={18} />
+                        <span>{cat.label}</span>
+                    </button>
+                ))}
+            </div>
+
+             {/* Support & Legal */}
+             <div className="mt-auto pt-6 border-t border-gray-100 flex flex-col gap-1">
+                <button onClick={handleSupportClick} className="flex items-center gap-3 px-3 py-2 text-sm text-gray-500 hover:text-gray-900 transition-colors">
+                    <MessageCircle size={16} />
+                    <span>Suporte</span>
+                </button>
+                <button onClick={() => openHelpModal('about')} className="flex items-center gap-3 px-3 py-2 text-sm text-gray-500 hover:text-gray-900 transition-colors">
+                    <Info size={16} />
+                    <span>Sobre</span>
+                </button>
+             </div>
+        </div>
+
+        {/* User Footer Desktop */}
+        <div className="p-4 border-t border-gray-200 bg-gray-50">
+            {session ? (
+                <div className="flex items-center gap-3">
+                    <div className="size-10 rounded-full bg-white border border-gray-200 overflow-hidden shadow-sm shrink-0">
+                        {userAvatar ? (
+                            <img src={userAvatar} alt="Profile" className="w-full h-full object-cover" />
+                        ) : (
+                            <div className="w-full h-full flex items-center justify-center text-gray-400">
+                                <User size={20} />
+                            </div>
+                        )}
+                    </div>
+                    <div className="flex-1 overflow-hidden">
+                        <p className="text-sm font-bold text-gray-900 truncate">{userName}</p>
+                        <button onClick={handleSignOut} className="text-xs text-red-500 hover:text-red-700 font-medium flex items-center gap-1">
+                            <LogOut size={10} /> Sair
+                        </button>
+                    </div>
+                </div>
+            ) : (
+                <button 
+                    onClick={onOpenAuth}
+                    className="w-full bg-gray-900 text-white py-2.5 rounded-lg text-sm font-bold hover:bg-black transition-colors"
+                >
+                    Entrar na Conta
+                </button>
+            )}
+        </div>
+      </aside>
+
+      {/* =======================
+          MAIN CONTENT WRAPPER 
+         ======================= */}
+      <main className="flex-1 flex flex-col min-h-screen w-full lg:pl-72 transition-all">
+        
+        {/* Sticky Header (Mobile + Desktop Search) */}
+        <header className="sticky top-0 z-40 bg-surface-light border-b border-gray-200 shadow-sm">
+          <div className="max-w-[1920px] mx-auto">
+            <div className="flex items-center justify-between px-4 py-3 gap-4">
+              
+              {/* Mobile: Menu & Logo (Hidden on LG) */}
+              <div className="flex items-center gap-3 lg:hidden">
+                <button className="p-2 -ml-2 rounded-full hover:bg-gray-100 text-gray-600" onClick={() => setIsMenuOpen(true)}>
+                  <Menu size={24} />
+                </button>
+                
+                <div className="flex items-center gap-1.5 pt-1 cursor-pointer select-none" onClick={() => setActiveCategory('all')}>
+                  <div className="relative">
+                    <span className="font-hand text-2xl text-[#111318] leading-none">Anúncios</span>
+                    <svg viewBox="0 0 100 20" className="absolute -bottom-2 -left-1 w-full h-auto text-[#111318] -rotate-1 opacity-90">
+                       <path d="M2,10 Q40,16 90,4" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" />
+                    </svg>
+                  </div>
+                  <span className="font-display text-2xl font-black text-primary italic">MZ</span>
+                </div>
+              </div>
+              
+              {/* Search Bar - Full width on desktop, part of header */}
+              <div className="flex-1 max-w-2xl">
+                <div className="relative group">
+                  <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400 group-focus-within:text-primary transition-colors">
+                    <Search size={20} />
+                  </span>
+                  <input 
+                    className="w-full py-2.5 pl-10 pr-4 bg-gray-100 lg:bg-white lg:border lg:border-gray-200 border-transparent rounded-xl text-sm focus:ring-2 focus:ring-primary focus:border-transparent focus:bg-white placeholder-gray-500 transition-all outline-none" 
+                    placeholder="Pesquisar anúncios..." 
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              {/* Mobile Profile Icon (Hidden on LG since it's in sidebar footer) */}
+              <div className="lg:hidden relative">
                 <button 
                   onClick={() => setIsMenuOpen(!isMenuOpen)}
-                  className="p-1 rounded-full hover:bg-gray-100 transition-all border border-transparent hover:border-gray-200 group"
+                  className="p-1 rounded-full hover:bg-gray-100 transition-all border border-transparent hover:border-gray-200"
                 >
                   <div className={`size-9 rounded-full flex items-center justify-center overflow-hidden shadow-sm border border-gray-200 ${session ? 'bg-white' : 'bg-gray-100 text-gray-500'}`}>
                     {session && userAvatar ? (
@@ -155,381 +280,351 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
                     )}
                   </div>
                 </button>
-
-                {/* Dropdown Menu */}
-                {isMenuOpen && (
-                  <>
-                    <div 
-                      className="fixed inset-0 z-40" 
-                      onClick={() => setIsMenuOpen(false)} 
-                    />
-                    <div className="absolute right-0 top-12 w-72 bg-white rounded-xl shadow-xl border border-gray-100 z-50 overflow-hidden py-2 animate-in fade-in zoom-in-95 duration-200 origin-top-right">
-                      
-                      {/* Auth Section in Menu */}
-                      <div className="px-4 py-4 mb-2 bg-gray-50/50 border-b border-gray-100">
-                        {session ? (
-                          <div className="flex items-center gap-3">
-                             <div className="size-12 rounded-full bg-white border border-gray-200 overflow-hidden shadow-sm shrink-0 flex items-center justify-center text-primary">
-                                {userAvatar ? (
-                                    <img src={userAvatar} alt="Profile" className="w-full h-full object-cover" />
-                                ) : (
-                                    <User size={24} className="fill-blue-50" />
-                                )}
-                             </div>
-                             <div className="overflow-hidden">
-                                <p className="text-sm font-bold text-gray-900 truncate">{userName}</p>
-                                <p className="text-xs text-gray-500 truncate">{session.user.email}</p>
-                             </div>
-                          </div>
-                        ) : (
-                          <div className="text-center">
-                            <p className="text-sm text-gray-600 mb-3">Entre para gerenciar seus anúncios</p>
-                            <button 
-                              onClick={() => {
-                                setIsMenuOpen(false);
-                                onOpenAuth();
-                              }}
-                              className="w-full bg-primary text-white py-2 rounded-lg font-bold text-sm shadow-md shadow-blue-500/20 hover:bg-blue-600 transition-colors"
-                            >
-                              Entrar / Criar Conta
-                            </button>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Menu Items */}
-                      
-                      {session && (
-                        <>
-                            <button 
-                                onClick={() => {
-                                    setIsMenuOpen(false);
-                                    onNavigate('PROFILE');
-                                }}
-                                className="w-full text-left px-4 py-3 hover:bg-blue-50 flex items-center gap-3 text-sm font-medium text-primary bg-blue-50/50 border-b border-blue-100 mb-1"
-                            >
-                                <div className="size-8 rounded-full bg-blue-100 flex items-center justify-center text-primary">
-                                    <LayoutGrid size={18} />
-                                </div>
-                                <span>Meu Perfil & Anúncios</span>
-                            </button>
-                        </>
-                      )}
-
-                      <button 
-                        onClick={toggleLanguage}
-                        className="w-full text-left px-4 py-3 hover:bg-gray-50 flex items-center gap-3 text-sm font-medium text-text-main"
-                      >
-                        <div className="size-8 rounded-full bg-blue-50 flex items-center justify-center text-primary">
-                          <Globe size={18} />
-                        </div>
-                        <div className="flex-1">
-                          <p>Idioma / Language</p>
-                          <p className="text-xs text-text-sub">{currentLanguage === 'PT' ? 'Português' : 'English'}</p>
-                        </div>
-                        <span className="text-xs font-bold bg-gray-100 px-2 py-1 rounded text-gray-600">{currentLanguage}</span>
-                      </button>
-                      
-                      <div className="h-px bg-gray-100 my-1 mx-4"></div>
-
-                      <button 
-                        onClick={() => openHelpModal('tutorial')}
-                        className="w-full text-left px-4 py-3 hover:bg-gray-50 flex items-center gap-3 text-sm font-medium text-text-main"
-                      >
-                         <div className="size-8 rounded-full bg-green-50 flex items-center justify-center text-green-600">
-                          <BookOpen size={18} />
-                        </div>
-                        <span>Tutorial / Como usar</span>
-                      </button>
-
-                      <button 
-                        onClick={handleSupportClick}
-                        className="w-full text-left px-4 py-3 hover:bg-gray-50 flex items-center gap-3 text-sm font-medium text-text-main"
-                      >
-                        <div className="size-8 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600">
-                          <MessageCircle size={18} />
-                        </div>
-                        <div>
-                          <p>Suporte</p>
-                          <p className="text-xs text-text-sub">Fale no WhatsApp</p>
-                        </div>
-                      </button>
-
-                      <button 
-                         onClick={() => openHelpModal('about')}
-                        className="w-full text-left px-4 py-3 hover:bg-gray-50 flex items-center gap-3 text-sm font-medium text-text-main"
-                      >
-                        <div className="size-8 rounded-full bg-purple-50 flex items-center justify-center text-purple-600">
-                          <Info size={18} />
-                        </div>
-                        <span>Sobre & Confiança</span>
-                      </button>
-
-                      {session && (
-                        <>
-                          <div className="h-px bg-gray-100 my-1 mx-4"></div>
-                          <button 
-                            onClick={handleSignOut}
-                            className="w-full text-left px-4 py-3 hover:bg-red-50 flex items-center gap-3 text-sm font-medium text-red-600"
-                          >
-                            <div className="size-8 rounded-full bg-red-50 flex items-center justify-center text-red-600">
-                              <LogOut size={18} />
-                            </div>
-                            <span>Sair da Conta</span>
-                          </button>
-                        </>
-                      )}
-                    </div>
-                  </>
-                )}
               </div>
+
             </div>
           </div>
-          
-          {/* Mobile Search Bar */}
-          <div className="px-4 pb-3 lg:hidden">
-            <div className="relative group">
-              <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400 group-focus-within:text-primary transition-colors">
-                <Search size={20} />
-              </span>
-              <input 
-                className="w-full py-3 pl-10 pr-4 bg-gray-100 border-none rounded-xl text-sm focus:ring-2 focus:ring-primary focus:bg-white placeholder-gray-500 transition-all shadow-inner outline-none" 
-                placeholder="O que você procura?" 
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
-          </div>
-        </div>
-      </header>
+        </header>
 
-      <div className="max-w-[1920px] mx-auto w-full">
-        {/* Categories Chips */}
-        <div className="flex gap-2 overflow-x-auto px-4 py-4 no-scrollbar sticky top-[116px] lg:top-[65px] z-40 bg-background-light/95 backdrop-blur-sm">
-          {categories.map((cat) => (
-            <button 
-              key={cat.id} 
-              onClick={() => setActiveCategory(cat.id)}
-              className={`flex items-center px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-colors ${
-                activeCategory === cat.id 
-                  ? 'bg-primary text-white shadow-md shadow-primary/20' 
-                  : 'bg-white border border-gray-200 text-gray-700 hover:border-primary/50 hover:bg-gray-50'
-              }`}
-            >
-              {cat.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Featured Section */}
-        {featuredAds.length > 0 && (
-          <section className="mt-2 px-4">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl md:text-2xl font-display font-bold text-gray-900 flex items-center gap-2">
-                <Zap className="text-amber-500 fill-amber-500" size={24} />
-                Destaques
-              </h2>
-              <button 
-                onClick={() => onNavigate('FEATURED_ADS')}
-                className="text-sm font-semibold text-primary hover:text-blue-700 transition-colors"
-              >
-                Ver todos
-              </button>
-            </div>
+        {/* Content Body */}
+        <div className="flex-1 w-full max-w-[1920px] mx-auto pb-24 lg:pb-8">
             
-            {/* Grid for desktop, Scroll for mobile. Adjusted columns for wider screens */}
-            <div className="flex gap-4 overflow-x-auto no-scrollbar pb-6 md:grid md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 md:overflow-visible">
-              {featuredAds.map((ad) => (
-                <div 
-                  key={ad.id}
-                  onClick={() => onNavigate('AD_DETAILS', ad)}
-                  className="min-w-[280px] w-[280px] md:w-full bg-white rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.08)] border border-gray-100 overflow-hidden group flex flex-col cursor-pointer hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
+            {/* Mobile Categories Chips (Hidden on LG) */}
+            <div className="lg:hidden flex gap-2 overflow-x-auto px-4 py-4 no-scrollbar sticky top-[65px] z-30 bg-background-light/95 backdrop-blur-sm">
+            {categories.map((cat) => (
+                <button 
+                key={cat.id} 
+                onClick={() => setActiveCategory(cat.id)}
+                className={`flex items-center px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-colors ${
+                    activeCategory === cat.id 
+                    ? 'bg-primary text-white shadow-md shadow-primary/20' 
+                    : 'bg-white border border-gray-200 text-gray-700 hover:border-primary/50 hover:bg-gray-50'
+                }`}
                 >
-                  <div className="relative h-40 md:h-48 w-full overflow-hidden">
-                    <div className="absolute top-3 left-3 bg-white/90 backdrop-blur text-amber-600 text-[10px] font-bold px-2 py-1 rounded shadow-sm z-10 uppercase tracking-wider border border-amber-200 flex items-center gap-1">
-                      <Star size={10} className="fill-amber-600" />
-                      Destaque
-                    </div>
+                {cat.label}
+                </button>
+            ))}
+            </div>
 
-                    {/* Badge Seu Anúncio in Featured */}
-                    {ad.isMyAd && (
-                        <div className="absolute top-3 right-3 bg-gray-900 text-white text-[10px] px-2 py-1 rounded-full font-bold shadow-md z-10">
-                            Seu Anúncio
-                        </div>
-                    )}
-
-                    <div 
-                      className="w-full h-full bg-cover bg-center group-hover:scale-105 transition-transform duration-500 ease-out" 
-                      style={{ backgroundImage: `url(${ad.image})` }}
-                    />
-                  </div>
-                  <div className="p-4 flex flex-col flex-1">
-                    <div className="mb-1">
-                      <h3 className="text-lg font-bold text-gray-900 line-clamp-1">{ad.title}</h3>
-                    </div>
-                    {ad.specs?.design && (
-                      <div className="flex items-center gap-1 text-xs text-gray-500 mb-1">
-                        <Palette size={12} />
-                        <span>{ad.specs.design}</span>
-                      </div>
-                    )}
-                    <p className="text-xl font-black text-primary mb-3">
-                      {ad.currency} {ad.price.toLocaleString('pt-PT')}
-                    </p>
-                    
-                    <div className="flex flex-col gap-1 mb-3">
-                      <div className="flex items-center gap-1 text-xs text-gray-500">
-                        <MapPin size={14} />
-                        <span className="truncate">{ad.location}</span>
-                      </div>
-                      <div className="flex items-center gap-1 text-xs font-bold text-gray-700">
-                        <Phone size={14} />
-                        <span>{ad.contact || '+258 84 123 4567'}</span>
-                      </div>
-                    </div>
-
-                    <div className="mt-auto">
-                      <button 
-                        onClick={(e) => handleWhatsAppClick(e, ad)}
-                        className="w-full flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#1faa53] text-white py-2.5 rounded-xl text-sm font-semibold shadow-lg shadow-green-500/20 active:scale-[0.98] transition-all"
-                      >
-                        <MessageCircle size={16} />
-                        WhatsApp
-                      </button>
-                    </div>
-                  </div>
+            {/* Featured Section */}
+            {featuredAds.length > 0 && (
+            <section className="mt-2 lg:mt-6 px-4 lg:px-6">
+                <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl md:text-2xl font-display font-bold text-gray-900 flex items-center gap-2">
+                    <Zap className="text-amber-500 fill-amber-500" size={24} />
+                    Destaques
+                </h2>
+                <button 
+                    onClick={() => onNavigate('FEATURED_ADS')}
+                    className="text-sm font-semibold text-primary hover:text-blue-700 transition-colors"
+                >
+                    Ver todos
+                </button>
                 </div>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* Main Feed - Recents */}
-        <section className="mt-4 px-4 flex-1">
-          <h2 className="text-xl md:text-2xl font-display font-bold text-gray-900 mb-4 flex items-center gap-2">
-            {activeCategory === 'all' ? 'Recentes' : categories.find(c => c.id === activeCategory)?.label}
-          </h2>
-          
-          {recentAds.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-20 text-gray-500">
-              {featuredAds.length > 0 ? (
-                <>
-                   <CheckCircle2 size={48} className="mb-4 text-gray-300" />
-                   <p className="text-lg font-semibold">Tudo visto!</p>
-                   <p className="text-sm">Veja os destaques acima.</p>
-                </>
-              ) : (
-                <>
-                  <Search size={48} className="mb-4 text-gray-300" />
-                  <p className="text-lg font-semibold">Nenhum anúncio encontrado</p>
-                  <p className="text-sm">Tente mudar os filtros ou a pesquisa.</p>
-                </>
-              )}
-            </div>
-          ) : (
-            // Responsive Grid for Recent Ads - Expanded columns
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 md:gap-6">
-              {recentAds.map((ad) => (
-                <div 
-                  key={ad.id}
-                  onClick={() => onNavigate('AD_DETAILS', ad)}
-                  className={`relative p-3 rounded-2xl shadow-sm border flex sm:flex-col gap-4 h-auto min-h-36 sm:min-h-0 cursor-pointer hover:shadow-md transition-all duration-300 group ${ad.isMyAd ? 'bg-blue-50/50 border-blue-100' : 'bg-white border-gray-100'}`}
-                >
-                  {ad.isMyAd && (
-                    <div className="absolute -top-3 -right-3 z-10">
-                      <span className="bg-gray-900 text-white text-[10px] px-2 py-1 rounded-full font-bold shadow-md">Seu Anúncio</span>
-                    </div>
-                  )}
-                  
-                  <div className="w-32 h-32 sm:w-full sm:h-48 shrink-0 rounded-xl bg-gray-100 overflow-hidden relative">
+                
+                {/* Scroll container on mobile, Grid on desktop */}
+                <div className="flex gap-4 overflow-x-auto no-scrollbar pb-6 md:grid md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 md:overflow-visible">
+                {featuredAds.map((ad) => (
                     <div 
-                      className="w-full h-full bg-cover bg-center group-hover:scale-105 transition-transform duration-500" 
-                      style={{ backgroundImage: `url(${ad.image})` }}
-                    />
-                  </div>
-                  
-                  <div className="flex flex-col justify-between flex-1 py-1">
-                    <div>
-                      <h3 className="text-[15px] font-semibold text-gray-900 line-clamp-2 leading-snug group-hover:text-primary transition-colors">{ad.title}</h3>
-                      {ad.specs?.design && (
-                        <div className="flex items-center gap-1 text-xs text-gray-500 mt-1">
+                    key={ad.id}
+                    onClick={() => onNavigate('AD_DETAILS', ad)}
+                    className="min-w-[280px] w-[280px] md:w-full bg-white rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.08)] border border-gray-100 overflow-hidden group flex flex-col cursor-pointer hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
+                    >
+                    <div className="relative h-40 md:h-44 w-full overflow-hidden">
+                        <div className="absolute top-3 left-3 bg-white/90 backdrop-blur text-amber-600 text-[10px] font-bold px-2 py-1 rounded shadow-sm z-10 uppercase tracking-wider border border-amber-200 flex items-center gap-1">
+                        <Star size={10} className="fill-amber-600" />
+                        Destaque
+                        </div>
+
+                        {ad.isMyAd && (
+                            <div className="absolute top-3 right-3 bg-gray-900 text-white text-[10px] px-2 py-1 rounded-full font-bold shadow-md z-10">
+                                Seu Anúncio
+                            </div>
+                        )}
+
+                        <div 
+                        className="w-full h-full bg-cover bg-center group-hover:scale-105 transition-transform duration-500 ease-out" 
+                        style={{ backgroundImage: `url(${ad.image})` }}
+                        />
+                    </div>
+                    <div className="p-4 flex flex-col flex-1">
+                        <div className="mb-1">
+                        <h3 className="text-base font-bold text-gray-900 line-clamp-1">{ad.title}</h3>
+                        </div>
+                        {ad.specs?.design && (
+                        <div className="flex items-center gap-1 text-xs text-gray-500 mb-1">
                             <Palette size={12} />
                             <span>{ad.specs.design}</span>
                         </div>
-                      )}
-                      <div className="flex flex-col gap-1 mt-1.5">
+                        )}
+                        <p className="text-lg font-black text-primary mb-3">
+                        {ad.currency} {ad.price.toLocaleString('pt-PT')}
+                        </p>
+                        
+                        <div className="flex flex-col gap-1 mb-3">
                         <div className="flex items-center gap-1 text-xs text-gray-500">
-                          <Clock size={12} />
-                          {ad.timeAgo}
+                            <MapPin size={14} />
+                            <span className="truncate">{ad.location}</span>
                         </div>
-                        <div className="flex items-center gap-1 text-xs font-bold text-gray-600">
-                          <Phone size={12} />
-                          <span>{ad.contact || '+258 84 123 4567'}</span>
                         </div>
-                      </div>
+
+                        <div className="mt-auto">
+                        <button 
+                            onClick={(e) => handleWhatsAppClick(e, ad)}
+                            className="w-full flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#1faa53] text-white py-2 rounded-lg text-sm font-semibold shadow-lg shadow-green-500/20 active:scale-[0.98] transition-all"
+                        >
+                            <MessageCircle size={16} />
+                            WhatsApp
+                        </button>
+                        </div>
+                    </div>
+                    </div>
+                ))}
+                </div>
+            </section>
+            )}
+
+            {/* Main Feed - Recents */}
+            <section className="mt-4 px-4 lg:px-6 flex-1">
+            <h2 className="text-xl md:text-2xl font-display font-bold text-gray-900 mb-4 flex items-center gap-2">
+                {activeCategory === 'all' ? 'Recentes' : categories.find(c => c.id === activeCategory)?.label}
+            </h2>
+            
+            {recentAds.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-20 text-gray-500 bg-white rounded-2xl border border-dashed border-gray-200">
+                {featuredAds.length > 0 ? (
+                    <>
+                    <CheckCircle2 size={48} className="mb-4 text-gray-300" />
+                    <p className="text-lg font-semibold">Tudo visto!</p>
+                    <p className="text-sm">Veja os destaques acima.</p>
+                    </>
+                ) : (
+                    <>
+                    <Search size={48} className="mb-4 text-gray-300" />
+                    <p className="text-lg font-semibold">Nenhum anúncio encontrado</p>
+                    <p className="text-sm">Tente mudar os filtros ou a pesquisa.</p>
+                    </>
+                )}
+                </div>
+            ) : (
+                // Responsive Grid for Recent Ads
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
+                {recentAds.map((ad) => (
+                    <div 
+                    key={ad.id}
+                    onClick={() => onNavigate('AD_DETAILS', ad)}
+                    className={`relative p-3 rounded-2xl shadow-sm border flex sm:flex-col gap-4 h-auto min-h-36 sm:min-h-0 cursor-pointer hover:shadow-md transition-all duration-300 group ${ad.isMyAd ? 'bg-blue-50/50 border-blue-100' : 'bg-white border-gray-100'}`}
+                    >
+                    {ad.isMyAd && (
+                        <div className="absolute -top-3 -right-3 z-10">
+                        <span className="bg-gray-900 text-white text-[10px] px-2 py-1 rounded-full font-bold shadow-md">Seu Anúncio</span>
+                        </div>
+                    )}
+                    
+                    <div className="w-32 h-32 sm:w-full sm:h-44 shrink-0 rounded-xl bg-gray-100 overflow-hidden relative">
+                        <div 
+                        className="w-full h-full bg-cover bg-center group-hover:scale-105 transition-transform duration-500" 
+                        style={{ backgroundImage: `url(${ad.image})` }}
+                        />
                     </div>
                     
-                    <div className="mt-2 sm:mt-4">
-                      <p className="text-base font-bold text-primary">
-                        {ad.currency} {ad.price.toLocaleString('pt-PT')}
-                      </p>
-                      
-                      {ad.isMyAd ? (
-                        <>
-                           {!ad.isFeatured ? (
-                            <button 
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                onNavigate('BOOST_AD', ad);
-                              }}
-                              className="w-full mt-2 group flex flex-col md:flex-row items-center justify-center gap-0.5 md:gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white py-1.5 px-3 rounded-lg shadow-md shadow-blue-500/20 active:scale-95 transition-all"
-                            >
-                              <div className="flex items-center gap-1.5">
-                                <Rocket size={14} />
-                                <span className="text-xs font-bold">Destacar</span>
-                              </div>
-                            </button>
-                           ) : (
-                             <div className="w-full mt-2 flex items-center justify-center gap-1.5 bg-amber-50 text-amber-600 py-1.5 px-3 rounded-lg border border-amber-100">
-                                <Crown size={14} className="fill-amber-600" />
-                                <span className="text-xs font-bold">Premium Ativo</span>
-                             </div>
-                           )}
-                        </>
-                      ) : (
-                        <div className="flex justify-end mt-2 sm:hidden">
-                          {/* Only show circle button on mobile list view, clean text on desktop card usually */}
-                          <button 
-                            onClick={(e) => handleWhatsAppClick(e, ad)}
-                            className="size-10 rounded-full bg-green-50 flex items-center justify-center text-green-600 hover:bg-[#25D366] hover:text-white transition-colors border border-green-100"
-                          >
-                            <MessageCircle size={18} />
-                          </button>
+                    <div className="flex flex-col justify-between flex-1 py-1">
+                        <div>
+                        <h3 className="text-[15px] font-semibold text-gray-900 line-clamp-2 leading-snug group-hover:text-primary transition-colors">{ad.title}</h3>
+                        {ad.specs?.design && (
+                            <div className="flex items-center gap-1 text-xs text-gray-500 mt-1">
+                                <Palette size={12} />
+                                <span>{ad.specs.design}</span>
+                            </div>
+                        )}
+                        <div className="flex flex-col gap-1 mt-1.5">
+                            <div className="flex items-center gap-1 text-xs text-gray-500">
+                            <Clock size={12} />
+                            {ad.timeAgo}
+                            </div>
+                            <div className="flex items-center gap-1 text-xs font-bold text-gray-600">
+                            <Phone size={12} />
+                            <span>{ad.contact || '+258 84 123 4567'}</span>
+                            </div>
                         </div>
-                      )}
+                        </div>
+                        
+                        <div className="mt-2 sm:mt-3">
+                        <p className="text-base font-bold text-primary">
+                            {ad.currency} {ad.price.toLocaleString('pt-PT')}
+                        </p>
+                        
+                        {ad.isMyAd ? (
+                            <>
+                            {!ad.isFeatured ? (
+                                <button 
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    onNavigate('BOOST_AD', ad);
+                                }}
+                                className="w-full mt-2 group flex flex-col md:flex-row items-center justify-center gap-0.5 md:gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white py-1.5 px-3 rounded-lg shadow-md shadow-blue-500/20 active:scale-95 transition-all"
+                                >
+                                <div className="flex items-center gap-1.5">
+                                    <Rocket size={14} />
+                                    <span className="text-xs font-bold">Destacar</span>
+                                </div>
+                                </button>
+                            ) : (
+                                <div className="w-full mt-2 flex items-center justify-center gap-1.5 bg-amber-50 text-amber-600 py-1.5 px-3 rounded-lg border border-amber-100">
+                                    <Crown size={14} className="fill-amber-600" />
+                                    <span className="text-xs font-bold">Premium Ativo</span>
+                                </div>
+                            )}
+                            </>
+                        ) : (
+                            <div className="flex justify-end mt-2 sm:hidden">
+                            <button 
+                                onClick={(e) => handleWhatsAppClick(e, ad)}
+                                className="size-10 rounded-full bg-green-50 flex items-center justify-center text-green-600 hover:bg-[#25D366] hover:text-white transition-colors border border-green-100"
+                            >
+                                <MessageCircle size={18} />
+                            </button>
+                            </div>
+                        )}
+                        </div>
                     </div>
-                  </div>
+                    </div>
+                ))}
                 </div>
-              ))}
-            </div>
-          )}
-        </section>
-      </div>
+            )}
+            </section>
+        </div>
+      </main>
 
-      {/* Floating Action Button - Mobile Only (Desktop has Header Button) */}
-      <div className="md:hidden fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md pointer-events-none z-30 flex justify-end px-5 pb-6">
+      {/* Floating Action Button - Mobile Only */}
+      <div className="lg:hidden fixed bottom-6 left-1/2 -translate-x-1/2 w-full max-w-md pointer-events-none z-30 flex justify-end px-5">
         <button 
           onClick={() => onNavigate('CREATE_AD')}
-          className="pointer-events-auto flex items-center justify-center size-16 rounded-full bg-primary text-white shadow-2xl shadow-blue-600/40 hover:bg-blue-700 active:scale-95 transition-all"
+          className="pointer-events-auto flex items-center justify-center size-14 rounded-full bg-primary text-white shadow-2xl shadow-blue-600/40 hover:bg-blue-700 active:scale-95 transition-all"
         >
-          <Plus size={32} />
+          <Plus size={28} />
         </button>
       </div>
 
-      {/* Help / About Modal */}
+      {/* Mobile Menu Dropdown (Only renders on mobile if open) */}
+      {isMenuOpen && (
+        <>
+            <div 
+                className="lg:hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm" 
+                onClick={() => setIsMenuOpen(false)} 
+            />
+            <div className="lg:hidden fixed inset-y-0 left-0 w-3/4 max-w-xs bg-white shadow-2xl z-50 animate-in slide-in-from-left duration-200 flex flex-col">
+                {/* Mobile Menu Header */}
+                <div className="p-4 border-b border-gray-100 bg-gray-50 flex items-center justify-between">
+                    <h3 className="font-bold text-gray-900">Menu</h3>
+                    <button onClick={() => setIsMenuOpen(false)} className="p-2 -mr-2 text-gray-500">
+                        <X size={20} />
+                    </button>
+                </div>
+                
+                {/* Mobile Menu Auth Section */}
+                <div className="p-4 bg-white border-b border-gray-100">
+                    {session ? (
+                        <div className="flex items-center gap-3">
+                             <div className="size-10 rounded-full bg-gray-100 border border-gray-200 overflow-hidden shrink-0">
+                                {userAvatar ? (
+                                    <img src={userAvatar} alt="Profile" className="w-full h-full object-cover" />
+                                ) : (
+                                    <div className="w-full h-full flex items-center justify-center text-gray-400">
+                                        <User size={20} />
+                                    </div>
+                                )}
+                             </div>
+                             <div>
+                                <p className="font-bold text-sm text-gray-900">{userName}</p>
+                                <p className="text-xs text-gray-500 truncate max-w-[150px]">{session.user.email}</p>
+                             </div>
+                        </div>
+                    ) : (
+                        <button 
+                          onClick={() => {
+                            setIsMenuOpen(false);
+                            onOpenAuth();
+                          }}
+                          className="w-full bg-primary text-white py-2.5 rounded-lg font-bold text-sm shadow-md shadow-blue-500/20"
+                        >
+                          Entrar / Criar Conta
+                        </button>
+                    )}
+                </div>
+
+                {/* Mobile Menu Links */}
+                <div className="flex-1 overflow-y-auto p-2">
+                    {session && (
+                        <button 
+                            onClick={() => {
+                                setIsMenuOpen(false);
+                                onNavigate('PROFILE');
+                            }}
+                            className="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-50 flex items-center gap-3 text-sm font-medium text-gray-700"
+                        >
+                            <LayoutGrid size={18} className="text-primary" />
+                            <span>Meu Perfil</span>
+                        </button>
+                    )}
+                    
+                    <button 
+                        onClick={() => {
+                            setIsMenuOpen(false);
+                            onNavigate('FEATURED_ADS');
+                        }}
+                        className="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-50 flex items-center gap-3 text-sm font-medium text-gray-700"
+                    >
+                        <Zap size={18} className="text-amber-500" />
+                        <span>Destaques</span>
+                    </button>
+                    
+                    <div className="h-px bg-gray-100 my-2 mx-4"></div>
+                    
+                    <button 
+                        onClick={toggleLanguage}
+                        className="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-50 flex items-center gap-3 text-sm font-medium text-gray-700"
+                    >
+                        <Globe size={18} className="text-blue-500" />
+                        <div className="flex-1 flex justify-between">
+                            <span>Idioma</span>
+                            <span className="text-xs font-bold bg-gray-100 px-2 py-0.5 rounded">{currentLanguage}</span>
+                        </div>
+                    </button>
+
+                    <button 
+                         onClick={() => openHelpModal('about')}
+                        className="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-50 flex items-center gap-3 text-sm font-medium text-gray-700"
+                    >
+                        <Info size={18} className="text-purple-500" />
+                        <span>Sobre</span>
+                    </button>
+
+                    <button 
+                        onClick={handleSupportClick}
+                        className="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-50 flex items-center gap-3 text-sm font-medium text-gray-700"
+                    >
+                        <MessageCircle size={18} className="text-green-500" />
+                        <span>Suporte</span>
+                    </button>
+
+                    {session && (
+                         <button 
+                            onClick={handleSignOut}
+                            className="w-full text-left px-4 py-3 rounded-lg hover:bg-red-50 flex items-center gap-3 text-sm font-medium text-red-600 mt-2"
+                        >
+                            <LogOut size={18} />
+                            <span>Sair da Conta</span>
+                        </button>
+                    )}
+                </div>
+            </div>
+        </>
+      )}
+
+      {/* Help / About Modal (Same as before) */}
       {isHelpModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 sm:p-0">
+        <div className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center p-4 sm:p-0">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsHelpModalOpen(false)}></div>
           <div className="relative w-full max-w-md bg-white rounded-2xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl animate-in slide-in-from-bottom duration-300">
             {/* Modal Content */}
