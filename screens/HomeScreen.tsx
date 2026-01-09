@@ -6,31 +6,31 @@ import {
   MapPin, 
   Phone, 
   Clock, 
-  Rocket,
-  Star,
-  MoreVertical,
-  Globe,
-  BookOpen,
-  MessageCircle,
-  Info,
-  X,
-  CheckCircle2,
-  Plus,
-  User,
-  LogOut,
-  Crown,
-  LayoutGrid,
-  Palette,
-  Car,
-  Home,
-  Smartphone,
-  ShoppingBag,
-  Grid,
-  Download,
-  Share,
-  Smartphone as MobileIcon,
-  Monitor,
-  Laptop
+  Rocket, 
+  Star, 
+  MoreVertical, 
+  Globe, 
+  BookOpen, 
+  MessageCircle, 
+  Info, 
+  X, 
+  CheckCircle2, 
+  Plus, 
+  User, 
+  LogOut, 
+  Crown, 
+  LayoutGrid, 
+  Palette, 
+  Car, 
+  Home, 
+  Smartphone, 
+  ShoppingBag, 
+  Grid, 
+  Download, 
+  Share, 
+  Smartphone as MobileIcon, 
+  Monitor, 
+  Laptop 
 } from 'lucide-react';
 import { Ad, ScreenName } from '../types';
 import { Session } from '@supabase/supabase-js';
@@ -282,55 +282,58 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
         {/* Sticky Header (Mobile + Desktop Search) */}
         <header className="sticky top-0 z-40 bg-surface-light border-b border-gray-200 shadow-sm">
           <div className="max-w-[1920px] mx-auto">
-            <div className="flex items-center justify-between px-4 py-3 gap-4">
+            {/* Flex Container: Column on Mobile to stack Search below Logo, Row on Desktop */}
+            <div className="flex flex-col lg:flex-row lg:items-center px-4 py-3 gap-3 lg:gap-0">
               
-              {/* Mobile: Menu & Logo (Hidden on LG) */}
-              <div className="flex items-center gap-3 lg:hidden">
-                <button className="p-2 -ml-2 rounded-full hover:bg-gray-100 text-gray-600" onClick={() => setIsMenuOpen(true)}>
-                  <Menu size={24} />
-                </button>
-                
-                <div className="flex items-center gap-1.5 pt-1 cursor-pointer select-none" onClick={() => setActiveCategory('all')}>
-                  <div className="relative">
-                    <span className="font-hand text-2xl text-[#111318] leading-none">Anúncios</span>
-                    <svg viewBox="0 0 100 20" className="absolute -bottom-2 -left-1 w-full h-auto text-[#111318] -rotate-1 opacity-90">
-                       <path d="M2,10 Q40,16 90,4" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" />
-                    </svg>
+              {/* Mobile Top Row: Menu + Logo + Profile (Hidden on LG) */}
+              <div className="flex items-center justify-between w-full lg:hidden">
+                  <div className="flex items-center gap-2 shrink-0">
+                    <button className="p-2 -ml-2 rounded-full hover:bg-gray-100 text-gray-600" onClick={() => setIsMenuOpen(true)}>
+                      <Menu size={24} />
+                    </button>
+                    
+                    <div className="flex items-center gap-1.5 pt-1 cursor-pointer select-none" onClick={() => setActiveCategory('all')}>
+                      <div className="relative">
+                        <span className="font-hand text-2xl text-[#111318] leading-none">Anúncios</span>
+                        <svg viewBox="0 0 100 20" className="absolute -bottom-2 -left-1 w-full h-auto text-[#111318] -rotate-1 opacity-90">
+                           <path d="M2,10 Q40,16 90,4" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" />
+                        </svg>
+                      </div>
+                      <span className="font-display text-2xl font-black text-primary italic">MZ</span>
+                    </div>
                   </div>
-                  <span className="font-display text-2xl font-black text-primary italic">MZ</span>
-                </div>
+
+                  {/* Mobile Profile Icon */}
+                  <div className="relative shrink-0">
+                    <button 
+                      onClick={() => setIsMenuOpen(!isMenuOpen)}
+                      className="p-1 rounded-full hover:bg-gray-100 transition-all border border-transparent hover:border-gray-200"
+                    >
+                      <div className={`size-10 rounded-full flex items-center justify-center overflow-hidden shadow-sm border border-gray-200 ${session ? 'bg-white' : 'bg-gray-100 text-gray-500'}`}>
+                        {session && userAvatar ? (
+                            <img src={userAvatar} alt="Profile" className="w-full h-full object-cover" />
+                        ) : (
+                            <User size={20} className={session ? "text-primary fill-primary/10" : "fill-current"} />
+                        )}
+                      </div>
+                    </button>
+                  </div>
               </div>
               
-              {/* Search Bar - Full width on desktop, part of header */}
-              <div className="flex-1 max-w-2xl">
+              {/* Search Bar - Row 2 on Mobile, Row 1 (Centered/Expanded) on Desktop */}
+              <div className="w-full lg:flex-1 lg:max-w-2xl lg:mx-auto">
                 <div className="relative group">
                   <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400 group-focus-within:text-primary transition-colors">
-                    <Search size={20} />
+                    <Search size={18} />
                   </span>
                   <input 
-                    className="w-full py-2.5 pl-10 pr-4 bg-gray-100 lg:bg-white lg:border lg:border-gray-200 border-transparent rounded-xl text-sm focus:ring-2 focus:ring-primary focus:border-transparent focus:bg-white placeholder-gray-500 transition-all outline-none" 
-                    placeholder="Pesquisar anúncios..." 
+                    className="w-full py-2.5 pl-9 pr-4 bg-gray-100 lg:bg-white lg:border lg:border-gray-200 border-transparent rounded-xl text-sm focus:ring-2 focus:ring-primary focus:border-transparent focus:bg-white placeholder-gray-500 transition-all outline-none" 
+                    placeholder="Pesquisar..." 
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
                 </div>
-              </div>
-
-              {/* Mobile Profile Icon (Hidden on LG since it's in sidebar footer) */}
-              <div className="lg:hidden relative">
-                <button 
-                  onClick={() => setIsMenuOpen(!isMenuOpen)}
-                  className="p-1 rounded-full hover:bg-gray-100 transition-all border border-transparent hover:border-gray-200"
-                >
-                  <div className={`size-9 rounded-full flex items-center justify-center overflow-hidden shadow-sm border border-gray-200 ${session ? 'bg-white' : 'bg-gray-100 text-gray-500'}`}>
-                    {session && userAvatar ? (
-                        <img src={userAvatar} alt="Profile" className="w-full h-full object-cover" />
-                    ) : (
-                        <User size={20} className={session ? "text-primary fill-primary/10" : "fill-current"} />
-                    )}
-                  </div>
-                </button>
               </div>
 
             </div>
@@ -341,7 +344,8 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
         <div className="flex-1 w-full max-w-[1920px] mx-auto pb-24 lg:pb-8">
             
             {/* Mobile Categories Chips (Hidden on LG) */}
-            <div className="lg:hidden flex gap-2 overflow-x-auto px-4 py-4 no-scrollbar sticky top-[65px] z-30 bg-background-light/95 backdrop-blur-sm">
+            {/* Adjusted sticky top position to account for the taller 2-row header on mobile (approx 120px) */}
+            <div className="lg:hidden flex gap-2 overflow-x-auto px-4 py-4 no-scrollbar sticky top-[120px] z-30 bg-background-light/95 backdrop-blur-sm">
             {categories.map((cat) => (
                 <button 
                 key={cat.id} 
