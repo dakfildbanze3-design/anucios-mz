@@ -1,5 +1,7 @@
 {
-  "name": "Copy of Classificados MZ",
+  "name": "Anúncios MZ",
   "description": "A comprehensive classifieds application for buying and selling vehicles, real estate, and electronics with premium ad boosting features.",
-  "requestFramePermissions": []
+  "requestFramePermissions": [
+    "camera"
+  ]
 }

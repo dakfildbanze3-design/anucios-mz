@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { 
   ArrowLeft, 
   Camera, 
@@ -6,14 +6,16 @@ import {
   Rocket, 
   Phone, 
   X, 
-  ImagePlus, 
   Zap, 
   Car, 
   Home, 
   Smartphone, 
-  Loader2,
-  MapPin,
-  Palette
+  Loader2, 
+  MapPin, 
+  Palette,
+  Link as LinkIcon,
+  Copy,
+  ImagePlus
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { Ad } from '../types';
@@ -33,8 +35,9 @@ export const CreateAdScreen: React.FC<CreateAdScreenProps> = ({
   onBoost 
 }) => {
   const { showToast } = useToast();
-  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
-  const [imageFiles, setImageFiles] = useState<File[]>([]);
+  
+  // Unified Media State (Files + URLs)
+  const [mediaItems, setMediaItems] = useState<{ url: string; file?: File }[]>([]);
   
   const [title, setTitle] = useState('');
   const [price, setPrice] = useState('');
@@ -50,27 +53,103 @@ export const CreateAdScreen: React.FC<CreateAdScreenProps> = ({
   const [transmission, setTransmission] = useState('');
   const [mileage, setMileage] = useState('');
   const [specType, setSpecType] = useState(''); 
-  const [design, setDesign] = useState(''); // New Design State
+  const [design, setDesign] = useState('');
   
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Paste Event Listener
+  useEffect(() => {
+    const handlePaste = (e: ClipboardEvent) => {
+      try {
+        let foundImages = false;
+
+        // 1. Handle Files (Images copied directly to clipboard from file system)
+        if (e.clipboardData?.files.length) {
+          const files = Array.from(e.clipboardData.files).filter(f => f.type.startsWith('image/'));
+          if (files.length > 0) {
+              const newItems = files.map(file => ({
+                  url: URL.createObjectURL(file),
+                  file: file
+              }));
+              setMediaItems(prev => [...prev, ...newItems].slice(0, 10));
+              showToast(`${files.length} imagem(ns) colada(s)!`, 'success');
+              foundImages = true;
+          }
+        } 
+        
+        // 2. Handle HTML (Copying selection from a website)
+        // This allows users to select content on a webpage, copy, and paste here to extract all images.
+        const html = e.clipboardData?.getData('text/html');
+        if (!foundImages && html) {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const images = doc.querySelectorAll('img');
+            const newUrls: string[] = [];
+
+            images.forEach(img => {
+                // Filter out tiny icons or tracking pixels often found in HTML
+                if (img.src && (img.src.startsWith('http') || img.src.startsWith('data:image'))) {
+                    // Basic filter to avoid tracking pixels (optional refinement)
+                    newUrls.push(img.src);
+                }
+            });
+
+            if (newUrls.length > 0) {
+                setMediaItems(prev => {
+                    const existingCount = prev.length;
+                    const availableSlots = 10 - existingCount;
+                    const toAdd = newUrls.slice(0, availableSlots).map(url => ({ url }));
+                    return [...prev, ...toAdd];
+                });
+                showToast(`${newUrls.length} imagens extraídas do HTML!`, 'success');
+                foundImages = true;
+            }
+        }
+
+        // 3. Handle Text URL (Copying a specific image link)
+        if (!foundImages) {
+            const text = e.clipboardData?.getData('text');
+            if (text) {
+                // Simple check if it looks like a URL or Data URI
+                if (text.startsWith('http') || text.startsWith('data:image')) {
+                    setMediaItems(prev => [...prev, { url: text }].slice(0, 10));
+                    showToast("Link de imagem adicionado!", 'success');
+                }
+            }
+        }
+      } catch (err) {
+        console.error("Paste error:", err);
+      }
+    };
+    
+    window.addEventListener('paste', handlePaste);
+    return () => window.removeEventListener('paste', handlePaste);
+  }, [showToast]);
 
   const handleTriggerUpload = () => {
     fileInputRef.current?.click();
   };
 
+  const handleTriggerUrl = () => {
+    const url = window.prompt("Insira o link da imagem (URL):");
+    if (url && (url.startsWith('http') || url.startsWith('data:'))) {
+        setMediaItems(prev => [...prev, { url }].slice(0, 10));
+    }
+  };
+
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (files && files.length > 0) {
-      const newPreviews = Array.from(files).map((file: File) => URL.createObjectURL(file));
-      setImagePreviews(prev => [...prev, ...newPreviews].slice(0, 10));
-      const newFiles = Array.from(files);
-      setImageFiles(prev => [...prev, ...newFiles].slice(0, 10));
+      const newItems = Array.from(files).map((file: File) => ({
+        url: URL.createObjectURL(file),
+        file: file
+      }));
+      setMediaItems(prev => [...prev, ...newItems].slice(0, 10));
     }
   };
 
   const removeImage = (indexToRemove: number) => {
-    setImagePreviews(prev => prev.filter((_, index) => index !== indexToRemove));
-    setImageFiles(prev => prev.filter((_, index) => index !== indexToRemove));
+    setMediaItems(prev => prev.filter((_, index) => index !== indexToRemove));
   };
 
   const handlePublishClick = (e: React.FormEvent) => {
@@ -79,8 +158,8 @@ export const CreateAdScreen: React.FC<CreateAdScreenProps> = ({
       showToast("Preencha Título, Preço e Categoria.", "error");
       return;
     }
-    if (imageFiles.length === 0) {
-        showToast("Adicione pelo menos uma foto.", "error");
+    if (mediaItems.length === 0) {
+        showToast("Adicione pelo menos uma foto ou link.", "error");
         return;
     }
     setShowUpsellModal(true);
@@ -98,25 +177,30 @@ export const CreateAdScreen: React.FC<CreateAdScreenProps> = ({
 
       const uploadedImageUrls: string[] = [];
 
-      // 1. Upload All Images
-      if (imageFiles.length > 0) {
-        for (const file of imageFiles) {
-            const fileExt = file.name.split('.').pop();
-            const safeName = file.name.replace(/[^a-zA-Z0-9]/g, '_'); 
-            const fileName = `${Date.now()}_${Math.floor(Math.random() * 1000)}_${safeName}.${fileExt}`;
-            const filePath = `${fileName}`;
+      // 1. Process Images (Upload Files, Keep URLs)
+      if (mediaItems.length > 0) {
+        for (const item of mediaItems) {
+            if (item.file) {
+                // Upload File
+                const fileExt = item.file.name.split('.').pop();
+                const safeName = item.file.name.replace(/[^a-zA-Z0-9]/g, '_'); 
+                const fileName = `${Date.now()}_${Math.floor(Math.random() * 1000)}_${safeName}.${fileExt}`;
+                
+                const { error: uploadError } = await supabase.storage
+                .from('ad-images')
+                .upload(fileName, item.file);
 
-            const { error: uploadError } = await supabase.storage
-            .from('ad-images')
-            .upload(filePath, file);
+                if (uploadError) throw uploadError;
 
-            if (uploadError) throw uploadError;
+                const { data: { publicUrl } } = supabase.storage
+                .from('ad-images')
+                .getPublicUrl(fileName);
 
-            const { data: { publicUrl } } = supabase.storage
-            .from('ad-images')
-            .getPublicUrl(filePath);
-
-            uploadedImageUrls.push(publicUrl);
+                uploadedImageUrls.push(publicUrl);
+            } else {
+                // Use URL directly
+                uploadedImageUrls.push(item.url);
+            }
         }
       }
 
@@ -153,7 +237,7 @@ export const CreateAdScreen: React.FC<CreateAdScreenProps> = ({
         images: uploadedImageUrls,
         specs: Object.keys(specs).length > 0 ? specs : null,
         is_featured: false,
-        user_id: user.id // Explicitly bind ad to user
+        user_id: user.id
       };
 
       const { data, error: insertError } = await supabase
@@ -175,7 +259,7 @@ export const CreateAdScreen: React.FC<CreateAdScreenProps> = ({
         isFeatured: data.is_featured,
         isMyAd: true,
         timeAgo: 'Agora mesmo',
-        createdAt: new Date().toISOString(), // Use Current Time immediately
+        createdAt: new Date().toISOString(),
         category: data.category,
         specs: data.specs,
         contact: data.contact,
@@ -202,7 +286,6 @@ export const CreateAdScreen: React.FC<CreateAdScreenProps> = ({
 
   return (
     <div className="bg-background-light min-h-screen py-0 md:py-8 font-display">
-      {/* Changed max-w-2xl to max-w-4xl */}
       <div className="relative flex flex-col max-w-4xl mx-auto bg-gray-50 md:bg-white md:shadow-xl md:rounded-2xl overflow-hidden">
         {/* Top App Bar */}
         <header className="sticky top-0 z-10 flex items-center justify-between px-4 py-3 bg-white shadow-sm border-b border-gray-100">
@@ -229,26 +312,42 @@ export const CreateAdScreen: React.FC<CreateAdScreenProps> = ({
           {/* IMAGE SECTION */}
           <div className="p-4 bg-white mb-3 md:mb-6 md:rounded-b-2xl">
               <div className="flex items-center justify-between mb-3">
-                  <h3 className="font-bold text-gray-900 text-sm">Fotos do Anúncio</h3>
-                  <span className="text-xs text-gray-500">{imagePreviews.length}/10 fotos</span>
+                  <h3 className="font-bold text-gray-900 text-sm flex items-center gap-2">
+                    <ImagePlus size={18} className="text-primary"/>
+                    Fotos do Anúncio
+                  </h3>
+                  <span className="text-xs text-gray-500 font-medium">{mediaItems.length}/10 fotos</span>
               </div>
               
               <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
                   <button 
                       onClick={handleTriggerUpload}
-                      className="aspect-square rounded-xl bg-gray-50 border-2 border-dashed border-gray-300 flex flex-col items-center justify-center gap-1 text-primary hover:bg-blue-50 hover:border-blue-200 transition-all active:scale-95"
+                      type="button"
+                      className="aspect-square rounded-xl bg-blue-50/50 border-2 border-dashed border-blue-200 flex flex-col items-center justify-center gap-1 text-primary hover:bg-blue-50 hover:border-blue-300 transition-all active:scale-95 group"
                   >
-                      <div className="p-2 bg-white rounded-full shadow-sm">
+                      <div className="p-2 bg-white rounded-full shadow-sm group-hover:scale-110 transition-transform">
                           <Camera size={20} />
                       </div>
-                      <span className="text-[10px] font-bold text-gray-600 uppercase">Adicionar</span>
+                      <span className="text-[10px] font-bold text-gray-600 uppercase">Camera</span>
                   </button>
 
-                  {imagePreviews.map((img, idx) => (
-                      <div key={idx} className="relative aspect-square rounded-xl overflow-hidden bg-gray-100 border border-gray-100 shadow-sm group">
-                          <img src={img} alt={`Preview ${idx}`} className="w-full h-full object-cover" />
+                  <button 
+                      onClick={handleTriggerUrl}
+                      type="button"
+                      className="aspect-square rounded-xl bg-gray-50 border-2 border-dashed border-gray-300 flex flex-col items-center justify-center gap-1 text-primary hover:bg-gray-100 hover:border-gray-400 transition-all active:scale-95 group"
+                  >
+                      <div className="p-2 bg-white rounded-full shadow-sm group-hover:scale-110 transition-transform">
+                          <LinkIcon size={20} className="text-gray-600" />
+                      </div>
+                      <span className="text-[10px] font-bold text-gray-600 uppercase">Link URL</span>
+                  </button>
+
+                  {mediaItems.map((item, idx) => (
+                      <div key={idx} className="relative aspect-square rounded-xl overflow-hidden bg-gray-100 border border-gray-200 shadow-sm group animate-in zoom-in-50 duration-200">
+                          <img src={item.url} alt={`Preview ${idx}`} className="w-full h-full object-cover" />
                           <button 
                               onClick={() => removeImage(idx)}
+                              type="button"
                               className="absolute top-1 right-1 bg-black/60 text-white rounded-full p-1 backdrop-blur-sm hover:bg-red-500 transition-colors"
                           >
                               <X size={12} />
@@ -261,11 +360,15 @@ export const CreateAdScreen: React.FC<CreateAdScreenProps> = ({
                       </div>
                   ))}
               </div>
-              {imagePreviews.length === 0 && (
-                  <p className="text-xs text-gray-400 mt-2 text-center py-2">
-                      A primeira foto será a capa do seu anúncio.
-                  </p>
-              )}
+              
+              <div className="mt-3 bg-blue-50/50 border border-blue-100 rounded-lg p-3 flex gap-3 items-center">
+                  <div className="shrink-0 bg-white p-1.5 rounded-full shadow-sm text-primary">
+                      <Copy size={16} />
+                  </div>
+                  <div className="text-xs text-gray-600">
+                      <span className="font-bold text-gray-800">Dica:</span> Pode copiar imagens de sites ou do seu computador e <span className="font-bold">Colar (Ctrl+V)</span> diretamente aqui.
+                  </div>
+              </div>
           </div>
 
           <div className="md:px-4 flex flex-col gap-3">

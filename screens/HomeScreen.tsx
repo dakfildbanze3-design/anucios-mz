@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Menu, 
   Search, 
@@ -25,7 +25,12 @@ import {
   Home,
   Smartphone,
   ShoppingBag,
-  Grid
+  Grid,
+  Download,
+  Share,
+  Smartphone as MobileIcon,
+  Monitor,
+  Laptop
 } from 'lucide-react';
 import { Ad, ScreenName } from '../types';
 import { Session } from '@supabase/supabase-js';
@@ -47,6 +52,45 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
   const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
   const [activeModalTab, setActiveModalTab] = useState<'tutorial' | 'about'>('tutorial');
   const [currentLanguage, setCurrentLanguage] = useState<'PT' | 'EN'>('PT');
+
+  // PWA Install State
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [isInstallModalOpen, setIsInstallModalOpen] = useState(false);
+  const [isStandalone, setIsStandalone] = useState(false);
+
+  useEffect(() => {
+    // Check if app is already installed (Standalone mode)
+    const isStandaloneMode = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone;
+    setIsStandalone(isStandaloneMode);
+
+    const handleBeforeInstallPrompt = (e: any) => {
+      // Prevent the mini-infobar from appearing on mobile
+      e.preventDefault();
+      // Stash the event so it can be triggered later.
+      setDeferredPrompt(e);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    };
+  }, []);
+
+  const handleInstallClick = async () => {
+    if (deferredPrompt) {
+      // Show the install prompt if available (Android/Chrome)
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') {
+        setDeferredPrompt(null);
+      }
+    } else {
+      // Show manual instructions (iOS / Other browsers / PC manual)
+      setIsInstallModalOpen(true);
+      setIsMenuOpen(false); // Close menu if open
+    }
+  };
 
   const categories = [
     { id: 'all', label: 'Todos', icon: Grid },
@@ -181,6 +225,13 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
 
              {/* Support & Legal */}
              <div className="mt-auto pt-6 border-t border-gray-100 flex flex-col gap-1">
+                {!isStandalone && (
+                  <button onClick={handleInstallClick} className="flex items-center gap-3 px-3 py-2 text-sm text-primary font-bold bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors mb-2">
+                    <Download size={16} />
+                    <span>Instalar App</span>
+                  </button>
+                )}
+                
                 <button onClick={handleSupportClick} className="flex items-center gap-3 px-3 py-2 text-sm text-gray-500 hover:text-gray-900 transition-colors">
                     <MessageCircle size={16} />
                     <span>Suporte</span>
@@ -516,7 +567,15 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
             <div className="lg:hidden fixed inset-y-0 left-0 w-3/4 max-w-xs bg-white shadow-2xl z-50 animate-in slide-in-from-left duration-200 flex flex-col">
                 {/* Mobile Menu Header */}
                 <div className="p-4 border-b border-gray-100 bg-gray-50 flex items-center justify-between">
-                    <h3 className="font-bold text-gray-900">Menu</h3>
+                    <div className="flex items-center gap-1.5">
+                         <div className="relative">
+                            <span className="font-hand text-xl text-[#111318] leading-none">Anúncios</span>
+                            <svg viewBox="0 0 100 20" className="absolute -bottom-2 -left-1 w-full h-auto text-[#111318] -rotate-1 opacity-90">
+                                <path d="M2,10 Q40,16 90,4" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" />
+                            </svg>
+                         </div>
+                         <span className="font-display text-xl font-black text-primary italic">MZ</span>
+                    </div>
                     <button onClick={() => setIsMenuOpen(false)} className="p-2 -mr-2 text-gray-500">
                         <X size={20} />
                     </button>
@@ -555,6 +614,16 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
 
                 {/* Mobile Menu Links */}
                 <div className="flex-1 overflow-y-auto p-2">
+                    {!isStandalone && (
+                       <button 
+                           onClick={handleInstallClick}
+                           className="w-full text-left px-4 py-3 rounded-lg hover:bg-blue-50 flex items-center gap-3 text-sm font-bold text-primary mb-2 bg-blue-50/50"
+                       >
+                           <Download size={18} />
+                           <span>Instalar Aplicativo</span>
+                       </button>
+                    )}
+
                     {session && (
                         <button 
                             onClick={() => {
@@ -620,6 +689,74 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
                 </div>
             </div>
         </>
+      )}
+
+      {/* Manual Install Instructions Modal (Updated for PC & iOS) */}
+      {isInstallModalOpen && (
+        <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsInstallModalOpen(false)}></div>
+          <div className="relative w-full max-w-sm bg-white rounded-2xl overflow-hidden shadow-2xl animate-in zoom-in-95 p-6">
+            <div className="flex justify-between items-start mb-4">
+              <h3 className="text-lg font-bold text-gray-900">Instalar Aplicativo</h3>
+              <button onClick={() => setIsInstallModalOpen(false)} className="p-1 rounded-full hover:bg-gray-100">
+                <X size={20} className="text-gray-500" />
+              </button>
+            </div>
+            
+            <div className="space-y-6">
+                {/* PC Instructions */}
+                <div className="bg-blue-50 p-4 rounded-xl border border-blue-100 hidden md:block">
+                    <h4 className="font-bold text-gray-900 mb-2 flex items-center gap-2">
+                        <Monitor size={18} className="text-primary" /> 
+                        Computador (Chrome/Edge)
+                    </h4>
+                    <p className="text-sm text-gray-600 mb-2 leading-relaxed">
+                        1. Procure o ícone de instalação na <strong>barra de endereço</strong> (canto direito do navegador).
+                    </p>
+                    <div className="text-xs text-gray-500 bg-white p-2 rounded border border-gray-200">
+                        Ou vá em: <strong>Menu (⋮)</strong> &gt; Salvar e Partilhar &gt; Instalar Anúncios MZ
+                    </div>
+                </div>
+
+                {/* Mobile Instructions (iPhone/iOS) */}
+                <div className="md:hidden">
+                    <p className="text-sm text-gray-600 mb-4">
+                    Para instalar no iPhone ou iPad:
+                    </p>
+                    <div className="space-y-4">
+                    <div className="flex gap-4 items-start">
+                        <div className="size-8 rounded-full bg-gray-100 flex items-center justify-center shrink-0">
+                        <Share size={16} className="text-primary" />
+                        </div>
+                        <div>
+                        <p className="text-sm font-bold text-gray-900">1. Toque em Partilhar</p>
+                        <p className="text-xs text-gray-500">No ícone de partilha na barra inferior.</p>
+                        </div>
+                    </div>
+
+                    <div className="flex gap-4 items-start">
+                        <div className="size-8 rounded-full bg-gray-100 flex items-center justify-center shrink-0">
+                        <Plus size={16} className="text-primary" />
+                        </div>
+                        <div>
+                        <p className="text-sm font-bold text-gray-900">2. Adicionar ao Ecrã Principal</p>
+                        <p className="text-xs text-gray-500">Role para baixo e selecione esta opção.</p>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+            </div>
+
+             <div className="mt-6 pt-4 border-t border-gray-100">
+               <button 
+                 onClick={() => setIsInstallModalOpen(false)}
+                 className="w-full bg-primary text-white font-bold py-3 rounded-xl hover:bg-blue-600 transition-colors"
+               >
+                 Entendido
+               </button>
+             </div>
+          </div>
+        </div>
       )}
 
       {/* Help / About Modal (Same as before) */}
