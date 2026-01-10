@@ -16,7 +16,11 @@ import {
   Link as LinkIcon,
   Copy,
   ImagePlus,
-  Code
+  Code,
+  CheckCircle2,
+  Search,
+  Download,
+  Globe
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { Ad } from '../types';
@@ -49,6 +53,13 @@ export const CreateAdScreen: React.FC<CreateAdScreenProps> = ({
   const [showUpsellModal, setShowUpsellModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // HTML Import Modal State
+  const [showHtmlImport, setShowHtmlImport] = useState(false);
+  const [htmlInput, setHtmlInput] = useState('');
+  const [extractedCandidates, setExtractedCandidates] = useState<string[]>([]);
+  const [selectedCandidates, setSelectedCandidates] = useState<Set<string>>(new Set());
+  const [isProcessingHtml, setIsProcessingHtml] = useState(false);
+
   // Specifications State
   const [fuel, setFuel] = useState('');
   const [transmission, setTransmission] = useState('');
@@ -61,6 +72,9 @@ export const CreateAdScreen: React.FC<CreateAdScreenProps> = ({
   // Paste Event Listener
   useEffect(() => {
     const handlePaste = (e: ClipboardEvent) => {
+      // If modal is open, let default paste behavior happen in the textarea
+      if (showHtmlImport) return;
+
       try {
         let foundImages = false;
 
@@ -79,7 +93,6 @@ export const CreateAdScreen: React.FC<CreateAdScreenProps> = ({
         } 
         
         // 2. Handle HTML (Copying selection from a website)
-        // This allows users to select content on a webpage, copy, and paste here to extract all images.
         const html = e.clipboardData?.getData('text/html');
         if (!foundImages && html) {
             const parser = new DOMParser();
@@ -88,9 +101,7 @@ export const CreateAdScreen: React.FC<CreateAdScreenProps> = ({
             const newUrls: string[] = [];
 
             images.forEach(img => {
-                // Filter out tiny icons or tracking pixels often found in HTML
                 if (img.src && (img.src.startsWith('http') || img.src.startsWith('data:image'))) {
-                    // Basic filter to avoid tracking pixels (optional refinement)
                     newUrls.push(img.src);
                 }
             });
@@ -111,32 +122,13 @@ export const CreateAdScreen: React.FC<CreateAdScreenProps> = ({
         if (!foundImages) {
             const text = e.clipboardData?.getData('text');
             if (text) {
-                // Check if it's raw HTML containing images (e.g. copied code)
-                if (text.includes('<img')) {
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(text, 'text/html');
-                    const images = doc.querySelectorAll('img');
-                    const newUrls: string[] = [];
-                    images.forEach(img => {
-                        if (img.src && (img.src.startsWith('http') || img.src.startsWith('data:image'))) {
-                            newUrls.push(img.src);
-                        }
-                    });
-                    
-                    if (newUrls.length > 0) {
-                        setMediaItems(prev => {
-                            const available = 10 - prev.length;
-                            return [...prev, ...newUrls.slice(0, available).map(url => ({ url }))];
-                        });
-                        showToast(`${newUrls.length} imagens extraídas do código!`, 'success');
-                        foundImages = true;
-                    }
-                }
-
-                // Fallback: Check if it is a direct URL
-                if (!foundImages && (text.startsWith('http') || text.startsWith('data:image'))) {
-                    setMediaItems(prev => [...prev, { url: text }].slice(0, 10));
-                    showToast("Link de imagem adicionado!", 'success');
+                if (text.includes('<img') || text.includes('http')) {
+                   // If user pastes code or url, suggest opening the tool
+                   // But if it's a direct image link, just add it
+                   if (text.match(/\.(jpeg|jpg|gif|png)$/) != null && (text.startsWith('http') || text.startsWith('data:image'))) {
+                        setMediaItems(prev => [...prev, { url: text }].slice(0, 10));
+                        showToast("Link de imagem adicionado!", 'success');
+                   } 
                 }
             }
         }
@@ -147,7 +139,7 @@ export const CreateAdScreen: React.FC<CreateAdScreenProps> = ({
     
     window.addEventListener('paste', handlePaste);
     return () => window.removeEventListener('paste', handlePaste);
-  }, [showToast]);
+  }, [showToast, showHtmlImport]);
 
   const handleTriggerUpload = () => {
     fileInputRef.current?.click();
@@ -161,29 +153,77 @@ export const CreateAdScreen: React.FC<CreateAdScreenProps> = ({
   };
 
   const handleTriggerHtml = () => {
-    const html = window.prompt("Cole o código HTML contendo imagens (Ex: <img src='...'>):");
-    if (!html) return;
+    setShowHtmlImport(true);
+  };
 
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(html, 'text/html');
-    const images = doc.querySelectorAll('img');
-    const newUrls: string[] = [];
+  const processHtmlInput = () => {
+    if (!htmlInput.trim()) return;
+    setIsProcessingHtml(true);
 
-    images.forEach(img => {
-        if (img.src && (img.src.startsWith('http') || img.src.startsWith('data:image'))) {
-            newUrls.push(img.src);
+    setTimeout(() => {
+        try {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(htmlInput, 'text/html');
+            const imgTags = Array.from(doc.querySelectorAll('img'));
+            
+            // Strategy 1: src attributes
+            let urls = imgTags
+                .map(img => img.getAttribute('src'))
+                .filter(src => src && (src.startsWith('http') || src.startsWith('data:'))) as string[];
+
+            // Strategy 2: Regex for image URLs in the text (good for CSS, JSON blobs, or plain text list)
+            const urlRegex = /(https?:\/\/[^\s<"']+\.(?:jpg|jpeg|png|webp|gif|svg))/gi;
+            const matches = htmlInput.match(urlRegex);
+            if (matches) {
+                urls = [...urls, ...matches];
+            }
+            
+            // Deduplicate
+            const uniqueUrls = Array.from(new Set(urls));
+            
+            setExtractedCandidates(uniqueUrls);
+            setSelectedCandidates(new Set(uniqueUrls)); // Select all by default
+            
+            if(uniqueUrls.length === 0) {
+                showToast("Nenhuma imagem encontrada no código.", "error");
+            } else {
+                showToast(`${uniqueUrls.length} imagens encontradas!`, "success");
+            }
+        } catch (e) {
+            showToast("Erro ao processar HTML.", "error");
+        } finally {
+            setIsProcessingHtml(false);
         }
-    });
+    }, 500); // Fake delay for UX
+  };
 
-    if (newUrls.length > 0) {
-        setMediaItems(prev => {
-            const available = 10 - prev.length;
-            return [...prev, ...newUrls.slice(0, available).map(url => ({ url }))];
-        });
-        showToast(`${newUrls.length} imagens extraídas!`, 'success');
+  const toggleCandidate = (url: string) => {
+    const newSet = new Set(selectedCandidates);
+    if (newSet.has(url)) {
+        newSet.delete(url);
     } else {
-        showToast("Nenhuma imagem válida encontrada no código.", "error");
+        newSet.add(url);
     }
+    setSelectedCandidates(newSet);
+  };
+
+  const confirmHtmlImport = () => {
+    const toAdd = Array.from(selectedCandidates).map(url => ({ url }));
+    const availableSlots = 10 - mediaItems.length;
+    
+    if (toAdd.length > availableSlots) {
+        showToast(`Adicionado apenas ${availableSlots} imagens (limite de 10).`, 'info');
+        setMediaItems(prev => [...prev, ...toAdd.slice(0, availableSlots)]);
+    } else {
+        setMediaItems(prev => [...prev, ...toAdd]);
+        showToast(`${toAdd.length} imagens adicionadas!`, 'success');
+    }
+    
+    // Reset and Close
+    setShowHtmlImport(false);
+    setHtmlInput('');
+    setExtractedCandidates([]);
+    setSelectedCandidates(new Set());
   };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -600,6 +640,123 @@ export const CreateAdScreen: React.FC<CreateAdScreenProps> = ({
             <Rocket size={20} />
           </button>
         </div>
+
+        {/* HTML Import Modal */}
+        {showHtmlImport && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                <div className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" onClick={() => setShowHtmlImport(false)}></div>
+                <div className="relative w-full max-w-2xl bg-white rounded-2xl shadow-2xl flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-200">
+                    
+                    {/* Header */}
+                    <div className="flex items-center justify-between p-5 border-b border-gray-100">
+                        <div className="flex items-center gap-2">
+                            <div className="p-2 bg-blue-50 rounded-lg text-primary">
+                                <Code size={20} />
+                            </div>
+                            <div>
+                                <h3 className="font-bold text-gray-900">Importar Imagens via HTML</h3>
+                                <p className="text-xs text-gray-500">Cole código de um site ou URLs para extrair imagens.</p>
+                            </div>
+                        </div>
+                        <button onClick={() => setShowHtmlImport(false)} className="p-2 hover:bg-gray-100 rounded-full text-gray-400 transition-colors">
+                            <X size={20} />
+                        </button>
+                    </div>
+
+                    {/* Content */}
+                    <div className="flex-1 overflow-y-auto p-5 flex flex-col gap-4">
+                        <div className="relative">
+                            <textarea 
+                                className="w-full bg-gray-50 border border-gray-200 rounded-xl p-4 text-xs font-mono text-gray-700 outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all resize-none h-32"
+                                placeholder="<img src='...' /> ou cole uma lista de links https://..."
+                                value={htmlInput}
+                                onChange={(e) => setHtmlInput(e.target.value)}
+                            />
+                            <div className="absolute bottom-3 right-3 flex gap-2">
+                                <button 
+                                    onClick={() => setHtmlInput('')}
+                                    className="px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-xs font-bold text-gray-500 hover:bg-gray-50"
+                                >
+                                    Limpar
+                                </button>
+                                <button 
+                                    onClick={processHtmlInput}
+                                    disabled={isProcessingHtml || !htmlInput}
+                                    className="px-3 py-1.5 bg-gray-900 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 hover:bg-black disabled:opacity-50"
+                                >
+                                    {isProcessingHtml ? <Loader2 size={12} className="animate-spin" /> : <Search size={12} />}
+                                    Processar HTML
+                                </button>
+                            </div>
+                        </div>
+
+                        {extractedCandidates.length > 0 ? (
+                             <div className="flex flex-col gap-2">
+                                <div className="flex items-center justify-between">
+                                    <h4 className="text-sm font-bold text-gray-900 flex items-center gap-2">
+                                        <Globe size={16} className="text-blue-500" />
+                                        Imagens Encontradas ({extractedCandidates.length})
+                                    </h4>
+                                    <button 
+                                        onClick={() => {
+                                            if (selectedCandidates.size === extractedCandidates.length) {
+                                                setSelectedCandidates(new Set());
+                                            } else {
+                                                setSelectedCandidates(new Set(extractedCandidates));
+                                            }
+                                        }}
+                                        className="text-xs font-bold text-primary hover:underline"
+                                    >
+                                        {selectedCandidates.size === extractedCandidates.length ? 'Desmarcar Todas' : 'Marcar Todas'}
+                                    </button>
+                                </div>
+                                
+                                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                                    {extractedCandidates.map((url, idx) => {
+                                        const isSelected = selectedCandidates.has(url);
+                                        return (
+                                            <div 
+                                                key={idx} 
+                                                onClick={() => toggleCandidate(url)}
+                                                className={`relative aspect-square rounded-xl overflow-hidden cursor-pointer border-2 transition-all group ${isSelected ? 'border-primary ring-2 ring-primary/20' : 'border-gray-100 hover:border-gray-300'}`}
+                                            >
+                                                <img src={url} alt="" className="w-full h-full object-cover" />
+                                                <div className={`absolute inset-0 bg-black/40 transition-opacity flex items-center justify-center ${isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                                                    {isSelected && <CheckCircle2 className="text-white fill-primary" size={24} />}
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                             </div>
+                        ) : (
+                            <div className="flex flex-col items-center justify-center py-8 text-gray-400 border-2 border-dashed border-gray-100 rounded-xl bg-gray-50/50">
+                                <ImagePlus size={32} className="mb-2 opacity-50" />
+                                <p className="text-xs font-medium">As imagens aparecerão aqui.</p>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Footer */}
+                    <div className="p-4 border-t border-gray-100 bg-gray-50 flex justify-end gap-3 rounded-b-2xl">
+                        <button 
+                            onClick={() => setShowHtmlImport(false)}
+                            className="px-5 py-2.5 rounded-xl font-bold text-gray-600 hover:bg-gray-200 transition-colors text-sm"
+                        >
+                            Cancelar
+                        </button>
+                        <button 
+                            onClick={confirmHtmlImport}
+                            disabled={selectedCandidates.size === 0}
+                            className="px-6 py-2.5 rounded-xl font-bold text-white bg-primary hover:bg-blue-700 transition-colors text-sm flex items-center gap-2 shadow-lg shadow-blue-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            <Download size={16} />
+                            Importar ({selectedCandidates.size})
+                        </button>
+                    </div>
+                </div>
+            </div>
+        )}
 
         {/* Upsell Modal */}
         {showUpsellModal && (
