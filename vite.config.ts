@@ -55,64 +55,26 @@ export default defineConfig({
         ]
       },
       manifest: {
-        name: 'Anúncios MZ - Classificados',
-        short_name: 'AnúnciosMZ',
+        name: "Anúncios MZ",
+        short_name: "Anúncios MZ",
+        start_url: "/",
+        display: "standalone",
+        theme_color: "#16a34a",
+        background_color: "#ffffff",
         description: 'Compre e venda veículos, imóveis e eletrónicos em Moçambique com facilidade.',
-        theme_color: '#135bec',
-        background_color: '#f6f6f8',
-        display: 'standalone',
-        orientation: 'portrait',
-        start_url: '.',
-        scope: '/',
-        id: '/',
         icons: [
           {
-            src: 'https://placehold.co/72x72/135bec/ffffff?text=MZ',
-            sizes: '72x72',
-            type: 'image/png'
+            src: "/icon-192.png",
+            sizes: "192x192",
+            type: "image/png"
           },
           {
-            src: 'https://placehold.co/96x96/135bec/ffffff?text=MZ',
-            sizes: '96x96',
-            type: 'image/png'
-          },
-          {
-            src: 'https://placehold.co/128x128/135bec/ffffff?text=MZ',
-            sizes: '128x128',
-            type: 'image/png'
-          },
-          {
-            src: 'https://placehold.co/144x144/135bec/ffffff?text=MZ',
-            sizes: '144x144',
-            type: 'image/png'
-          },
-          {
-            src: 'https://placehold.co/152x152/135bec/ffffff?text=MZ',
-            sizes: '152x152',
-            type: 'image/png'
-          },
-          {
-            src: 'https://placehold.co/192x192/135bec/ffffff?text=MZ',
-            sizes: '192x192',
-            type: 'image/png',
-            purpose: 'any maskable'
-          },
-          {
-            src: 'https://placehold.co/256x256/135bec/ffffff?text=MZ',
-            sizes: '256x256',
-            type: 'image/png'
-          },
-          {
-            src: 'https://placehold.co/384x384/135bec/ffffff?text=MZ',
-            sizes: '384x384',
-            type: 'image/png'
-          },
-          {
-            src: 'https://placehold.co/512x512/135bec/ffffff?text=MZ',
-            sizes: '512x512',
-            type: 'image/png'
+            src: "/icon-512.png",
+            sizes: "512x512",
+            type: "image/png"
           }
         ],
+        orientation: 'portrait',
         screenshots: [
           {
             src: "https://placehold.co/1280x720/135bec/ffffff?text=Anuncios+MZ+Desktop",
