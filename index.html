@@ -1,105 +1,98 @@
 <!DOCTYPE html>
 <html lang="pt">
-  <head> <link rel="manifest" href="/site.webmanifest">
-<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-<meta name="theme-color" content="#16a34a">
-<meta name="mobile-web-app-capable" content="yes">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
 
+  <title>Anúncios MZ – anúncios e serviços em Moçambique</title>
 
+  <!-- SEO e Google -->
+  <meta name="description" content="Anúncios MZ é uma plataforma de anúncios, vendas e serviços em Moçambique." />
+  <meta name="keywords" content="anúncios moçambique, classificados mz, vender online, Anúncios MZ" />
+  <meta name="robots" content="index, follow" />
+  <meta name="google-site-verification" content="zDjULCQhN9HY_MwOwm3bOg2fR_TF9ku2Srb1MU3FdJg" />
 
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-    
-    <!-- Verificação Google Search Console -->
-    <meta name="google-site-verification" content="zDjULCQhN9HY_MwOwm3bOg2fR_TF9ku2Srb1MU3FdJg" />
+  <!-- PWA -->
+  <link rel="manifest" href="/site.webmanifest">
+  <meta name="theme-color" content="#16a34a">
+  <meta name="mobile-web-app-capable" content="yes">
 
-    <title>Anucios MZ – anúncios e serviços em Moçambique</title>
+  <!-- Ícones (somente arquivos locais, sem placeholders) -->
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="icon" href="/favicon.ico">
 
-    <meta
-      name="description"
-      content="Anucios MZ é uma plataforma de anúncios, vendas e serviços em Moçambique."
-    />
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Kaushan+Script&display=swap" rel="stylesheet" />
 
-    <meta
-      name="keywords"
-      content="anúncios moçambique, classificados mz, vender online, Anucios MZ"
-    />
-
-    <meta name="robots" content="index, follow" />
-    
-    <!-- PWA Primary Meta Tags -->
-    <meta name="theme-color" content="#135bec" />
-    
-    <!-- iOS / Apple Meta Tags -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Anúncios MZ">
-    <link rel="apple-touch-icon" href="https://placehold.co/180x180/135bec/ffffff?text=MZ">
-    
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Kaushan+Script&display=swap" rel="stylesheet" />
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23135bec'/><text x='50' y='70' font-family='sans-serif' font-weight='900' font-style='italic' font-size='60' text-anchor='middle' fill='white'>MZ</text></svg>" />
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <script>
-      tailwind.config = {
-        darkMode: "class",
-        theme: {
-          extend: {
-            colors: {
-              "primary": "#135bec",
-              "primary-dark": "#0e44b3",
-              "background-light": "#f6f6f8",
-              "background-dark": "#101622",
-              "surface-light": "#ffffff",
-              "surface-dark": "#1a2230",
-              "text-main": "#111318",
-              "text-sub": "#616f89",
-              "border-color": "#dbdfe6"
-            },
-            fontFamily: {
-              "display": ["Inter", "sans-serif"],
-              "sans": ["Inter", "sans-serif"],
-              "hand": ["Kaushan Script", "cursive"]
-            },
-            borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "2xl": "1rem", "full": "9999px" },
+  <!-- Tailwind Config (mantendo seu setup) -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#135bec",
+            "primary-dark": "#0e44b3",
+            "background-light": "#f6f6f8",
+            "background-dark": "#101622",
+            "surface-light": "#ffffff",
+            "surface-dark": "#1a2230",
+            "text-main": "#111318",
+            "text-sub": "#616f89",
+            "border-color": "#dbdfe6"
           },
+          fontFamily: {
+            "display": ["Inter", "sans-serif"],
+            "sans": ["Inter", "sans-serif"],
+            "hand": ["Kaushan Script", "cursive"]
+          },
+          borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "2xl": "1rem", "full": "9999px" },
         },
-      }
-    </script>
-    <style>
-      /* Hide scrollbar for Chrome, Safari and Opera */
-      .no-scrollbar::-webkit-scrollbar {
-          display: none;
-      }
-      /* Hide scrollbar for IE, Edge and Firefox */
-      .no-scrollbar {
-          -ms-overflow-style: none;  /* IE and Edge */
-          scrollbar-width: none;  /* Firefox */
-      }
-      body {
-        background-color: #f6f6f8;
-        font-family: 'Inter', sans-serif;
-        overscroll-behavior-y: none; /* Prevents pull-to-refresh on mobile app feel */
-      }
-    </style>
+      },
+    }
+  </script>
+
+  <style>
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    body { background-color: #f6f6f8; font-family: 'Inter', sans-serif; overscroll-behavior-y: none; }
+  </style>
+
   <script type="importmap">
-{
-  "imports": {
-    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
-    "react/": "https://esm.sh/react@^19.2.3/",
-    "react": "https://esm.sh/react@^19.2.3",
-    "lucide-react": "https://esm.sh/lucide-react@^0.562.0",
-    "vite": "https://esm.sh/vite@^7.3.1",
-    "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@^2.90.1",
-    "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.2",
-    "vite-plugin-pwa": "https://esm.sh/vite-plugin-pwa@^1.2.0"
+  {
+    "imports": {
+      "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+      "react/": "https://esm.sh/react@^19.2.3/",
+      "react": "https://esm.sh/react@^19.2.3",
+      "lucide-react": "https://esm.sh/lucide-react@^0.562.0",
+      "vite": "https://esm.sh/vite@^7.3.1",
+      "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@^2.90.1",
+      "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.2",
+      "vite-plugin-pwa": "https://esm.sh/vite-plugin-pwa@^1.2.0"
+    }
   }
-}
-</script>
+  </script>
+
 </head>
-  <body class="bg-background-light text-text-main antialiased selection:bg-primary/20 selection:text-primary">
-    <div id="root"></div>
-    <script type="module" src="/index.tsx"></script>
-  </body>
+<body class="bg-background-light text-text-main antialiased selection:bg-primary/20 selection:text-primary">
+  <div id="root"></div>
+
+  <!-- React app -->
+  <script type="module" src="/index.tsx"></script>
+
+  <!-- Service Worker (para PWA avançado) -->
+  <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", function() {
+        navigator.serviceWorker.register("/service-worker.js").then(
+          function(reg) { console.log("Service Worker registrado:", reg); },
+          function(err) { console.log("Falha ao registrar SW:", err); }
+        );
+      });
+    }
+  </script>
+</body>
 </html>
