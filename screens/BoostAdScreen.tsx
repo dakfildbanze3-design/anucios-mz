@@ -139,7 +139,7 @@ export const BoostAdScreen: React.FC<BoostAdScreenProps> = ({ onClose, onPayment
       }
 
       // Determine Status
-      // We automatically confirm if risk is low (< 50)
+      // If risk is low (< 50), we Auto-Confirm
       const finalStatus = riskScore < 50 ? 'confirmed' : 'pending';
 
       // 5. INSERT PAYMENT RECORD
