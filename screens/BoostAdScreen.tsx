@@ -131,16 +131,15 @@ export const BoostAdScreen: React.FC<BoostAdScreenProps> = ({ onClose, onPayment
         .from('payments')
         .select('id, status')
         .eq('reference_code', cleanRef)
-        .maybeSingle(); // Use maybeSingle to avoid error if not found
+        .maybeSingle();
 
       if (existingRef) {
         riskScore += 100; // Immediate Fail
         reasons.push("Este código de referência já foi utilizado.");
-        showToast("Código de referência duplicado.", "error");
       }
 
       // Determine Status
-      // If risk is low (< 50), we Auto-Confirm
+      // We automatically confirm if risk is low (< 50)
       const finalStatus = riskScore < 50 ? 'confirmed' : 'pending';
 
       // 5. INSERT PAYMENT RECORD
@@ -169,7 +168,6 @@ export const BoostAdScreen: React.FC<BoostAdScreenProps> = ({ onClose, onPayment
           .eq('id', adId);
 
         if (updateError) {
-          // Fallback if ad update fails, though payment is recorded
           console.error("Failed to activate ad", updateError);
           showToast("Erro ao ativar destaque, contacte o suporte.", "error");
         }
@@ -182,6 +180,7 @@ export const BoostAdScreen: React.FC<BoostAdScreenProps> = ({ onClose, onPayment
       } else if (reasons.includes("Este código de referência já foi utilizado.")) {
         setResultStatus('rejected');
         setResultMessage("Referência duplicada. Verifique os dados.");
+        showToast("Código de referência duplicado.", "error");
       } else {
         setResultMessage("Pagamento em análise. Iremos notificar brevemente.");
         showToast("Pagamento enviado para análise.", "info");
