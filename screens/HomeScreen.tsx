@@ -59,7 +59,11 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
     const matchesSearch = ad.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           ad.location.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch;
-  }).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }).sort((a, b) => {
+    const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+    const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+    return dateB - dateA;
+  });
 
   const featuredAds = filteredAds.filter(ad => ad.isFeatured);
   const recentAds = filteredAds.filter(ad => !ad.isFeatured);
@@ -250,10 +254,9 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
                     </div>
                   </div>
 
-                  {/* Mobile Profile Icon */}
                   <div className="relative shrink-0">
                     <button 
-                      onClick={() => setIsMenuOpen(!isMenuOpen)}
+                      onClick={() => session ? onNavigate('PROFILE') : setIsMenuOpen(!isMenuOpen)}
                       className="p-1 rounded-full hover:bg-gray-100 transition-all border border-transparent hover:border-gray-200"
                     >
                       <div className={`size-10 rounded-full flex items-center justify-center overflow-hidden shadow-sm border border-gray-200 ${session ? 'bg-white' : 'bg-gray-100 text-gray-500'}`}>
