@@ -74,23 +74,7 @@ export default defineConfig({
             type: "image/png"
           }
         ],
-        orientation: 'portrait',
-        screenshots: [
-          {
-            src: "https://placehold.co/1280x720/135bec/ffffff?text=Anuncios+MZ+Desktop",
-            sizes: "1280x720",
-            type: "image/png",
-            form_factor: "wide",
-            label: "Ecrã Desktop"
-          },
-          {
-            src: "https://placehold.co/750x1334/135bec/ffffff?text=Anuncios+MZ+Mobile",
-            sizes: "750x1334",
-            type: "image/png",
-            form_factor: "narrow",
-            label: "Ecrã Mobile"
-          }
-        ]
+        orientation: 'portrait'
       },
       devOptions: {
         enabled: true
