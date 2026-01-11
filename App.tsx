@@ -103,37 +103,63 @@ function MainApp() {
       .channel('public:ads')
       .on(
         'postgres_changes',
-        { event: '*', schema: 'public', table: 'ads' },
+        { event: 'INSERT', schema: 'public', table: 'ads' },
         (payload) => {
-          if (payload.eventType === 'INSERT') {
-            const newAdRaw = payload.new;
-            supabase.auth.getSession().then(({ data }) => {
-                const currentSession = data?.session;
-                const newAdFormatted: Ad = {
-                  id: newAdRaw.id,
-                  title: newAdRaw.title,
-                  price: newAdRaw.price,
-                  currency: newAdRaw.currency,
-                  location: newAdRaw.location,
-                  image: newAdRaw.image,
-                  images: newAdRaw.images,
-                  isFeatured: newAdRaw.is_featured,
-                  isMyAd: currentSession?.user.id === newAdRaw.user_id,
-                  timeAgo: 'Novo',
-                  createdAt: newAdRaw.created_at, // Map createdAt
-                  category: newAdRaw.category,
-                  specs: newAdRaw.specs,
-                  contact: newAdRaw.contact,
-                  description: newAdRaw.description,
-                  views: newAdRaw.views
-                };
-                setAds((prev) => [newAdFormatted, ...prev]);
-            }).catch(e => console.error("Error in realtime session check", e));
-          } else if (payload.eventType === 'UPDATE') {
-             fetchAds(); 
-          } else if (payload.eventType === 'DELETE') {
-             setAds((prev) => prev.filter(ad => ad.id !== payload.old.id));
-          }
+          const newAdRaw = payload.new;
+          supabase.auth.getSession().then(({ data }) => {
+              const currentSession = data?.session;
+              const newAdFormatted: Ad = {
+                id: newAdRaw.id,
+                title: newAdRaw.title,
+                price: newAdRaw.price,
+                currency: newAdRaw.currency,
+                location: newAdRaw.location,
+                image: newAdRaw.image,
+                images: newAdRaw.images,
+                isFeatured: newAdRaw.is_featured,
+                isMyAd: currentSession?.user.id === newAdRaw.user_id,
+                timeAgo: 'Novo',
+                createdAt: newAdRaw.created_at,
+                category: newAdRaw.category,
+                specs: newAdRaw.specs,
+                contact: newAdRaw.contact,
+                description: newAdRaw.description,
+                views: newAdRaw.views || 0
+              };
+              setAds((prev) => {
+                if (prev.some(a => a.id === newAdFormatted.id)) return prev;
+                return [newAdFormatted, ...prev];
+              });
+          }).catch(e => console.error("Error in realtime session check", e));
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'ads' },
+        (payload) => {
+          const updatedAd = payload.new;
+          setAds((prev) => prev.map(ad => 
+            ad.id === updatedAd.id 
+              ? { 
+                  ...ad, 
+                  isFeatured: updatedAd.is_featured, 
+                  specs: updatedAd.specs, 
+                  price: updatedAd.price,
+                  title: updatedAd.title,
+                  image: updatedAd.image,
+                  images: updatedAd.images,
+                  description: updatedAd.description,
+                  contact: updatedAd.contact
+                } 
+              : ad
+          ));
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: 'DELETE', schema: 'public', table: 'ads' },
+        (payload) => {
+          setAds((prev) => prev.filter(ad => ad.id !== payload.old.id));
         }
       )
       .subscribe();
