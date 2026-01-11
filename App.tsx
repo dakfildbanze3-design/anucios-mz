@@ -88,6 +88,21 @@ function MainApp() {
     const { data: { subscription: authListener } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
       
+      // Update isMyAd status for all ads when session changes
+      if (session) {
+        setAds(prevAds => prevAds.map(ad => {
+          // Check if this ad belongs to the now logged-in user
+          // We need the user_id from the original data, but our Ad type might not have it.
+          // However, we can re-fetch or use a more clever way.
+          // Let's check how ads are fetched and if we can determine ownership.
+          return ad;
+        }));
+        // Re-fetch to ensure correct ownership flags
+        fetchAds();
+      } else {
+        setAds(prevAds => prevAds.map(ad => ({ ...ad, isMyAd: false })));
+      }
+      
       if (session && pendingRoute) {
         setCurrentScreen(pendingRoute);
         setPendingRoute(null);
