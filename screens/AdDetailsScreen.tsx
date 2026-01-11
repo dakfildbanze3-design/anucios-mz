@@ -22,7 +22,8 @@ import {
   Twitter,
   Mail,
   Link as LinkIcon,
-  Copy
+  Copy,
+  Smartphone
 } from 'lucide-react';
 import { Ad } from '../types';
 import { useToast } from '../components/ToastContext';
@@ -43,9 +44,8 @@ export const AdDetailsScreen: React.FC<AdDetailsScreenProps> = ({ ad, onBack, on
     : [ad.image || 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=800&q=80'];
 
   // Construct Share Data
-  // Note: Using a query param simulation for the URL since we are in a SPA state-based router
   const shareUrl = `${window.location.origin}?ad=${ad.id}`;
-  const shareText = `Veja este anúncio no Classificados MZ: ${ad.title}`;
+  const shareText = `Veja este anúncio no Anúncios MZ: ${ad.title}`;
 
   const handleOpenMap = () => {
     const query = encodeURIComponent(`${ad.location}, Moçambique`);
@@ -55,7 +55,7 @@ export const AdDetailsScreen: React.FC<AdDetailsScreenProps> = ({ ad, onBack, on
   const contactNumber = ad.contact || '258841234567';
 
   const handleWhatsApp = () => {
-    const message = encodeURIComponent(`Olá, vi o anúncio "${ad.title}" no Classificados MZ e gostaria de mais informações.`);
+    const message = encodeURIComponent(`Olá, vi o anúncio "${ad.title}" no Anúncios MZ e gostaria de mais informações.`);
     window.open(`https://wa.me/${contactNumber}?text=${message}`, '_blank');
   };
 
@@ -70,19 +70,16 @@ export const AdDetailsScreen: React.FC<AdDetailsScreenProps> = ({ ad, onBack, on
       url: shareUrl
     };
 
-    // Simple mobile detection
+    // Mobile detection
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
-    // If mobile and supports native share, use it
     if (isMobile && navigator.share) {
       try {
         await navigator.share(shareData);
       } catch (err) {
-        // User cancelled or error, ignore
-        console.log('Share cancelled');
+        console.log('Share cancelled or failed', err);
       }
     } else {
-      // Desktop or unsupported mobile browser -> Show Custom Modal
       setShowShareModal(true);
     }
   };
@@ -90,15 +87,12 @@ export const AdDetailsScreen: React.FC<AdDetailsScreenProps> = ({ ad, onBack, on
   const handleCopyLink = () => {
     navigator.clipboard.writeText(shareUrl);
     showToast("Link copiado!", "success");
-    // We don't close the modal automatically to allow user to choose other options if they want
   };
 
   const openSocial = (url: string, network: string) => {
     window.open(url, '_blank');
-    showToast(`A abrir ${network}...`, 'info');
   };
 
-  // Explicit Mozambique Timezone Formatter
   const mozDate = ad.createdAt 
       ? new Date(ad.createdAt).toLocaleString('pt-PT', {
           timeZone: 'Africa/Maputo',
@@ -112,18 +106,23 @@ export const AdDetailsScreen: React.FC<AdDetailsScreenProps> = ({ ad, onBack, on
 
   return (
     <div className="min-h-screen bg-background-light md:py-8 font-display">
-      {/* Container for Desktop */}
       <div className="max-w-[1800px] mx-auto bg-white shadow-xl md:rounded-3xl overflow-hidden flex flex-col md:flex-row min-h-screen md:min-h-[80vh] relative">
         
         {/* LEFT COLUMN: IMAGE GALLERY */}
         <div className="w-full md:w-3/5 bg-gray-900 relative h-80 md:h-auto md:min-h-[600px]">
-            {/* Top Bar for Mobile Overlay */}
             <div className="absolute top-0 left-0 w-full z-20 flex items-center justify-between p-4 pt-8 md:pt-4 pointer-events-none">
                 <button 
                 onClick={onBack}
                 className="flex size-10 shrink-0 items-center justify-center rounded-full bg-black/40 backdrop-blur-md text-white hover:bg-black/60 transition-colors pointer-events-auto shadow-sm"
                 >
                 <ArrowLeft size={24} />
+                </button>
+                
+                <button 
+                onClick={handleShare}
+                className="flex size-10 shrink-0 items-center justify-center rounded-full bg-black/40 backdrop-blur-md text-white hover:bg-black/60 transition-colors pointer-events-auto shadow-sm"
+                >
+                <Share2 size={24} />
                 </button>
             </div>
 
@@ -145,7 +144,6 @@ export const AdDetailsScreen: React.FC<AdDetailsScreenProps> = ({ ad, onBack, on
                 ))}
             </div>
             
-            {/* Pagination Dots */}
             {images.length > 1 && (
                 <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-1.5 z-10">
                     {images.map((_, idx) => (
@@ -157,7 +155,6 @@ export const AdDetailsScreen: React.FC<AdDetailsScreenProps> = ({ ad, onBack, on
                 </div>
             )}
 
-            {/* Featured Badge */}
             {ad.isFeatured && (
                 <div className="absolute bottom-4 left-4">
                 <div className="flex h-7 items-center justify-center gap-x-1.5 rounded-full bg-amber-500 px-3 py-1 shadow-md border border-amber-400/50 backdrop-blur-md animate-in zoom-in duration-300">
@@ -167,7 +164,6 @@ export const AdDetailsScreen: React.FC<AdDetailsScreenProps> = ({ ad, onBack, on
                 </div>
             )}
 
-             {/* Image Counter Badge */}
              {images.length > 1 && (
              <div className="absolute bottom-4 right-4 bg-black/50 backdrop-blur-md px-3 py-1 rounded-full text-white text-xs font-bold flex items-center gap-1">
                 <Camera size={12} />
@@ -179,7 +175,6 @@ export const AdDetailsScreen: React.FC<AdDetailsScreenProps> = ({ ad, onBack, on
         {/* RIGHT COLUMN: DETAILS */}
         <div className="w-full md:w-2/5 flex flex-col h-full md:max-h-[calc(100vh-4rem)] relative bg-white">
             <div className="flex-1 overflow-y-auto p-5 pb-32 md:pb-5">
-                {/* Header Actions Desktop */}
                 <div className="hidden md:flex justify-end mb-4">
                      <button 
                         onClick={handleShare}
@@ -199,7 +194,6 @@ export const AdDetailsScreen: React.FC<AdDetailsScreenProps> = ({ ad, onBack, on
                         
                         <div className="flex items-center gap-2 mt-3 text-text-sub text-sm">
                         <Calendar size={18} />
-                        {/* Display specific Mozambique date if available, else relative time */}
                         <span>{mozDate ? mozDate : ad.timeAgo}</span>
                         
                         <span className="w-1 h-1 rounded-full bg-gray-300"></span>
@@ -210,7 +204,6 @@ export const AdDetailsScreen: React.FC<AdDetailsScreenProps> = ({ ad, onBack, on
 
                     <hr className="border-gray-100" />
 
-                    {/* Details Chips */}
                     {ad.specs && (
                         <div>
                         <h3 className="text-text-main text-base font-semibold mb-3">Especificações</h3>
@@ -247,7 +240,6 @@ export const AdDetailsScreen: React.FC<AdDetailsScreenProps> = ({ ad, onBack, on
                         </div>
                     )}
 
-                    {/* Description */}
                     <div>
                         <h3 className="text-text-main text-base font-semibold mb-2">Descrição</h3>
                         <div className="text-gray-600 text-base leading-relaxed whitespace-pre-line">
@@ -255,7 +247,6 @@ export const AdDetailsScreen: React.FC<AdDetailsScreenProps> = ({ ad, onBack, on
                         </div>
                     </div>
 
-                    {/* Map */}
                     <div 
                         onClick={handleOpenMap}
                         className="w-full h-40 bg-gray-100 rounded-xl overflow-hidden relative cursor-pointer group active:scale-[0.99] transition-all border border-gray-200"
@@ -272,12 +263,10 @@ export const AdDetailsScreen: React.FC<AdDetailsScreenProps> = ({ ad, onBack, on
                         </div>
                     </div>
                     
-                    {/* Padding for Mobile sticky bar */}
                     <div className="h-4 md:hidden"></div>
                 </div>
             </div>
 
-            {/* Sticky Bottom Action Bar */}
             <div className="fixed md:absolute bottom-0 left-0 w-full bg-white border-t border-gray-100 px-4 py-4 pb-8 md:pb-4 z-30 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] md:shadow-none">
                 <div className="flex flex-col gap-3">
                 {ad.isMyAd ? (
@@ -341,7 +330,6 @@ export const AdDetailsScreen: React.FC<AdDetailsScreenProps> = ({ ad, onBack, on
             </div>
             
             <div className="p-6 grid grid-cols-4 gap-6 justify-items-center">
-               {/* Facebook */}
                <button 
                   onClick={() => openSocial(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`, 'Facebook')}
                   className="flex flex-col items-center gap-2 group w-full"
@@ -352,7 +340,6 @@ export const AdDetailsScreen: React.FC<AdDetailsScreenProps> = ({ ad, onBack, on
                   <span className="text-xs font-semibold text-gray-600">Facebook</span>
                </button>
 
-               {/* Twitter */}
                <button 
                   onClick={() => openSocial(`https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`, 'Twitter')}
                   className="flex flex-col items-center gap-2 group w-full"
@@ -363,7 +350,6 @@ export const AdDetailsScreen: React.FC<AdDetailsScreenProps> = ({ ad, onBack, on
                    <span className="text-xs font-semibold text-gray-600">Twitter</span>
                </button>
 
-               {/* WhatsApp */}
                <button 
                    onClick={() => openSocial(`https://wa.me/?text=${encodeURIComponent(shareText + ' ' + shareUrl)}`, 'WhatsApp')}
                    className="flex flex-col items-center gap-2 group w-full"
@@ -374,16 +360,15 @@ export const AdDetailsScreen: React.FC<AdDetailsScreenProps> = ({ ad, onBack, on
                    <span className="text-xs font-semibold text-gray-600">WhatsApp</span>
                </button>
 
-               {/* Email */}
-               <a 
-                   href={`mailto:?subject=${encodeURIComponent(ad.title)}&body=${encodeURIComponent(shareText + '\n' + shareUrl)}`}
-                   className="flex flex-col items-center gap-2 group w-full"
+               <button 
+                  onClick={() => openSocial(`https://www.tiktok.com/`, 'TikTok')}
+                  className="flex flex-col items-center gap-2 group w-full"
                >
-                  <div className="size-12 rounded-full bg-gray-700 flex items-center justify-center text-white shadow-lg shadow-gray-300 group-hover:scale-110 transition-transform">
-                     <Mail size={24} />
+                  <div className="size-12 rounded-full bg-black flex items-center justify-center text-white shadow-lg shadow-gray-200 group-hover:scale-110 transition-transform">
+                     <Smartphone size={24} />
                   </div>
-                   <span className="text-xs font-semibold text-gray-600">Email</span>
-               </a>
+                  <span className="text-xs font-semibold text-gray-600">TikTok</span>
+               </button>
             </div>
 
             <div className="px-6 pb-6">
