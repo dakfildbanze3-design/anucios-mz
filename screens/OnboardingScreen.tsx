@@ -8,38 +8,93 @@ interface OnboardingProps {
 const slides = [
   {
     title: "Bem-vindo ao Anúncios MZ",
-    description: "Navegue pelo nosso Feed principal para encontrar as melhores ofertas em Moçambique.",
-    icon: <Home size={80} className="text-blue-500" />,
+    description: "Navegue pelo nosso Feed para encontrar ofertas incríveis em Moçambique.",
+    icon: (
+      <div className="w-full h-48 bg-gray-100 rounded-xl overflow-hidden border-2 border-blue-200 relative shadow-inner">
+        {/* Mock Home Screen */}
+        <div className="absolute top-0 inset-x-0 h-10 bg-blue-600 flex items-center px-4">
+           <div className="w-20 h-4 bg-blue-400 rounded"></div>
+        </div>
+        <div className="mt-12 p-2 grid grid-cols-2 gap-2">
+           <div className="h-20 bg-white rounded shadow-sm border border-gray-100 flex flex-col p-1">
+             <div className="h-10 bg-gray-200 rounded mb-1"></div>
+             <div className="w-10 h-2 bg-blue-200 rounded mb-1"></div>
+             <div className="w-6 h-2 bg-gray-200 rounded"></div>
+           </div>
+           <div className="h-20 bg-white rounded shadow-sm border border-blue-300 ring-2 ring-blue-100 flex flex-col p-1">
+             <div className="h-10 bg-yellow-100 rounded mb-1 flex items-center justify-center"><span className="text-[8px] font-bold text-yellow-600 uppercase">Destaque</span></div>
+             <div className="w-10 h-2 bg-blue-200 rounded mb-1"></div>
+             <div className="w-6 h-2 bg-gray-200 rounded"></div>
+           </div>
+        </div>
+      </div>
+    ),
     color: "bg-blue-50",
-    screenInfo: "Esta é a tela de Início (Home) onde você vê todos os anúncios."
+    screenInfo: "No Feed você verá anúncios normais e destacados (em amarelo)."
   },
   {
     title: "Crie seu anúncio grátis",
-    description: "Use o botão '+' no menu para publicar seu veículo, imóvel ou eletrônico rapidamente.",
-    icon: <PlusSquare size={80} className="text-green-500" />,
+    description: "Publique em segundos. Anúncios normais são grátis para todos os usuários.",
+    icon: (
+      <div className="w-full h-48 bg-gray-100 rounded-xl overflow-hidden border-2 border-green-200 relative shadow-inner">
+        {/* Mock Create Ad Screen */}
+        <div className="p-4 flex flex-col gap-2">
+           <div className="w-full h-6 bg-white border border-gray-200 rounded"></div>
+           <div className="w-full h-12 bg-white border border-gray-200 rounded"></div>
+           <div className="w-full h-6 bg-white border border-gray-200 rounded"></div>
+           <div className="w-full h-8 bg-green-500 rounded flex items-center justify-center"><span className="text-white text-[10px] font-bold uppercase">Publicar Grátis</span></div>
+        </div>
+      </div>
+    ),
     color: "bg-green-50",
-    screenInfo: "A tela de Criação permite preencher fotos, preço e contato."
+    screenInfo: "Anúncios normais aparecem na ordem de publicação."
   },
   {
     title: "Venda mais rápido",
-    description: "Destaque seus anúncios para que apareçam na seção de 'Destaques' e no topo das buscas.",
-    icon: <TrendingUp size={80} className="text-purple-500" />,
+    description: "Destaque seu anúncio para aparecer no topo e vender em tempo recorde.",
+    icon: (
+      <div className="w-full h-48 bg-gray-100 rounded-xl overflow-hidden border-2 border-purple-200 relative shadow-inner">
+        {/* Mock Featured Ad */}
+        <div className="p-4 flex flex-col items-center justify-center h-full">
+           <div className="w-full h-32 bg-white rounded-lg border-2 border-yellow-400 p-2 shadow-lg scale-110">
+              <div className="w-full h-20 bg-yellow-50 rounded mb-2 flex items-center justify-center">
+                 <TrendingUp size={32} className="text-yellow-600" />
+              </div>
+              <div className="flex flex-col gap-1">
+                 <div className="w-20 h-3 bg-gray-200 rounded"></div>
+                 <div className="w-12 h-3 bg-yellow-500 rounded"></div>
+              </div>
+           </div>
+        </div>
+      </div>
+    ),
     color: "bg-purple-50",
-    screenInfo: "Nos Detalhes do Anúncio, você encontrará a opção 'Impulsionar'."
+    screenInfo: "Anúncios destacados têm cor diferenciada e ficam sempre no topo."
   },
   {
-    title: "Pagamentos seguros",
-    description: "Aceitamos M-Pesa e e-Mola para pagamentos instantâneos e seguros via celular.",
-    icon: <CreditCard size={80} className="text-orange-500" />,
-    color: "bg-orange-50",
-    screenInfo: "A tela de Pagamento mostra as instruções para transferência via USSD ou App."
-  },
-  {
-    title: "Gerencie seu Perfil",
-    description: "Acompanhe seus anúncios publicados e edite suas informações de contato a qualquer momento.",
-    icon: <User size={80} className="text-teal-500" />,
+    title: "Pagamentos e Perfil",
+    description: "Gerencie suas vendas e pagamentos via M-Pesa ou e-Mola com facilidade.",
+    icon: (
+      <div className="w-full h-48 bg-gray-100 rounded-xl overflow-hidden border-2 border-teal-200 relative shadow-inner flex flex-col">
+        {/* Mock Profile/Payment */}
+        <div className="p-2 border-b border-gray-200 flex items-center gap-2">
+           <div className="w-8 h-8 rounded-full bg-teal-100 flex items-center justify-center"><User size={16} className="text-teal-600" /></div>
+           <div className="w-20 h-3 bg-gray-200 rounded"></div>
+        </div>
+        <div className="p-4 flex flex-col gap-2">
+           <div className="flex justify-between items-center bg-white p-2 rounded border border-gray-100">
+              <span className="text-[10px] font-bold">Saldo e-Mola</span>
+              <span className="text-[10px] text-teal-600">800 MT</span>
+           </div>
+           <div className="flex justify-between items-center bg-white p-2 rounded border border-gray-100">
+              <span className="text-[10px] font-bold">M-Pesa Ativo</span>
+              <div className="w-2 h-2 rounded-full bg-green-500"></div>
+           </div>
+        </div>
+      </div>
+    ),
     color: "bg-teal-50",
-    screenInfo: "Na tela de Perfil você tem controle total sobre suas vendas."
+    screenInfo: "Acompanhe suas estatísticas e destaque seus anúncios pelo Perfil."
   }
 ];
 
