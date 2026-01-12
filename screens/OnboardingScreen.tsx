@@ -136,29 +136,29 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
 
   return (
     <div className={`fixed inset-0 z-50 flex flex-col items-center justify-center p-6 transition-colors duration-500 ${slide.color}`}>
-      <div className="w-full max-w-md bg-white rounded-3xl shadow-xl overflow-hidden flex flex-col h-[600px] relative">
-        <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
-          <div className="mb-6 animate-bounce">
+      <div className="w-full max-w-md flex flex-col h-full max-h-[700px] relative">
+        <div className="flex-1 flex flex-col items-center justify-center p-4 text-center">
+          <div className="mb-8 w-full">
             {slide.icon}
           </div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">
+          <h2 className="text-3xl font-bold text-gray-900 mb-4">
             {slide.title}
           </h2>
-          <p className="text-gray-600 text-lg mb-4">
+          <p className="text-gray-700 text-xl mb-6 leading-relaxed">
             {slide.description}
           </p>
-          <div className="bg-gray-100 rounded-xl p-3 text-sm text-gray-500 italic border border-gray-200">
+          <div className="bg-white/50 backdrop-blur-sm rounded-2xl p-4 text-base text-gray-600 italic border border-white/20 shadow-sm">
              {slide.screenInfo}
           </div>
         </div>
 
-        <div className="p-8 pb-10 bg-gray-50 flex flex-col gap-6">
+        <div className="p-4 pb-12 flex flex-col gap-6">
           <div className="flex justify-center gap-2.5 mb-2">
             {slides.map((_, index) => (
               <div
                 key={index}
                 className={`h-2.5 rounded-full transition-all duration-300 ${
-                  index === currentSlide ? 'w-10 bg-blue-600' : 'w-2.5 bg-gray-300'
+                  index === currentSlide ? 'w-10 bg-blue-600' : 'w-2.5 bg-gray-400'
                 }`}
               />
             ))}
@@ -167,7 +167,7 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
           <div className="flex flex-col gap-4">
             <button
               onClick={nextSlide}
-              className="w-full bg-blue-600 text-white font-black text-2xl py-6 rounded-2xl flex items-center justify-center gap-3 hover:bg-blue-700 transition-all active:scale-[0.98] shadow-xl shadow-blue-500/40"
+              className="w-full bg-blue-600 text-white font-black text-2xl py-6 rounded-2xl flex items-center justify-center gap-3 hover:bg-blue-700 transition-all active:scale-[0.98] shadow-xl shadow-blue-600/30"
             >
               {currentSlide === slides.length - 1 ? (
                 <>
@@ -184,7 +184,7 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
               {currentSlide > 0 ? (
                 <button
                   onClick={prevSlide}
-                  className="flex-1 flex items-center justify-center h-14 rounded-2xl border-2 border-gray-300 text-gray-700 font-bold hover:bg-gray-100 transition-all active:scale-95 shadow-sm bg-white"
+                  className="flex-1 flex items-center justify-center h-14 rounded-2xl border-2 border-gray-400 text-gray-800 font-bold hover:bg-gray-100 transition-all active:scale-95 shadow-sm bg-white/80"
                 >
                   <ChevronLeft size={24} className="mr-2" /> Voltar
                 </button>
@@ -194,7 +194,7 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
               
               <button
                 onClick={onComplete}
-                className="flex-1 text-gray-500 font-bold h-14 rounded-2xl border-2 border-transparent hover:text-gray-700 transition-colors uppercase tracking-wider text-sm"
+                className="flex-1 text-gray-600 font-bold h-14 rounded-2xl border-2 border-transparent hover:text-gray-900 transition-colors uppercase tracking-wider text-sm"
               >
                 Pular tour
               </button>
