@@ -51,25 +51,36 @@ const slides = [
   },
   {
     title: "Venda mais rápido",
-    description: "Destaque seu anúncio para aparecer no topo e vender em tempo recorde.",
+    description: "Anúncios destacados ficam no topo com selo à direita e botão grande de WhatsApp para contato imediato.",
     icon: (
       <div className="w-full h-48 bg-gray-100 rounded-xl overflow-hidden border-2 border-purple-200 relative shadow-inner">
         {/* Mock Featured Ad */}
         <div className="p-4 flex flex-col items-center justify-center h-full">
-           <div className="w-full h-32 bg-white rounded-lg border-2 border-yellow-400 p-2 shadow-lg scale-110">
-              <div className="w-full h-20 bg-yellow-50 rounded mb-2 flex items-center justify-center">
-                 <TrendingUp size={32} className="text-yellow-600" />
+           <div className="w-full h-36 bg-white rounded-lg border-2 border-yellow-400 p-2 shadow-lg scale-105 relative">
+              {/* Badge on the right */}
+              <div className="absolute top-2 right-2 bg-yellow-400 text-[8px] font-bold text-yellow-900 px-2 py-0.5 rounded-full uppercase">
+                 Destaque
               </div>
-              <div className="flex flex-col gap-1">
-                 <div className="w-20 h-3 bg-gray-200 rounded"></div>
-                 <div className="w-12 h-3 bg-yellow-500 rounded"></div>
+              <div className="w-full h-16 bg-yellow-50 rounded mb-2 flex items-center justify-center">
+                 <TrendingUp size={24} className="text-yellow-600" />
+              </div>
+              <div className="flex flex-col gap-1 mb-2">
+                 <div className="w-24 h-3 bg-gray-200 rounded"></div>
+                 <div className="w-16 h-3 bg-yellow-500 rounded"></div>
+              </div>
+              {/* Big WhatsApp Button */}
+              <div className="w-full h-8 bg-green-500 rounded-lg flex items-center justify-center gap-2">
+                 <div className="w-3 h-3 bg-white rounded-full flex items-center justify-center">
+                    <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+                 </div>
+                 <span className="text-white text-[10px] font-bold uppercase">WhatsApp</span>
               </div>
            </div>
         </div>
       </div>
     ),
     color: "bg-purple-50",
-    screenInfo: "Anúncios destacados têm cor diferenciada e ficam sempre no topo."
+    screenInfo: "O destaque garante que seu anúncio seja visto primeiro por todos."
   },
   {
     title: "Pagamentos e Perfil",
