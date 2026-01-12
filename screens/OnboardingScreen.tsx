@@ -166,5 +166,3 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
 };
 
 export default Onboarding;
-
-export default Onboarding;
