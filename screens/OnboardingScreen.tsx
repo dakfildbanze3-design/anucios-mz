@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronRight, ChevronLeft, Rocket, PlusCircle, TrendingUp, CreditCard, Play } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Rocket, PlusCircle, TrendingUp, CreditCard, Play, Home, User, PlusSquare } from 'lucide-react';
 
 interface OnboardingProps {
   onComplete: () => void;
@@ -8,27 +8,38 @@ interface OnboardingProps {
 const slides = [
   {
     title: "Bem-vindo ao Anúncios MZ",
-    description: "Aqui você pode anunciar e vender rápido para milhares de pessoas em Moçambique.",
-    icon: <Rocket size={80} className="text-blue-500" />,
-    color: "bg-blue-50"
+    description: "Navegue pelo nosso Feed principal para encontrar as melhores ofertas em Moçambique.",
+    icon: <Home size={80} className="text-blue-500" />,
+    color: "bg-blue-50",
+    screenInfo: "Esta é a tela de Início (Home) onde você vê todos os anúncios."
   },
   {
     title: "Crie seu anúncio grátis",
-    description: "Preencha o título, preço e telefone. Em poucos minutos seu anúncio estará no ar.",
-    icon: <PlusCircle size={80} className="text-green-500" />,
-    color: "bg-green-50"
+    description: "Use o botão '+' no menu para publicar seu veículo, imóvel ou eletrônico rapidamente.",
+    icon: <PlusSquare size={80} className="text-green-500" />,
+    color: "bg-green-50",
+    screenInfo: "A tela de Criação permite preencher fotos, preço e contato."
   },
   {
     title: "Venda mais rápido",
-    description: "Pague para destacar seu anúncio e apareça no topo das buscas para vender em tempo recorde.",
+    description: "Destaque seus anúncios para que apareçam na seção de 'Destaques' e no topo das buscas.",
     icon: <TrendingUp size={80} className="text-purple-500" />,
-    color: "bg-purple-50"
+    color: "bg-purple-50",
+    screenInfo: "Nos Detalhes do Anúncio, você encontrará a opção 'Impulsionar'."
   },
   {
     title: "Pagamentos seguros",
-    description: "Aceitamos M-Pesa e e-Mola. É simples, rápido e totalmente seguro.",
+    description: "Aceitamos M-Pesa e e-Mola para pagamentos instantâneos e seguros via celular.",
     icon: <CreditCard size={80} className="text-orange-500" />,
-    color: "bg-orange-50"
+    color: "bg-orange-50",
+    screenInfo: "A tela de Pagamento mostra as instruções para transferência via USSD ou App."
+  },
+  {
+    title: "Gerencie seu Perfil",
+    description: "Acompanhe seus anúncios publicados e edite suas informações de contato a qualquer momento.",
+    icon: <User size={80} className="text-teal-500" />,
+    color: "bg-teal-50",
+    screenInfo: "Na tela de Perfil você tem controle total sobre suas vendas."
   }
 ];
 
@@ -61,15 +72,18 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
     <div className={`fixed inset-0 z-50 flex flex-col items-center justify-center p-6 transition-colors duration-500 ${slide.color}`}>
       <div className="w-full max-w-md bg-white rounded-3xl shadow-xl overflow-hidden flex flex-col h-[600px] relative">
         <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
-          <div className="mb-8 animate-bounce">
+          <div className="mb-6 animate-bounce">
             {slide.icon}
           </div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">
             {slide.title}
           </h2>
-          <p className="text-gray-600 text-lg">
+          <p className="text-gray-600 text-lg mb-4">
             {slide.description}
           </p>
+          <div className="bg-gray-100 rounded-xl p-3 text-sm text-gray-500 italic border border-gray-200">
+             {slide.screenInfo}
+          </div>
         </div>
 
         <div className="p-8 bg-gray-50 flex flex-col gap-4">
@@ -128,7 +142,7 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
                 <Play size={32} className="text-blue-600 ml-1" fill="currentColor" />
               </div>
               <h3 className="text-xl font-bold text-gray-900 mb-2">Tudo pronto!</h3>
-              <p className="text-gray-500 mb-6">Você está prestes a entrar no feed. Confirmar início?</p>
+              <p className="text-gray-500 mb-6">Você conhece as principais funcionalidades do app. Confirmar início?</p>
               <div className="flex flex-col gap-3">
                 <button
                   onClick={handleFinalComplete}
@@ -150,5 +164,7 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
     </div>
   );
 };
+
+export default Onboarding;
 
 export default Onboarding;
