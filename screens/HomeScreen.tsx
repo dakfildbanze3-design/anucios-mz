@@ -44,7 +44,6 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
   const [activeModalTab, setActiveModalTab] = useState<'tutorial' | 'about'>('tutorial');
-  const [currentLanguage, setCurrentLanguage] = useState<'PT' | 'EN'>('PT');
 
   const categories = [
     { id: 'all', label: 'Todos', icon: Grid },
@@ -78,10 +77,6 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
     const number = ad.contact || '258841234567';
     const message = encodeURIComponent(`Olá, vi o seu anúncio "${ad.title}" no Anúncios MZ.`);
     window.open(`https://wa.me/${number}?text=${message}`, '_blank');
-  };
-
-  const toggleLanguage = () => {
-    setCurrentLanguage(prev => prev === 'PT' ? 'EN' : 'PT');
   };
 
   const openHelpModal = (tab: 'tutorial' | 'about') => {
@@ -592,18 +587,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
                         <span>Destaques</span>
                     </button>
                     
-                    <div className="h-px bg-gray-100 my-2 mx-4"></div>
                     
-                    <button 
-                        onClick={toggleLanguage}
-                        className="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-50 flex items-center gap-3 text-sm font-medium text-gray-700"
-                    >
-                        <Globe size={18} className="text-blue-500" />
-                        <div className="flex-1 flex justify-between">
-                            <span>Idioma</span>
-                            <span className="text-xs font-bold bg-gray-100 px-2 py-0.5 rounded">{currentLanguage}</span>
-                        </div>
-                    </button>
 
                     <button 
                          onClick={() => openHelpModal('about')}
