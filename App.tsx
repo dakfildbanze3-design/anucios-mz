@@ -166,7 +166,8 @@ function MainApp() {
                   image: updatedAd.image,
                   images: updatedAd.images,
                   description: updatedAd.description,
-                  contact: updatedAd.contact
+                  contact: updatedAd.contact,
+                  views: updatedAd.views || 0
                 } 
               : ad
           ));

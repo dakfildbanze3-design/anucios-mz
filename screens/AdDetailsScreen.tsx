@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   ArrowLeft, 
   Share2, 
@@ -27,6 +27,7 @@ import {
 } from 'lucide-react';
 import { Ad } from '../types';
 import { useToast } from '../components/ToastContext';
+import { supabase } from '../lib/supabase';
 
 interface AdDetailsScreenProps {
   ad: Ad;
@@ -39,6 +40,26 @@ export const AdDetailsScreen: React.FC<AdDetailsScreenProps> = ({ ad, onBack, on
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [showShareModal, setShowShareModal] = useState(false);
   const [showFullScreen, setShowFullScreen] = useState(false);
+
+  useEffect(() => {
+    // Increment view count in Supabase
+    const incrementViews = async () => {
+      try {
+        const { error } = await supabase.rpc('increment_views', { ad_id: ad.id });
+        if (error) {
+          // Fallback if RPC doesn't exist (legacy/testing)
+          await supabase
+            .from('ads')
+            .update({ views: (ad.views || 0) + 1 })
+            .eq('id', ad.id);
+        }
+      } catch (err) {
+        console.error('Error incrementing views:', err);
+      }
+    };
+
+    incrementViews();
+  }, [ad.id]);
 
   const images = ad.images && ad.images.length > 0 
     ? ad.images 

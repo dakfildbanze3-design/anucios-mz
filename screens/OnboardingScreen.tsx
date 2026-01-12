@@ -135,25 +135,25 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
   const slide = slides[currentSlide];
 
   return (
-    <div className={`fixed inset-0 z-50 flex flex-col items-center justify-center p-6 transition-colors duration-500 ${slide.color}`}>
-      <div className="w-full max-w-md flex flex-col h-full max-h-[700px] relative">
-        <div className="flex-1 flex flex-col items-center justify-center p-4 text-center">
-          <div className="mb-8 w-full">
+    <div className={`fixed inset-0 z-50 transition-colors duration-500 overflow-y-auto ${slide.color}`}>
+      <div className="min-h-full w-full max-w-md mx-auto flex flex-col p-6 relative">
+        <div className="flex-1 flex flex-col items-center justify-center py-8 text-center">
+          <div className="mb-8 w-full max-w-xs mx-auto">
             {slide.icon}
           </div>
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">
+          <h2 className="text-3xl font-bold text-gray-900 mb-4 px-2">
             {slide.title}
           </h2>
-          <p className="text-gray-700 text-xl mb-6 leading-relaxed">
+          <p className="text-gray-700 text-xl mb-6 leading-relaxed px-2">
             {slide.description}
           </p>
-          <div className="bg-white/50 backdrop-blur-sm rounded-2xl p-4 text-base text-gray-600 italic border border-white/20 shadow-sm">
+          <div className="bg-white/50 backdrop-blur-sm rounded-2xl p-5 text-base text-gray-600 italic border border-white/20 shadow-sm max-w-sm mx-auto">
              {slide.screenInfo}
           </div>
         </div>
 
-        <div className="p-4 pb-12 flex flex-col gap-6">
-          <div className="flex justify-center gap-2.5 mb-2">
+        <div className="mt-auto py-6 flex flex-col gap-6 w-full">
+          <div className="flex justify-center gap-2.5">
             {slides.map((_, index) => (
               <div
                 key={index}
