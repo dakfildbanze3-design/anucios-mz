@@ -38,6 +38,7 @@ export const AdDetailsScreen: React.FC<AdDetailsScreenProps> = ({ ad, onBack, on
   const { showToast } = useToast();
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [showShareModal, setShowShareModal] = useState(false);
+  const [showFullScreen, setShowFullScreen] = useState(false);
 
   const images = ad.images && ad.images.length > 0 
     ? ad.images 
@@ -138,8 +139,9 @@ export const AdDetailsScreen: React.FC<AdDetailsScreenProps> = ({ ad, onBack, on
                 {images.map((img, idx) => (
                     <div 
                         key={idx}
-                        className="snap-center shrink-0 w-full h-full bg-contain bg-center bg-no-repeat" 
+                        className="snap-center shrink-0 w-full h-full bg-contain bg-center bg-no-repeat cursor-zoom-in" 
                         style={{ backgroundImage: `url(${img})` }}
+                        onClick={() => setShowFullScreen(true)}
                     />
                 ))}
             </div>
@@ -314,6 +316,57 @@ export const AdDetailsScreen: React.FC<AdDetailsScreenProps> = ({ ad, onBack, on
             </div>
         </div>
       </div>
+
+      {/* FULL SCREEN IMAGE VIEWER */}
+      {showFullScreen && (
+        <div 
+          className="fixed inset-0 z-[100] bg-black flex flex-col items-center justify-center animate-in fade-in duration-200"
+          onClick={() => setShowFullScreen(false)}
+        >
+          <div className="absolute top-0 left-0 w-full flex items-center justify-between p-6 pt-10">
+            <div className="text-white font-bold text-lg">
+              {activeImageIndex + 1} / {images.length}
+            </div>
+            <button 
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowFullScreen(false);
+              }}
+              className="size-12 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center text-white hover:bg-white/20 transition-all"
+            >
+              <X size={32} />
+            </button>
+          </div>
+
+          <div 
+            className="w-full h-full bg-contain bg-center bg-no-repeat"
+            style={{ backgroundImage: `url(${images[activeImageIndex]})` }}
+          />
+          
+          {images.length > 1 && (
+            <div className="absolute bottom-10 left-0 w-full flex items-center justify-center gap-10 px-6">
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setActiveImageIndex(prev => (prev > 0 ? prev - 1 : images.length - 1));
+                }}
+                className="size-16 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center text-white hover:bg-white/20 transition-all active:scale-90"
+              >
+                <ArrowLeft size={32} />
+              </button>
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setActiveImageIndex(prev => (prev < images.length - 1 ? prev + 1 : 0));
+                }}
+                className="size-16 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center text-white hover:bg-white/20 transition-all active:scale-90"
+              >
+                <ArrowLeft size={32} className="rotate-180" />
+              </button>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* SHARE MODAL (Fallback for Desktop) */}
       {showShareModal && (
