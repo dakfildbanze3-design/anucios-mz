@@ -152,7 +152,7 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
           </div>
         </div>
 
-        <div className="p-8 pb-10 bg-gray-50 flex flex-col gap-5">
+        <div className="p-8 pb-10 bg-gray-50 flex flex-col gap-6">
           <div className="flex justify-center gap-2.5 mb-2">
             {slides.map((_, index) => (
               <div
@@ -164,40 +164,42 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
             ))}
           </div>
 
-          <div className="flex items-center justify-between gap-4">
-            {currentSlide > 0 ? (
-              <button
-                onClick={prevSlide}
-                className="flex items-center justify-center w-14 h-14 rounded-2xl border-2 border-gray-200 text-gray-600 hover:bg-gray-100 transition-all active:scale-95 shadow-sm bg-white"
-              >
-                <ChevronLeft size={28} />
-              </button>
-            ) : (
-              <div className="w-14" />
-            )}
-
+          <div className="flex flex-col gap-4">
             <button
               onClick={nextSlide}
-              className="flex-1 bg-blue-600 text-white font-black text-xl py-5 rounded-2xl flex items-center justify-center gap-3 hover:bg-blue-700 transition-all active:scale-[0.98] shadow-xl shadow-blue-500/30"
+              className="w-full bg-blue-600 text-white font-black text-2xl py-6 rounded-2xl flex items-center justify-center gap-3 hover:bg-blue-700 transition-all active:scale-[0.98] shadow-xl shadow-blue-500/40"
             >
               {currentSlide === slides.length - 1 ? (
                 <>
-                  Começar <Play size={24} fill="currentColor" />
+                  Começar <Play size={28} fill="currentColor" />
                 </>
               ) : (
                 <>
-                  Próximo <ChevronRight size={24} />
+                  Próximo <ChevronRight size={28} />
                 </>
               )}
             </button>
+
+            <div className="flex items-center justify-between gap-4">
+              {currentSlide > 0 ? (
+                <button
+                  onClick={prevSlide}
+                  className="flex-1 flex items-center justify-center h-14 rounded-2xl border-2 border-gray-300 text-gray-700 font-bold hover:bg-gray-100 transition-all active:scale-95 shadow-sm bg-white"
+                >
+                  <ChevronLeft size={24} className="mr-2" /> Voltar
+                </button>
+              ) : (
+                <div className="flex-1" />
+              )}
+              
+              <button
+                onClick={onComplete}
+                className="flex-1 text-gray-500 font-bold h-14 rounded-2xl border-2 border-transparent hover:text-gray-700 transition-colors uppercase tracking-wider text-sm"
+              >
+                Pular tour
+              </button>
+            </div>
           </div>
-          
-          <button
-            onClick={onComplete}
-            className="text-gray-400 font-bold py-2 text-base hover:text-gray-600 transition-colors uppercase tracking-widest"
-          >
-            Pular tour
-          </button>
         </div>
 
         {/* Confirmation Modal Overlay */}
