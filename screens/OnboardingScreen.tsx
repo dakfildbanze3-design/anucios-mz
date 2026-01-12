@@ -152,13 +152,13 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
           </div>
         </div>
 
-        <div className="p-8 bg-gray-50 flex flex-col gap-4">
-          <div className="flex justify-center gap-2 mb-4">
+        <div className="p-8 pb-10 bg-gray-50 flex flex-col gap-5">
+          <div className="flex justify-center gap-2.5 mb-2">
             {slides.map((_, index) => (
               <div
                 key={index}
-                className={`h-2 rounded-full transition-all duration-300 ${
-                  index === currentSlide ? 'w-8 bg-blue-600' : 'w-2 bg-gray-300'
+                className={`h-2.5 rounded-full transition-all duration-300 ${
+                  index === currentSlide ? 'w-10 bg-blue-600' : 'w-2.5 bg-gray-300'
                 }`}
               />
             ))}
@@ -168,25 +168,25 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
             {currentSlide > 0 ? (
               <button
                 onClick={prevSlide}
-                className="flex items-center justify-center w-12 h-12 rounded-full border border-gray-300 text-gray-600 hover:bg-gray-100 transition-colors"
+                className="flex items-center justify-center w-14 h-14 rounded-2xl border-2 border-gray-200 text-gray-600 hover:bg-gray-100 transition-all active:scale-95 shadow-sm bg-white"
               >
-                <ChevronLeft size={24} />
+                <ChevronLeft size={28} />
               </button>
             ) : (
-              <div className="w-12" />
+              <div className="w-14" />
             )}
 
             <button
               onClick={nextSlide}
-              className="flex-1 bg-blue-600 text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-2 hover:bg-blue-700 transition-colors shadow-lg shadow-blue-200"
+              className="flex-1 bg-blue-600 text-white font-black text-xl py-5 rounded-2xl flex items-center justify-center gap-3 hover:bg-blue-700 transition-all active:scale-[0.98] shadow-xl shadow-blue-500/30"
             >
               {currentSlide === slides.length - 1 ? (
                 <>
-                  Começar <Play size={20} fill="currentColor" />
+                  Começar <Play size={24} fill="currentColor" />
                 </>
               ) : (
                 <>
-                  Próximo <ChevronRight size={20} />
+                  Próximo <ChevronRight size={24} />
                 </>
               )}
             </button>
@@ -194,7 +194,7 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
           
           <button
             onClick={onComplete}
-            className="text-gray-400 font-medium hover:text-gray-600 transition-colors"
+            className="text-gray-400 font-bold py-2 text-base hover:text-gray-600 transition-colors uppercase tracking-widest"
           >
             Pular tour
           </button>
