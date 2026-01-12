@@ -1,24 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  
   <!-- Página principal -->
   <url>
-    <loc>https://anuncios-mz.vercel.app/</loc>
+    <loc>https://anuncios-mz.vercel.app</loc>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
-
-  <!-- Rotas internas da SPA, adicionadas com "trick" para Google seguir -->
-  <url>
-    <loc>https://anuncios-mz.vercel.app/#/anuncios</loc>
-    <changefreq>daily</changefreq>
-    <priority>0.9</priority>
-  </url>
-
-  <url>
-    <loc>https://anuncios-mz.vercel.app/#/login</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url>
-
 </urlset>
