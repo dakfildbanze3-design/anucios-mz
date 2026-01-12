@@ -1,0 +1,121 @@
+import React, { useState } from 'react';
+import { ChevronRight, ChevronLeft, Rocket, PlusCircle, TrendingUp, CreditCard, Play } from 'lucide-react';
+
+interface OnboardingProps {
+  onComplete: () => void;
+}
+
+const slides = [
+  {
+    title: "Bem-vindo ao Anúncios MZ",
+    description: "Aqui você pode anunciar e vender rápido para milhares de pessoas em Moçambique.",
+    icon: <Rocket size={80} className="text-blue-500" />,
+    color: "bg-blue-50"
+  },
+  {
+    title: "Crie seu anúncio grátis",
+    description: "Preencha o título, preço e telefone. Em poucos minutos seu anúncio estará no ar.",
+    icon: <PlusCircle size={80} className="text-green-500" />,
+    color: "bg-green-50"
+  },
+  {
+    title: "Venda mais rápido",
+    description: "Pague para destacar seu anúncio e apareça no topo das buscas para vender em tempo recorde.",
+    icon: <TrendingUp size={80} className="text-purple-500" />,
+    color: "bg-purple-50"
+  },
+  {
+    title: "Pagamentos seguros",
+    description: "Aceitamos M-Pesa, e-Mola e mKesh. É simples, rápido e totalmente seguro.",
+    icon: <CreditCard size={80} className="text-orange-500" />,
+    color: "bg-orange-50"
+  }
+];
+
+const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  const nextSlide = () => {
+    if (currentSlide < slides.length - 1) {
+      setCurrentSlide(currentSlide + 1);
+    } else {
+      onComplete();
+    }
+  };
+
+  const prevSlide = () => {
+    if (currentSlide > 0) {
+      setCurrentSlide(currentSlide - 1);
+    }
+  };
+
+  const slide = slides[currentSlide];
+
+  return (
+    <div className={`fixed inset-0 z-50 flex flex-col items-center justify-center p-6 transition-colors duration-500 ${slide.color}`}>
+      <div className="w-full max-w-md bg-white rounded-3xl shadow-xl overflow-hidden flex flex-col h-[600px]">
+        <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
+          <div className="mb-8 animate-bounce">
+            {slide.icon}
+          </div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">
+            {slide.title}
+          </h2>
+          <p className="text-gray-600 text-lg">
+            {slide.description}
+          </p>
+        </div>
+
+        <div className="p-8 bg-gray-50 flex flex-col gap-4">
+          <div className="flex justify-center gap-2 mb-4">
+            {slides.map((_, index) => (
+              <div
+                key={index}
+                className={`h-2 rounded-full transition-all duration-300 ${
+                  index === currentSlide ? 'w-8 bg-blue-600' : 'w-2 bg-gray-300'
+                }`}
+              />
+            ))}
+          </div>
+
+          <div className="flex items-center justify-between gap-4">
+            {currentSlide > 0 ? (
+              <button
+                onClick={prevSlide}
+                className="flex items-center justify-center w-12 h-12 rounded-full border border-gray-300 text-gray-600 hover:bg-gray-100 transition-colors"
+              >
+                <ChevronLeft size={24} />
+              </button>
+            ) : (
+              <div className="w-12" />
+            )}
+
+            <button
+              onClick={nextSlide}
+              className="flex-1 bg-blue-600 text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-2 hover:bg-blue-700 transition-colors shadow-lg shadow-blue-200"
+            >
+              {currentSlide === slides.length - 1 ? (
+                <>
+                  Começar <Play size={20} fill="currentColor" />
+                </>
+              ) : (
+                <>
+                  Próximo <ChevronRight size={20} />
+                </>
+              )}
+            </button>
+          </div>
+          
+          <button
+            onClick={onComplete}
+            className="text-gray-400 font-medium hover:text-gray-600 transition-colors"
+          >
+            Pular tour
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Onboarding;

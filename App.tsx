@@ -6,7 +6,8 @@ import { AdDetailsScreen } from './screens/AdDetailsScreen';
 import { FeaturedAdsScreen } from './screens/FeaturedAdsScreen';
 import { TermsScreen } from './screens/TermsScreen';
 import { ProfileScreen } from './screens/ProfileScreen';
-import { SplashScreen } from './screens/SplashScreen'; // Import SplashScreen
+import { SplashScreen } from './screens/SplashScreen';
+import Onboarding from './screens/OnboardingScreen'; // Import Onboarding
 import { AuthModal } from './screens/AuthModal';
 import { Ad, ScreenName } from './types';
 import { supabase } from './lib/supabase';
@@ -47,6 +48,8 @@ export default function App() {
 function MainApp() {
   // Splash Screen State
   const [showSplash, setShowSplash] = useState(true);
+  // Onboarding State
+  const [showOnboarding, setShowOnboarding] = useState(false);
 
   const [currentScreen, setCurrentScreen] = useState<ScreenName>('HOME');
   const [selectedAd, setSelectedAd] = useState<Ad | undefined>(undefined);
@@ -63,14 +66,24 @@ function MainApp() {
   // UX: Remember where the user wanted to go before auth
   const [pendingRoute, setPendingRoute] = useState<ScreenName | null>(null);
 
-  // 1. Splash Screen Timer
+  // 1. Splash Screen Timer and Onboarding Check
   useEffect(() => {
+    const hasSeenOnboarding = localStorage.getItem('hasSeenOnboarding');
+    
     const timer = setTimeout(() => {
       setShowSplash(false);
+      if (!hasSeenOnboarding) {
+        setShowOnboarding(true);
+      }
     }, 5000); // 5 seconds delay
 
     return () => clearTimeout(timer);
   }, []);
+
+  const handleOnboardingComplete = () => {
+    localStorage.setItem('hasSeenOnboarding', 'true');
+    setShowOnboarding(false);
+  };
 
   // 2. Fetch Initial Data and Session
   useEffect(() => {
@@ -253,6 +266,11 @@ function MainApp() {
   // Render Splash Screen if active
   if (showSplash) {
     return <SplashScreen />;
+  }
+
+  // Render Onboarding if active
+  if (showOnboarding) {
+    return <Onboarding onComplete={handleOnboardingComplete} />;
   }
 
   // Normal Loading State (only if data is still loading AFTER splash is done, usually splash covers this)

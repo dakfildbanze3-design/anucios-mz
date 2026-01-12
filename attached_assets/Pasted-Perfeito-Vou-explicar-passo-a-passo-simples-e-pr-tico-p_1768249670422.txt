@@ -1,0 +1,134 @@
+Perfeito! Vou explicar passo a passo, simples e prático, para você criar páginas de explicação / guia / onboarding no seu app antes do feed.
+
+1️⃣ O que é isso
+
+São telas introdutórias que o usuário vê antes de entrar no feed.
+
+Serve para explicar:
+
+Como criar anúncios
+
+Como destacar
+
+Como funciona o pagamento
+
+Contato ou suporte
+
+Normalmente chamadas de “Onboarding screens”.
+
+2️⃣ Estrutura básica das telas de explicação
+
+Você pode criar 3 a 5 telas, cada uma com:
+
+Imagem ou ícone representando a função
+
+Título curto
+
+Texto explicativo
+
+Botão avançar / pular
+
+No final, botão “Começar / Entrar no Feed”
+
+Exemplo de sequência:
+
+1️⃣ Tela 1 – Bem-vindo
+
+Título: “Bem-vindo ao Anúncios MZ”
+
+Texto: “Aqui você pode anunciar e vender rápido”
+
+2️⃣ Tela 2 – Criar anúncio
+
+Título: “Crie seu anúncio grátis”
+
+Texto: “Preencha título, preço e telefone e publique”
+
+3️⃣ Tela 3 – Destaque pago
+
+Título: “Venda mais rápido”
+
+Texto: “Pague para destacar seu anúncio e aparecer no topo”
+
+4️⃣ Tela 4 – Pagamento fácil
+
+Título: “Pagamentos seguros”
+
+Texto: “Aceitamos M-Pesa, e-Mola e mKesh. É simples e rápido”
+
+5️⃣ Tela final
+
+Botão: “Começar”
+
+Leva para o feed
+
+3️⃣ Como colocar isso no app
+Opção 1 – FlutterFlow
+
+Crie novas telas no projeto
+
+Coloque:
+
+Imagem/ícone
+
+Título
+
+Texto
+
+Botão para avançar
+
+Conecte os botões:
+
+Tela 1 → Tela 2
+
+Tela 2 → Tela 3 …
+
+Última tela → Feed
+
+Configure “Show only first time”:
+
+Usuário só vê essas telas na primeira vez
+
+Depois, vai direto para o feed
+
+Opção 2 – App Android nativo (Kotlin / Java)
+
+Criar Activity ou Fragment para cada tela
+
+Botões “Next / Skip”
+
+Salvar no SharedPreferences:
+
+Primeiro acesso → mostrar onboarding
+
+Depois → abrir feed direto
+
+Opção 3 – Apps híbridos (React Native)
+
+Usar pacote de onboarding (ex: react-native-onboarding-swiper)
+
+Configurar telas como acima
+
+No último passo → abrir feed
+
+4️⃣ Onde e como mexer
+
+Editar título e texto: só mudar o conteúdo das telas
+
+Imagens e ícones: coloque imagens leves e explicativas
+
+Botão “Começar / Entrar”: linkar para a tela do feed
+
+Controle de primeira vez: marcar no banco ou local storage se o usuário já viu
+
+5️⃣ Dicas de design
+
+Fundo limpo (preto, branco ou azul, seguindo seu app)
+
+Botões grandes e claros
+
+Texto legível
+
+Use imagens simples e consistentes
+
+Siga a mesma tipografia do app
