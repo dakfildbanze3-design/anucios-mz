@@ -9,6 +9,7 @@ import { ProfileScreen } from './screens/ProfileScreen';
 import { SplashScreen } from './screens/SplashScreen';
 import Onboarding from './screens/OnboardingScreen'; // Import Onboarding
 import { AuthModal } from './screens/AuthModal';
+import { InstallPWA } from './components/InstallPWA';
 import { Ad, ScreenName } from './types';
 import { supabase } from './lib/supabase';
 import { Session } from '@supabase/supabase-js';
@@ -371,6 +372,7 @@ function MainApp() {
       {isAuthOpen && (
         <AuthModal onClose={() => setIsAuthOpen(false)} />
       )}
+      <InstallPWA />
     </div>
   );
 }
