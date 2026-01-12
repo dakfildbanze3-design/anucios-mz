@@ -1,0 +1,53 @@
+Create a professional Android app feature for a classifieds app using Supabase authentication. 
+
+The app currently logs users in, but they are automatically logged out immediately after login. Fix this issue so that:
+
+================================
+GOAL
+================================
+- Users can log in with email/password or social login.
+- The app keeps the user logged in even after closing or restarting the app.
+- Logout only occurs when the user presses the "Logout" button.
+
+================================
+LOGIN FLOW
+================================
+1. User enters email and password.
+2. App sends login request to Supabase Auth.
+3. If login succeeds, the session is saved securely in local storage / shared preferences.
+4. App checks session on app start:
+   - If a valid session exists → go directly to feed.
+   - If no session → show login screen.
+
+================================
+SESSION MANAGEMENT
+================================
+- Ensure the Supabase session (access token and refresh token) is persisted locally.
+- Do not clear local storage or shared preferences on app start.
+- Automatically refresh session if needed using Supabase refresh token.
+- After logout, remove session from local storage.
+
+================================
+USER EXPERIENCE
+================================
+- User sees feed immediately after login if session is valid.
+- User stays logged in between app restarts.
+- Logout button explicitly logs the user out and clears session.
+
+================================
+IMPLEMENTATION DETAILS
+================================
+- Flutter / FlutterFlow:
+  • Use supabase.auth.currentSession to check if user is logged in.
+  • On login success, Supabase SDK automatically stores the session.
+  • On app startup, verify currentSession to route user.
+- Web / React Native:
+  • Use localStorage/sessionStorage to store Supabase session.
+  • Validate session on page load to auto-login.
+
+================================
+FINAL GOAL
+================================
+- Permanent login until user logs out manually.
+- Prevent automatic logout.
+- Smooth and professional user experience.
