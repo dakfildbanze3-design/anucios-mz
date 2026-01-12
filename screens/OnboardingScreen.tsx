@@ -26,7 +26,7 @@ const slides = [
   },
   {
     title: "Pagamentos seguros",
-    description: "Aceitamos M-Pesa, e-Mola e mKesh. É simples, rápido e totalmente seguro.",
+    description: "Aceitamos M-Pesa e e-Mola. É simples, rápido e totalmente seguro.",
     icon: <CreditCard size={80} className="text-orange-500" />,
     color: "bg-orange-50"
   }
@@ -34,13 +34,19 @@ const slides = [
 
 const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [showConfirm, setShowConfirm] = useState(false);
 
   const nextSlide = () => {
     if (currentSlide < slides.length - 1) {
       setCurrentSlide(currentSlide + 1);
     } else {
-      onComplete();
+      setShowConfirm(true);
     }
+  };
+
+  const handleFinalComplete = () => {
+    setShowConfirm(false);
+    onComplete();
   };
 
   const prevSlide = () => {
@@ -53,7 +59,7 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
 
   return (
     <div className={`fixed inset-0 z-50 flex flex-col items-center justify-center p-6 transition-colors duration-500 ${slide.color}`}>
-      <div className="w-full max-w-md bg-white rounded-3xl shadow-xl overflow-hidden flex flex-col h-[600px]">
+      <div className="w-full max-w-md bg-white rounded-3xl shadow-xl overflow-hidden flex flex-col h-[600px] relative">
         <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
           <div className="mb-8 animate-bounce">
             {slide.icon}
@@ -113,6 +119,33 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
             Pular tour
           </button>
         </div>
+
+        {/* Confirmation Modal Overlay */}
+        {showConfirm && (
+          <div className="absolute inset-0 z-[60] bg-black/50 flex items-center justify-center p-6 animate-in fade-in duration-300">
+            <div className="bg-white rounded-2xl p-8 text-center max-w-[80%] shadow-2xl animate-in zoom-in duration-300">
+              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Play size={32} className="text-blue-600 ml-1" fill="currentColor" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Tudo pronto!</h3>
+              <p className="text-gray-500 mb-6">Você está prestes a entrar no feed. Confirmar início?</p>
+              <div className="flex flex-col gap-3">
+                <button
+                  onClick={handleFinalComplete}
+                  className="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 transition-colors"
+                >
+                  Sim, vamos lá
+                </button>
+                <button
+                  onClick={() => setShowConfirm(false)}
+                  className="w-full text-gray-400 font-medium py-2"
+                >
+                  Voltar
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
