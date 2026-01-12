@@ -25,9 +25,9 @@ interface BoostAdScreenProps {
 }
 
 const PLANS: PricingPlan[] = [
-  { id: 'basic', name: 'Rápido', price: 20, duration: 1, features: ['Destaque por 24h'] },
-  { id: 'standard', name: 'Semanal', price: 50, duration: 7, features: ['Destaque por 7 dias', 'Selo de Destaque'], isPopular: true },
-  { id: 'premium', name: 'Mensal', price: 100, duration: 30, features: ['Destaque por 30 dias', 'Topo da Página', 'Suporte Prioritário'] },
+  { id: 'basic', name: 'Rápido', price: 50, duration: 3, features: ['Destaque por 3 dias', 'Selo de Destaque'] },
+  { id: 'standard', name: 'Semanal', price: 100, duration: 7, features: ['Destaque por 7 dias', 'Selo de Destaque', 'Topo da Página'], isPopular: true },
+  { id: 'premium', name: 'Quinzenal', price: 150, duration: 14, features: ['Destaque por 14 dias', 'Selo de Destaque', 'Topo da Página', 'Suporte Prioritário'] },
 ];
 
 const OPERATORS = [

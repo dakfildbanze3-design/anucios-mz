@@ -51,7 +51,7 @@ const slides = [
   },
   {
     title: "Venda mais rápido",
-    description: "Anúncios destacados ficam no topo com selo à direita e botão grande de WhatsApp para contato imediato.",
+    description: "Destaque seu anúncio por apenas 50MT (3 dias), 100MT (7 dias) ou 150MT (14 dias).",
     icon: (
       <div className="w-full h-48 bg-gray-100 rounded-xl overflow-hidden border-2 border-purple-200 relative shadow-inner">
         {/* Mock Featured Ad */}
