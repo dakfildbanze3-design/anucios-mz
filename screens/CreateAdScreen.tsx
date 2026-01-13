@@ -356,11 +356,11 @@ export const CreateAdScreen: React.FC<CreateAdScreenProps> = ({
         views: data.views || 0
       };
 
-      showToast("Anúncio publicado com sucesso!", "success");
-
       if (isBoosted) {
+        showToast("Anúncio salvo! Prossiga com o pagamento para destacar.", "success");
         onBoost(newAd);
       } else {
+        showToast("Anúncio publicado com sucesso!", "success");
         onPublish(newAd);
       }
 

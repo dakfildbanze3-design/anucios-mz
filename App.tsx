@@ -330,7 +330,7 @@ function MainApp() {
         <BoostAdScreen 
           onClose={() => {
             if (selectedAd) {
-               setCurrentScreen('AD_DETAILS');
+               setCurrentScreen('HOME');
             } else {
                setCurrentScreen('HOME');
             }
@@ -339,7 +339,7 @@ function MainApp() {
           onPaymentSuccess={() => {
             if (selectedAd) {
                fetchAds();
-               setCurrentScreen('AD_DETAILS');
+               setCurrentScreen('HOME');
             } else {
                setCurrentScreen('HOME');
             }
