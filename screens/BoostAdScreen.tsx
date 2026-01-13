@@ -88,8 +88,9 @@ export const BoostAdScreen: React.FC<BoostAdScreenProps> = ({ onClose, onPayment
   const confirmPayment = async () => {
     if (!adId || !activePlan) return;
 
-    if (!phoneNumber || phoneNumber.length < 9) {
-      showToast("Por favor, insira o número de telefone usado.", "error");
+    const cleanPhone = phoneNumber.replace(/\s/g, '');
+    if (!cleanPhone || cleanPhone.length !== 9 || !cleanPhone.startsWith('8')) {
+      showToast("Número inválido. Deve começar com 8 e ter 9 dígitos.", "error");
       return;
     }
 
@@ -335,15 +336,23 @@ export const BoostAdScreen: React.FC<BoostAdScreenProps> = ({ onClose, onPayment
                   <div className="text-left">
                     <label className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 block">Número usado no Pagamento</label>
                     <div className="relative">
-                        <Smartphone className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                        <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center gap-1.5 border-r border-gray-200 pr-3 mr-3">
+                          <span className="text-lg">🇲🇿</span>
+                          <span className="text-sm font-bold text-gray-500">+258</span>
+                        </div>
                         <input 
                             type="tel" 
-                            className="w-full pl-12 pr-4 py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-primary outline-none font-bold text-gray-900"
-                            placeholder="84 / 85 / 86 / 87..."
+                            maxLength={9}
+                            className="w-full pl-28 pr-4 py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-primary outline-none font-bold text-gray-900"
+                            placeholder="8x xxx xxxx"
                             value={phoneNumber}
-                            onChange={(e) => setPhoneNumber(e.target.value)}
+                            onChange={(e) => {
+                              const val = e.target.value.replace(/\D/g, '');
+                              if (val.length <= 9) setPhoneNumber(val);
+                            }}
                         />
                     </div>
+                    <p className="text-[10px] text-gray-400 mt-1 pl-1 italic">Deve começar com 8 e ter 9 dígitos</p>
                   </div>
 
                   <div className="text-left">

@@ -243,10 +243,24 @@ export const CreateAdScreen: React.FC<CreateAdScreenProps> = ({
 
   const handlePublishClick = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title || !price || !category) {
-      showToast("Preencha Título, Preço e Categoria.", "error");
+    
+    const numericPrice = parseFloat(price);
+    
+    if (!title.trim() || !price || isNaN(numericPrice) || !category || !description.trim() || !location.trim() || !contact.trim()) {
+      showToast("Por favor, preencha todos os campos obrigatórios.", "error");
       return;
     }
+
+    if (category === 'vehicle' && (!fuel || !transmission || !mileage)) {
+      showToast("Por favor, preencha as especificações do veículo.", "error");
+      return;
+    }
+
+    if ((category === 'real-estate' || category === 'electronics') && !specType) {
+      showToast("Por favor, selecione o tipo.", "error");
+      return;
+    }
+
     if (mediaItems.length === 0) {
         showToast("Adicione pelo menos uma foto ou link.", "error");
         return;
