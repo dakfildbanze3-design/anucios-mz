@@ -408,75 +408,73 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
                 </div>
             ) : (
                 // Responsive Grid for Recent Ads
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3 sm:gap-4">
                 {recentAds.map((ad) => (
                     <div 
                     key={ad.id}
                     onClick={() => onNavigate('AD_DETAILS', ad)}
-                    className={`relative p-3 rounded-2xl shadow-sm border flex sm:flex-col gap-4 h-auto min-h-36 sm:min-h-0 cursor-pointer hover:shadow-md transition-all duration-300 group ${ad.isMyAd ? 'bg-blue-50/50 border-blue-100' : 'bg-white border-gray-100'}`}
+                    className={`relative p-2 sm:p-3 rounded-xl sm:rounded-2xl shadow-sm border flex flex-col gap-2 sm:gap-4 h-auto cursor-pointer hover:shadow-md transition-all duration-300 group ${ad.isMyAd ? 'bg-blue-50/50 border-blue-100' : 'bg-white border-gray-100'}`}
                     >
                     {ad.isMyAd && (
-                        <div className="absolute -top-3 -right-3 z-10">
-                        <span className="bg-gray-900 text-white text-[10px] px-2 py-1 rounded-full font-bold shadow-md">Seu Anúncio</span>
+                        <div className="absolute -top-2 -right-2 z-10">
+                        <span className="bg-gray-900 text-[9px] sm:text-[10px] px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full text-white font-bold shadow-md">Seu Anúncio</span>
                         </div>
                     )}
                     
-                    <div className="w-32 h-32 sm:w-full sm:h-44 shrink-0 rounded-xl bg-gray-100 overflow-hidden relative">
+                    <div className="w-full aspect-square sm:aspect-auto sm:h-44 shrink-0 rounded-lg sm:rounded-xl bg-gray-100 overflow-hidden relative">
                         <div 
                         className="w-full h-full bg-cover bg-center group-hover:scale-105 transition-transform duration-500" 
                         style={{ backgroundImage: `url(${ad.image})` }}
                         />
                     </div>
                     
-                    <div className="flex flex-col justify-between flex-1 py-1">
+                    <div className="flex flex-col justify-between flex-1">
                         <div>
-                        <h3 className="text-[15px] font-semibold text-gray-900 line-clamp-2 leading-snug group-hover:text-primary transition-colors">{ad.title}</h3>
-                        {ad.specs?.design && (
-                            <div className="flex items-center gap-1 text-xs text-gray-500 mt-1">
-                                <Palette size={12} />
-                                <span>{ad.specs.design}</span>
+                        <h3 className="text-[13px] sm:text-[15px] font-bold text-gray-900 line-clamp-2 leading-tight group-hover:text-primary transition-colors">{ad.title}</h3>
+                        
+                        <div className="flex flex-col gap-0.5 mt-1 sm:mt-1.5">
+                            <div className="flex items-center gap-1 text-[10px] sm:text-xs text-gray-500">
+                                <MapPin size={10} className="sm:size-3" />
+                                <span className="truncate">{ad.location}</span>
                             </div>
-                        )}
-                        <div className="flex flex-col gap-1 mt-1.5">
-                            <div className="flex items-center gap-1 text-xs text-gray-500">
-                            <Clock size={12} />
-                            {ad.timeAgo}
-                            </div>
-                            <div className="flex items-center gap-1 text-xs font-bold text-gray-600">
-                            <Phone size={12} />
-                            <span>{ad.contact || '+258 84 123 4567'}</span>
+                            <div className="flex items-center gap-1 text-[10px] sm:text-xs text-gray-500">
+                                <Clock size={10} className="sm:size-3" />
+                                {ad.timeAgo}
                             </div>
                         </div>
                         </div>
                         
-                        <div className="mt-2 sm:mt-3">
-                        <p className="text-base font-bold text-primary">
+                        <div className="mt-1.5 sm:mt-3">
+                        <p className="text-sm sm:text-base font-black text-primary">
                             {ad.currency} {ad.price.toLocaleString('pt-PT')}
                         </p>
                         
-                        {ad.isMyAd ? (
-                            <>
-                            {!ad.isFeatured ? (
-                                <button 
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    onNavigate('BOOST_AD', ad);
-                                }}
-                                className="w-full mt-2 group flex flex-col md:flex-row items-center justify-center gap-0.5 md:gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white py-1.5 px-3 rounded-lg shadow-md shadow-blue-500/20 active:scale-95 transition-all"
-                                >
-                                <div className="flex items-center gap-1.5">
-                                    <Rocket size={14} />
-                                    <span className="text-xs font-bold">Destacar</span>
-                                </div>
-                                </button>
-                            ) : (
-                                <div className="w-full mt-2 flex items-center justify-center gap-1.5 bg-amber-50 text-amber-600 py-1.5 px-3 rounded-lg border border-amber-100">
-                                    <Crown size={14} className="fill-amber-600" />
-                                    <span className="text-xs font-bold">Premium Ativo</span>
-                                </div>
-                            )}
-                            </>
-                        ) : (
+                        {ad.isMyAd && (
+                            <div className="mt-2">
+                                {!ad.isFeatured ? (
+                                    <button 
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        onNavigate('BOOST_AD', ad);
+                                    }}
+                                    className="w-full flex items-center justify-center gap-1 bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-1 rounded-lg shadow-md active:scale-95 transition-all"
+                                    >
+                                    <Rocket size={12} />
+                                    <span className="text-[10px] font-bold">Destacar</span>
+                                    </button>
+                                ) : (
+                                    <div className="w-full flex items-center justify-center gap-1 bg-amber-50 text-amber-600 py-1 rounded-lg border border-amber-100">
+                                        <Crown size={12} className="fill-amber-600" />
+                                        <span className="text-[10px] font-bold">Premium</span>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                        </div>
+                    </div>
+                    </div>
+                ))}
+                </div>
                             <div className="flex justify-end mt-2 sm:hidden">
                             <button 
                                 onClick={(e) => handleWhatsAppClick(e, ad)}
