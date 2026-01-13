@@ -66,8 +66,7 @@ export const BoostAdScreen: React.FC<BoostAdScreenProps> = ({ onClose, onPayment
 
   // Form Data
   const [phoneNumber, setPhoneNumber] = useState('');
-  const [referenceCode, setReferenceCode] = useState('');
-  const [paymentMessage, setPaymentMessage] = useState('');
+  const [smsCode, setSmsCode] = useState('');
   
   // Logic State
   const [isProcessing, setIsProcessing] = useState(false);
@@ -88,6 +87,16 @@ export const BoostAdScreen: React.FC<BoostAdScreenProps> = ({ onClose, onPayment
   // ------------------------------------------------------------------
   const confirmPayment = async () => {
     if (!adId || !activePlan) return;
+
+    if (!phoneNumber || phoneNumber.length < 9) {
+      showToast("Por favor, insira o número de telefone usado.", "error");
+      return;
+    }
+
+    if (!smsCode || smsCode.length < 4) {
+      showToast("Por favor, insira o código de confirmação do SMS.", "error");
+      return;
+    }
     
     setIsProcessing(true);
     setStep('PROCESSING');
@@ -110,8 +119,8 @@ export const BoostAdScreen: React.FC<BoostAdScreenProps> = ({ onClose, onPayment
           plan_id: activePlan.id,
           client_number: phoneNumber.replace(/\s/g, ''),
           operator: selectedOperator,
-          reference_code: `IMEDIATO-${Date.now()}`,
-          message_content: 'Pagamento imediato confirmado pelo usuário',
+          reference_code: smsCode.trim().toUpperCase(),
+          message_content: `Pagamento imediato. Código SMS: ${smsCode}`,
           status: 'confirmed'
         });
 
@@ -312,22 +321,36 @@ export const BoostAdScreen: React.FC<BoostAdScreenProps> = ({ onClose, onPayment
                
                <div>
                   <h3 className="text-2xl font-black text-gray-900 mb-2">Quase lá!</h3>
-                  <p className="text-gray-500 leading-relaxed">
-                    Se já realizou a transferência, clique no botão abaixo para ativar o seu destaque imediatamente.
+                  <p className="text-gray-500 leading-relaxed font-medium">
+                    Para ativar o seu destaque agora, confirme os dados da transação abaixo.
                   </p>
                </div>
 
-               <div className="w-full space-y-4">
-                  <div>
-                    <label className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 block text-left">Confirmar seu Número (Opcional)</label>
+               <div className="w-full space-y-5">
+                  <div className="text-left">
+                    <label className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 block">Número usado no Pagamento</label>
                     <div className="relative">
-                        <Smartphone className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                        <Smartphone className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
                         <input 
                             type="tel" 
-                            className="w-full pl-10 pr-4 py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-primary outline-none font-bold text-gray-900"
+                            className="w-full pl-12 pr-4 py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-primary outline-none font-bold text-gray-900"
                             placeholder="84 / 85 / 86 / 87..."
                             value={phoneNumber}
                             onChange={(e) => setPhoneNumber(e.target.value)}
+                        />
+                    </div>
+                  </div>
+
+                  <div className="text-left">
+                    <label className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 block">Código do SMS (Ex: PP230...)</label>
+                    <div className="relative">
+                        <FileText className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                        <input 
+                            type="text" 
+                            className="w-full pl-12 pr-4 py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-primary outline-none font-bold text-gray-900 uppercase placeholder:normal-case"
+                            placeholder="Insira o ID da transação"
+                            value={smsCode}
+                            onChange={(e) => setSmsCode(e.target.value)}
                         />
                     </div>
                   </div>
@@ -340,8 +363,11 @@ export const BoostAdScreen: React.FC<BoostAdScreenProps> = ({ onClose, onPayment
                 className="w-full bg-green-600 hover:bg-green-700 active:scale-[0.98] transition-all text-white font-black text-xl py-5 rounded-2xl shadow-xl shadow-green-600/30 flex items-center justify-center gap-3"
                 >
                   <CheckCircle2 size={24} />
-                  Ativar Agora
+                  Ativar Destaque Imediato
                 </button>
+                <p className="text-[10px] text-gray-400 text-center mt-3 font-medium uppercase tracking-tight">
+                  O destaque será ativado assim que clicar no botão
+                </p>
             </div>
         </div>
       </div>
