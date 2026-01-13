@@ -475,20 +475,6 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
                     </div>
                 ))}
                 </div>
-                            <div className="flex justify-end mt-2 sm:hidden">
-                            <button 
-                                onClick={(e) => handleWhatsAppClick(e, ad)}
-                                className="size-10 rounded-full bg-green-50 flex items-center justify-center text-green-600 hover:bg-[#25D366] hover:text-white transition-colors border border-green-100"
-                            >
-                                <MessageCircle size={18} />
-                            </button>
-                            </div>
-                        )}
-                        </div>
-                    </div>
-                    </div>
-                ))}
-                </div>
             )}
             </section>
         </div>
