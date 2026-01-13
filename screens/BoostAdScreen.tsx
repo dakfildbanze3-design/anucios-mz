@@ -103,15 +103,7 @@ export const BoostAdScreen: React.FC<BoostAdScreenProps> = ({ onClose, onPayment
     setStep('PROCESSING');
 
     try {
-      // 1. UPDATE AD IMMEDIATELY
-      const { error: updateError } = await supabase
-        .from('ads')
-        .update({ is_featured: true })
-        .eq('id', adId);
-
-      if (updateError) throw updateError;
-
-      // 2. INSERT PAYMENT RECORD (As background record)
+      // 1. INSERT PAYMENT RECORD (As background record)
       await supabase
         .from('payments')
         .insert({
@@ -121,8 +113,8 @@ export const BoostAdScreen: React.FC<BoostAdScreenProps> = ({ onClose, onPayment
           client_number: phoneNumber.replace(/\s/g, ''),
           operator: selectedOperator,
           reference_code: smsCode.trim().toUpperCase(),
-          message_content: `Pagamento imediato. Código SMS: ${smsCode}`,
-          status: 'confirmed',
+          message_content: `Pagamento submetido pelo utilizador. Aguardando verificação do SMS: ${smsCode}`,
+          status: 'pending',
           ad_details: {
             id: adId,
             plan_name: activePlan.name,
@@ -130,9 +122,9 @@ export const BoostAdScreen: React.FC<BoostAdScreenProps> = ({ onClose, onPayment
           }
         });
 
-      setResultStatus('confirmed');
-      setResultMessage("Obrigado! O seu anúncio foi destacado imediatamente.");
-      showToast("Sucesso! Anúncio destacado.", "success");
+      setResultStatus('pending');
+      setResultMessage("O seu pedido de destaque foi submetido com sucesso. O anúncio será ativado assim que confirmarmos a transação na nossa conta.");
+      showToast("Pedido enviado para validação!", "info");
 
     } catch (error: any) {
       console.error("Payment Error:", error);
