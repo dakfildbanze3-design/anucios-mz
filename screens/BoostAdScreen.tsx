@@ -92,105 +92,38 @@ export const BoostAdScreen: React.FC<BoostAdScreenProps> = ({ onClose, onPayment
     setIsProcessing(true);
     setStep('PROCESSING');
 
-    const cleanPhone = phoneNumber.replace(/\s/g, '').replace('+258', '');
-    const cleanRef = referenceCode.trim().toUpperCase();
-    
-    let riskScore = 0;
-    const reasons: string[] = [];
-
-    // 1. Validation: Phone Number Format (Mozambique)
-    const mozPhoneRegex = /^(84|85|82|83|86|87)\d{7}$/;
-    if (!mozPhoneRegex.test(cleanPhone)) {
-      riskScore += 40;
-      reasons.push("Número de telefone inválido ou formato incorreto.");
-    }
-
-    // 2. Validation: Message Keywords
-    const msgLower = paymentMessage.toLowerCase();
-    const keywords = ['transfer', 'pago', 'confirm', 'sucesso', 'transacao', 'id', 'ref', 'enviado', 'recebido'];
-    const hasKeywords = keywords.some(k => msgLower.includes(k));
-    
-    if (paymentMessage.length < 5) {
-      riskScore += 20;
-      reasons.push("Mensagem muito curta.");
-    } else if (!hasKeywords) {
-      riskScore += 10;
-      reasons.push("Mensagem não parece conter confirmação.");
-    }
-
-    // 3. Validation: Reference Format
-    if (cleanRef.length < 5 || cleanRef.length > 25) {
-      riskScore += 30;
-      reasons.push("Código de referência com tamanho inválido.");
-    }
-
     try {
-      // 4. DATABASE CHECK: Check for duplicate reference
-      // Accessing Supabase directly
-      const { data: existingRef } = await supabase
-        .from('payments')
-        .select('id, status')
-        .eq('reference_code', cleanRef)
-        .maybeSingle();
+      // 1. UPDATE AD IMMEDIATELY
+      const { error: updateError } = await supabase
+        .from('ads')
+        .update({ is_featured: true })
+        .eq('id', adId);
 
-      if (existingRef) {
-        riskScore += 100; // Immediate Fail
-        reasons.push("Este código de referência já foi utilizado.");
-      }
+      if (updateError) throw updateError;
 
-      // Determine Status
-      // If risk is low (< 50), we Auto-Confirm
-      const finalStatus = riskScore < 50 ? 'confirmed' : 'pending';
-
-      // 5. INSERT PAYMENT RECORD
-      const { error: insertError } = await supabase
+      // 2. INSERT PAYMENT RECORD (As background record)
+      await supabase
         .from('payments')
         .insert({
           ad_id: adId,
           amount: activePlan.price,
           plan_id: activePlan.id,
-          client_number: cleanPhone,
+          client_number: phoneNumber.replace(/\s/g, ''),
           operator: selectedOperator,
-          reference_code: cleanRef,
-          message_content: paymentMessage,
-          status: finalStatus,
-          risk_score: riskScore,
-          risk_reasons: reasons
+          reference_code: `IMEDIATO-${Date.now()}`,
+          message_content: 'Pagamento imediato confirmado pelo usuário',
+          status: 'confirmed'
         });
 
-      if (insertError) throw insertError;
-
-      // 6. UPDATE AD (If Confirmed)
-      if (finalStatus === 'confirmed') {
-        const { error: updateError } = await supabase
-          .from('ads')
-          .update({ is_featured: true })
-          .eq('id', adId);
-
-        if (updateError) {
-          console.error("Failed to activate ad", updateError);
-          showToast("Erro ao ativar destaque, contacte o suporte.", "error");
-        }
-      }
-
-      setResultStatus(finalStatus);
-      if (finalStatus === 'confirmed') {
-        setResultMessage("Pagamento validado! O seu anúncio foi destacado.");
-        showToast("Sucesso! Anúncio destacado.", "success");
-      } else if (reasons.includes("Este código de referência já foi utilizado.")) {
-        setResultStatus('rejected');
-        setResultMessage("Referência duplicada. Verifique os dados.");
-        showToast("Código de referência duplicado.", "error");
-      } else {
-        setResultMessage("Pagamento em análise. Iremos notificar brevemente.");
-        showToast("Pagamento enviado para análise.", "info");
-      }
+      setResultStatus('confirmed');
+      setResultMessage("Obrigado! O seu anúncio foi destacado imediatamente.");
+      showToast("Sucesso! Anúncio destacado.", "success");
 
     } catch (error: any) {
       console.error("Payment Error:", error);
-      setResultStatus('pending'); // Default to pending on error to be safe
-      setResultMessage("Erro de conexão. O pagamento ficou pendente para revisão.");
-      showToast("Erro de conexão. Tente novamente.", "error");
+      setResultStatus('pending');
+      setResultMessage("Erro ao processar. Por favor contacte o suporte se o valor foi debitado.");
+      showToast("Erro ao ativar destaque.", "error");
     } finally {
       setIsProcessing(false);
       setStep('RESULT');
@@ -372,62 +305,42 @@ export const BoostAdScreen: React.FC<BoostAdScreenProps> = ({ onClose, onPayment
         <div className="relative flex flex-col w-full max-w-md bg-white md:shadow-2xl md:rounded-2xl overflow-hidden h-full md:h-auto">
             <Header onClose={() => setStep('PAYMENT_INSTRUCTIONS')} title="Confirmar" backButton />
 
-            <div className="p-5 overflow-y-auto space-y-4">
-               <div className="bg-blue-50 p-3 rounded-lg flex items-center gap-3 text-sm text-blue-800 border border-blue-100">
-                  <ShieldCheck size={20} />
-                  <p>Insira os dados do SMS que recebeu.</p>
+            <div className="p-8 overflow-y-auto space-y-8 flex-1 flex flex-col items-center justify-center text-center">
+               <div className="size-20 bg-green-100 rounded-full flex items-center justify-center text-green-600 mb-2">
+                  <ShieldCheck size={40} />
+               </div>
+               
+               <div>
+                  <h3 className="text-2xl font-black text-gray-900 mb-2">Quase lá!</h3>
+                  <p className="text-gray-500 leading-relaxed">
+                    Se já realizou a transferência, clique no botão abaixo para ativar o seu destaque imediatamente.
+                  </p>
                </div>
 
-               <div>
-                  <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5 block">Seu Número de Telefone</label>
-                  <div className="relative">
-                      <Smartphone className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                      <input 
-                          type="tel" 
-                          className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary outline-none font-medium text-gray-900"
-                          placeholder="84 123 4567"
-                          value={phoneNumber}
-                          onChange={(e) => setPhoneNumber(e.target.value)}
-                      />
-                  </div>
-               </div>
-
-               <div>
-                  <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5 block">Código de Transação (ID)</label>
-                  <div className="relative">
-                      <FileText className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                      <input 
-                          type="text" 
-                          className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary outline-none font-medium uppercase placeholder:normal-case text-gray-900"
-                          placeholder="Ex: 8H3KL92..."
-                          value={referenceCode}
-                          onChange={(e) => setReferenceCode(e.target.value.toUpperCase())}
-                      />
-                  </div>
-                  <p className="text-[10px] text-gray-400 mt-1 pl-1">O código que vem no SMS (Ex: PP230...)</p>
-               </div>
-
-               <div>
-                  <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5 block">Mensagem do SMS (Cole aqui)</label>
-                  <div className="relative">
-                      <MessageSquare className="absolute left-3 top-3 text-gray-400" size={18} />
-                      <textarea 
-                          className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary outline-none text-sm resize-none h-24 text-gray-900"
-                          placeholder="Ex: Confirmado. Transferiu 50MT para..."
-                          value={paymentMessage}
-                          onChange={(e) => setPaymentMessage(e.target.value)}
-                      />
+               <div className="w-full space-y-4">
+                  <div>
+                    <label className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 block text-left">Confirmar seu Número (Opcional)</label>
+                    <div className="relative">
+                        <Smartphone className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                        <input 
+                            type="tel" 
+                            className="w-full pl-10 pr-4 py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-primary outline-none font-bold text-gray-900"
+                            placeholder="84 / 85 / 86 / 87..."
+                            value={phoneNumber}
+                            onChange={(e) => setPhoneNumber(e.target.value)}
+                        />
+                    </div>
                   </div>
                </div>
             </div>
 
-            <div className="mt-auto border-t border-gray-100 p-4 bg-white">
+            <div className="mt-auto border-t border-gray-100 p-6 bg-white">
                 <button 
                 onClick={confirmPayment}
-                className="w-full bg-green-600 hover:bg-green-700 active:scale-[0.98] transition-all text-white font-bold text-lg py-4 rounded-xl shadow-lg shadow-green-600/20 flex items-center justify-center gap-2"
+                className="w-full bg-green-600 hover:bg-green-700 active:scale-[0.98] transition-all text-white font-black text-xl py-5 rounded-2xl shadow-xl shadow-green-600/30 flex items-center justify-center gap-3"
                 >
-                  <CheckCircle2 size={20} />
-                  Confirmar Pagamento
+                  <CheckCircle2 size={24} />
+                  Ativar Agora
                 </button>
             </div>
         </div>
