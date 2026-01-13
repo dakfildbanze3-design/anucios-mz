@@ -121,7 +121,12 @@ export const BoostAdScreen: React.FC<BoostAdScreenProps> = ({ onClose, onPayment
           operator: selectedOperator,
           reference_code: smsCode.trim().toUpperCase(),
           message_content: `Pagamento imediato. Código SMS: ${smsCode}`,
-          status: 'confirmed'
+          status: 'confirmed',
+          ad_details: {
+            id: adId,
+            plan_name: activePlan.name,
+            duration_days: activePlan.duration
+          }
         });
 
       setResultStatus('confirmed');
