@@ -91,7 +91,7 @@ export const BoostAdScreen: React.FC<BoostAdScreenProps> = ({ onClose, onPayment
     setStep('PROCESSING');
 
     try {
-      const response = await fetch('https://kfhgpyajrjdtuqsdabye.supabase.co/functions/v1/clever-api', {
+      const response = await fetch('https://kfhgpyajrjdtuqsdabye.supabase.co/functions/v1/debito-payment', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
