@@ -323,12 +323,12 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
                 </div>
                 
                 {/* Scroll container on mobile, Grid on desktop */}
-                <div className="flex gap-4 overflow-x-auto no-scrollbar pb-6 md:grid md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 md:overflow-visible">
+                <div className="flex gap-4 overflow-x-auto no-scrollbar pb-6 px-1 -mx-1 md:grid md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 md:overflow-visible snap-x snap-mandatory">
                 {featuredAds.map((ad) => (
                     <div 
                     key={ad.id}
                     onClick={() => onNavigate('AD_DETAILS', ad)}
-                    className="min-w-[280px] w-[280px] md:w-full bg-white rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.08)] border border-gray-100 overflow-hidden group flex flex-col cursor-pointer hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
+                    className="min-w-[280px] w-[280px] md:w-full bg-white rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.08)] border border-gray-100 overflow-hidden group flex flex-col cursor-pointer hover:shadow-lg hover:-translate-y-1 transition-all duration-300 snap-start"
                     >
                     <div className="relative h-40 md:h-44 w-full overflow-hidden">
                         <div className="absolute top-3 left-3 bg-white/90 backdrop-blur text-amber-600 text-[10px] font-bold px-2 py-1 rounded shadow-sm z-10 uppercase tracking-wider border border-amber-200 flex items-center gap-1">
