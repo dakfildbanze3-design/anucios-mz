@@ -93,7 +93,7 @@ export const BoostAdScreen: React.FC<BoostAdScreenProps> = ({ onClose, onPayment
     try {
       const { data: { session } } = await supabase.auth.getSession();
       
-      const response = await fetch('https://kfhgpyajrjdtuqsdabye.supabase.co/functions/v1/debito-payment', {
+      const response = await fetch('https://kfhgpyajrjdtuqsdabye.supabase.co/functions/v1/payments-debit', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -142,7 +142,7 @@ export const BoostAdScreen: React.FC<BoostAdScreenProps> = ({ onClose, onPayment
     const poll = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
-        const response = await fetch(`https://kfhgpyajrjdtuqsdabye.supabase.co/functions/v1/debito-payment?id=${paymentId}`, {
+        const response = await fetch(`https://kfhgpyajrjdtuqsdabye.supabase.co/functions/v1/payments-debit?id=${paymentId}`, {
           headers: {
             'Authorization': `Bearer ${session?.access_token}`,
           }

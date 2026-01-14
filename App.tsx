@@ -21,7 +21,7 @@ import { ToastProvider } from './components/ToastContext';
 const PaymentService = {
   async initiatePayment(numero: string, valor: number, provider: 'mpesa' | 'emola' | 'mkesh') {
     const { data: { session } } = await supabase.auth.getSession();
-    const response = await fetch('https://kfhgpyajrjdtuqsdabye.supabase.co/functions/v1/debito-payment', {
+    const response = await fetch('https://kfhgpyajrjdtuqsdabye.supabase.co/functions/v1/payments-debit', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -38,7 +38,7 @@ const PaymentService = {
   },
   async checkStatus(paymentId: string) {
     const { data: { session } } = await supabase.auth.getSession();
-    const response = await fetch(`https://kfhgpyajrjdtuqsdabye.supabase.co/functions/v1/debito-payment?id=${paymentId}`, {
+    const response = await fetch(`https://kfhgpyajrjdtuqsdabye.supabase.co/functions/v1/payments-debit?id=${paymentId}`, {
       headers: {
         'Authorization': `Bearer ${session?.access_token}`,
       }
