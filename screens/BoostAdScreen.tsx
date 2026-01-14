@@ -76,7 +76,7 @@ export const BoostAdScreen: React.FC<BoostAdScreenProps> = ({ onClose, onPayment
   const activePlan = PLANS.find(p => p.id === selectedPlanId);
 
   // ------------------------------------------------------------------
-  // REAL SUPABASE CLEVER-API INTEGRATION
+  // REAL SUPABASE DEBITO-PAYMENT INTEGRATION
   // ------------------------------------------------------------------
   const confirmPayment = async () => {
     if (!adId || !activePlan) return;
@@ -91,15 +91,24 @@ export const BoostAdScreen: React.FC<BoostAdScreenProps> = ({ onClose, onPayment
     setStep('PROCESSING');
 
     try {
+      const { data: { session } } = await supabase.auth.getSession();
+      
       const response = await fetch('https://kfhgpyajrjdtuqsdabye.supabase.co/functions/v1/debito-payment', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token}`,
         },
         body: JSON.stringify({
           numero: cleanPhone,
           valor: activePlan.price,
-          provider: selectedOperator
+          provider: selectedOperator,
+          metadata: {
+            ad_id: adId,
+            plan_id: activePlan.id,
+            user_id: session?.user?.id
+          },
+          idempotency_key: `${adId}-${activePlan.id}-${Date.now()}`
         }),
       });
 
@@ -107,8 +116,11 @@ export const BoostAdScreen: React.FC<BoostAdScreenProps> = ({ onClose, onPayment
 
       if (data.success) {
         setResultStatus('success');
-        setResultMessage("Pagamento enviado com sucesso! ✅");
+        setResultMessage("Pagamento enviado com sucesso! ✅ Aguardando confirmação.");
         showToast("Pagamento enviado com sucesso!", "success");
+        
+        // Start polling for status
+        startPollingStatus(data.transaction_id || data.id);
       } else {
         setResultStatus('error');
         setResultMessage(data.error || "Erro ao enviar pagamento ❌");
@@ -121,8 +133,46 @@ export const BoostAdScreen: React.FC<BoostAdScreenProps> = ({ onClose, onPayment
       showToast("Erro de conexão", "error");
     } finally {
       setIsProcessing(false);
-      setStep('RESULT');
     }
+  };
+
+  const startPollingStatus = async (paymentId: string) => {
+    if (!paymentId) return;
+    
+    const poll = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        const response = await fetch(`https://kfhgpyajrjdtuqsdabye.supabase.co/functions/v1/debito-payment?id=${paymentId}`, {
+          headers: {
+            'Authorization': `Bearer ${session?.access_token}`,
+          }
+        });
+        const data = await response.json();
+        
+        if (data.status === 'success' || data.status === 'completed') {
+          setResultStatus('success');
+          setResultMessage("Pagamento confirmado e anúncio destacado! 🚀");
+          return true; // stop polling
+        } else if (data.status === 'failed' || data.status === 'error') {
+          setResultStatus('error');
+          setResultMessage("O pagamento falhou ou foi cancelado.");
+          return true; // stop polling
+        }
+        return false; // continue polling
+      } catch (e) {
+        console.error("Polling error:", e);
+        return false;
+      }
+    };
+
+    let attempts = 0;
+    const interval = setInterval(async () => {
+      attempts++;
+      const shouldStop = await poll();
+      if (shouldStop || attempts > 30) { // Stop after 5 mins (10s * 30)
+        clearInterval(interval);
+      }
+    }, 10000);
   };
 
   const copyToClipboard = (text: string) => {
