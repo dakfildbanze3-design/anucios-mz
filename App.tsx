@@ -30,8 +30,7 @@ const PaymentService = {
       body: JSON.stringify({ 
         numero, 
         valor, 
-        provider,
-        idempotency_key: `pay-${Date.now()}`
+        provider
       }),
     });
     return response.json();

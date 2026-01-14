@@ -107,8 +107,7 @@ export const BoostAdScreen: React.FC<BoostAdScreenProps> = ({ onClose, onPayment
             ad_id: adId,
             plan_id: activePlan.id,
             user_id: session?.user?.id
-          },
-          idempotency_key: `${adId}-${activePlan.id}-${Date.now()}`
+          }
         }),
       });
 
