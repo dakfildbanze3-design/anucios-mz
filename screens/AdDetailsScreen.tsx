@@ -130,69 +130,45 @@ export const AdDetailsScreen: React.FC<AdDetailsScreenProps> = ({ ad, onBack, on
     <div className="min-h-screen bg-background-light md:py-8 font-display">
       <div className="max-w-[1800px] mx-auto bg-white shadow-xl md:rounded-3xl overflow-hidden flex flex-col md:flex-row min-h-screen md:min-h-[80vh] relative">
         
-        {/* LEFT COLUMN: IMAGE GALLERY */}
-        <div className="w-full md:w-3/5 bg-gray-900 relative h-80 md:h-auto md:min-h-[600px]">
-            <div className="absolute top-0 left-0 w-full z-20 flex items-center justify-between p-4 pt-8 md:pt-4 pointer-events-none">
+        {/* LEFT COLUMN: IMAGE GRID */}
+        <div className="w-full md:w-3/5 bg-gray-50 p-4 md:p-8">
+            <div className="flex items-center justify-between mb-6">
                 <button 
                 onClick={onBack}
-                className="flex size-10 shrink-0 items-center justify-center rounded-full bg-black/40 backdrop-blur-md text-white hover:bg-black/60 transition-colors pointer-events-auto shadow-sm"
+                className="flex size-10 shrink-0 items-center justify-center rounded-full bg-white shadow-md text-gray-700 hover:bg-gray-100 transition-colors"
                 >
                 <ArrowLeft size={24} />
                 </button>
                 
-                <button 
-                onClick={handleShare}
-                className="flex size-10 shrink-0 items-center justify-center rounded-full bg-black/40 backdrop-blur-md text-white hover:bg-black/60 transition-colors pointer-events-auto shadow-sm"
-                >
-                <Share2 size={24} />
-                </button>
+                <div className="flex gap-2">
+                    <button 
+                    onClick={handleShare}
+                    className="flex size-10 shrink-0 items-center justify-center rounded-full bg-white shadow-md text-gray-700 hover:bg-gray-100 transition-colors"
+                    >
+                    <Share2 size={24} />
+                    </button>
+                </div>
             </div>
 
-            <div 
-                className="w-full h-full flex overflow-x-auto snap-x snap-mandatory scrollbar-hide"
-                onScroll={(e) => {
-                    const scrollLeft = e.currentTarget.scrollLeft;
-                    const width = e.currentTarget.offsetWidth;
-                    const index = Math.round(scrollLeft / width);
-                    setActiveImageIndex(index);
-                }}
-            >
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {images.map((img, idx) => (
                     <div 
                         key={idx}
-                        className="snap-center shrink-0 w-full h-full bg-contain bg-center bg-no-repeat cursor-zoom-in" 
-                        style={{ backgroundImage: `url(${img})` }}
-                        onClick={() => setShowFullScreen(true)}
-                    />
+                        className={`relative rounded-2xl overflow-hidden bg-white shadow-sm cursor-zoom-in group transition-all hover:shadow-md ${idx === 0 ? 'sm:col-span-2 aspect-[16/9]' : 'aspect-square'}`}
+                        onClick={() => {
+                            setActiveImageIndex(idx);
+                            setShowFullScreen(true);
+                        }}
+                    >
+                        <img 
+                            src={img} 
+                            alt={`${ad.title} - ${idx + 1}`} 
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors" />
+                    </div>
                 ))}
             </div>
-            
-            {images.length > 1 && (
-                <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-1.5 z-10">
-                    {images.map((_, idx) => (
-                        <div 
-                            key={idx} 
-                            className={`w-2 h-2 rounded-full transition-all ${idx === activeImageIndex ? 'bg-white scale-125 shadow-sm' : 'bg-white/40'}`}
-                        ></div>
-                    ))}
-                </div>
-            )}
-
-            {ad.isFeatured && (
-                <div className="absolute bottom-4 left-4">
-                <div className="flex h-7 items-center justify-center gap-x-1.5 rounded-full bg-amber-500 px-3 py-1 shadow-md border border-amber-400/50 backdrop-blur-md animate-in zoom-in duration-300">
-                    <Star className="text-white fill-white" size={14} />
-                    <p className="text-white text-xs font-bold leading-normal uppercase tracking-wider">Destaque</p>
-                </div>
-                </div>
-            )}
-
-             {images.length > 1 && (
-             <div className="absolute bottom-4 right-4 bg-black/50 backdrop-blur-md px-3 py-1 rounded-full text-white text-xs font-bold flex items-center gap-1">
-                <Camera size={12} />
-                <span>{activeImageIndex + 1}/{images.length}</span>
-             </div>
-           )}
         </div>
 
         {/* RIGHT COLUMN: DETAILS */}
