@@ -371,7 +371,7 @@ export const CreateAdScreen: React.FC<CreateAdScreenProps> = ({
       };
 
       if (isBoosted) {
-        showToast("Anúncio salvo! Prossiga com o pagamento para destacar.", "success");
+        showToast("Anúncio salvo! Prossiga para ativar o destaque grátis.", "success");
         onBoost(newAd);
       } else {
         showToast("Anúncio publicado com sucesso!", "success");

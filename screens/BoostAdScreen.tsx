@@ -25,35 +25,17 @@ interface BoostAdScreenProps {
 }
 
 const PLANS: PricingPlan[] = [
-  { id: 'basic', name: 'Rápido', price: 50, duration: 3, features: ['Destaque por 3 dias', 'Selo de Destaque'] },
-  { id: 'standard', name: 'Semanal', price: 100, duration: 7, features: ['Destaque por 7 dias', 'Selo de Destaque', 'Topo da Página'], isPopular: true },
-  { id: 'premium', name: 'Quinzenal', price: 150, duration: 14, features: ['Destaque por 14 dias', 'Selo de Destaque', 'Topo da Página', 'Suporte Prioritário'] },
+  { id: 'free_boost', name: 'Promocional', price: 0, duration: 90, features: ['Destaque por 3 Meses', 'Selo de Destaque', 'Topo da Página', 'Grátis (Período de Teste)'], isPopular: true },
 ];
 
 const OPERATORS = [
   { 
-    id: 'mpesa', 
-    name: 'M-Pesa', 
-    bgColor: 'bg-[#e60000]', 
+    id: 'free', 
+    name: 'Ativação Grátis', 
+    bgColor: 'bg-green-600', 
     textColor: 'text-white',
-    instruction: 'Confirme o pagamento no seu celular',
-    codePrefix: '84/85'
-  },
-  { 
-    id: 'emola', 
-    name: 'e-Mola', 
-    bgColor: 'bg-[#ff6600]', 
-    textColor: 'text-white',
-    instruction: 'Confirme o pagamento no seu celular',
-    codePrefix: '86/87'
-  },
-  { 
-    id: 'mkesh', 
-    name: 'mKesh', 
-    bgColor: 'bg-[#ffcc00]', 
-    textColor: 'text-gray-900',
-    instruction: 'Confirme o pagamento no seu celular',
-    codePrefix: '82'
+    instruction: 'Ative seu destaque gratuitamente por 3 meses',
+    codePrefix: 'FREE'
   }
 ];
 
@@ -62,8 +44,8 @@ type Step = 'PLAN_SELECTION' | 'PAYMENT_FORM' | 'PROCESSING' | 'RESULT';
 export const BoostAdScreen: React.FC<BoostAdScreenProps> = ({ onClose, onPaymentSuccess, adId }) => {
   const { showToast } = useToast();
   const [step, setStep] = useState<Step>('PLAN_SELECTION');
-  const [selectedPlanId, setSelectedPlanId] = useState<string>('standard');
-  const [selectedOperator, setSelectedOperator] = useState<string>('mpesa');
+  const [selectedPlanId, setSelectedPlanId] = useState<string>('free_boost');
+  const [selectedOperator, setSelectedOperator] = useState<string>('free');
   
   // Form Data
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -81,55 +63,26 @@ export const BoostAdScreen: React.FC<BoostAdScreenProps> = ({ onClose, onPayment
   const confirmPayment = async () => {
     if (!adId || !activePlan) return;
 
-    const cleanPhone = phoneNumber.replace(/\s/g, '');
-    if (!cleanPhone || cleanPhone.length !== 9 || !cleanPhone.startsWith('8')) {
-      showToast("Número inválido. Deve começar com 8 e ter 9 dígitos.", "error");
-      return;
-    }
-    
     setIsProcessing(true);
     setStep('PROCESSING');
 
     try {
-      const { data: { session } } = await supabase.auth.getSession();
+      const { error } = await supabase
+        .from('ads')
+        .update({ is_featured: true })
+        .eq('id', adId);
+
+      if (error) throw error;
+
+      setResultStatus('success');
+      setResultMessage("Destaque ativado com sucesso por 3 meses! 🚀");
+      showToast("Destaque ativado com sucesso!", "success");
       
-      const response = await fetch('https://kfhgpyajrjdtuqsdabye.supabase.co/functions/v1/payments-debit', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session?.access_token}`,
-        },
-        body: JSON.stringify({
-          numero: cleanPhone,
-          valor: activePlan.price,
-          provider: selectedOperator,
-          metadata: {
-            ad_id: adId,
-            plan_id: activePlan.id,
-            user_id: session?.user?.id
-          }
-        }),
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        setResultStatus('success');
-        setResultMessage("Pagamento enviado com sucesso! ✅ Aguardando confirmação.");
-        showToast("Pagamento enviado com sucesso!", "success");
-        
-        // Start polling for status
-        startPollingStatus(data.transaction_id || data.id);
-      } else {
-        setResultStatus('error');
-        setResultMessage(data.error || "Erro ao enviar pagamento ❌");
-        showToast(data.error || "Erro no pagamento", "error");
-      }
     } catch (error: any) {
-      console.error("Payment Error:", error);
+      console.error("Boost Error:", error);
       setResultStatus('error');
-      setResultMessage("Erro ao processar o pagamento. Verifique sua conexão.");
-      showToast("Erro de conexão", "error");
+      setResultMessage("Erro ao ativar o destaque. Tente novamente.");
+      showToast("Erro ao processar", "error");
     } finally {
       setIsProcessing(false);
     }
@@ -191,6 +144,18 @@ export const BoostAdScreen: React.FC<BoostAdScreenProps> = ({ onClose, onPayment
             <Header onClose={onClose} title="Escolha o Plano" />
             
             <div className="p-5 space-y-4 overflow-y-auto">
+                <div className="bg-amber-50 p-4 rounded-xl border border-amber-200 flex gap-3">
+                   <div className="mt-1 bg-white p-1.5 rounded-full shadow-sm h-fit">
+                      <AlertTriangle size={20} className="text-amber-600" />
+                   </div>
+                   <div>
+                      <h3 className="font-bold text-gray-900 text-sm">Promoção de Lançamento</h3>
+                      <p className="text-xs text-gray-600 mt-1 leading-relaxed">
+                        O sistema está a ser atualizado. Aproveite: destacar anúncios é <span className="font-bold text-amber-700">GRÁTIS por 3 meses!</span>
+                      </p>
+                   </div>
+                </div>
+
                 <div className="bg-blue-50/50 p-4 rounded-xl border border-blue-100 flex gap-3">
                    <div className="mt-1 bg-white p-1.5 rounded-full shadow-sm h-fit">
                       <Rocket size={20} className="text-primary" />
@@ -261,66 +226,27 @@ export const BoostAdScreen: React.FC<BoostAdScreenProps> = ({ onClose, onPayment
     return (
       <div className="fixed inset-0 z-50 bg-background-light flex items-center justify-center p-0 md:p-6">
         <div className="relative flex flex-col w-full max-w-md bg-white md:shadow-2xl md:rounded-2xl overflow-hidden h-full md:h-auto">
-            <Header onClose={() => setStep('PLAN_SELECTION')} title="Pagamento" backButton />
+            <Header onClose={() => setStep('PLAN_SELECTION')} title="Destaque Grátis" backButton />
 
             <div className="p-8 overflow-y-auto space-y-8 flex-1 flex flex-col items-center justify-center text-center">
-               <div className="size-20 bg-blue-100 rounded-full flex items-center justify-center text-primary mb-2">
-                  <Smartphone size={40} />
+               <div className="size-20 bg-green-100 rounded-full flex items-center justify-center text-green-600 mb-2">
+                  <Rocket size={40} />
                </div>
                
                <div>
-                  <h3 className="text-2xl font-black text-gray-900 mb-2">Pagar com Carteira</h3>
+                  <h3 className="text-2xl font-black text-gray-900 mb-2">Ativar Destaque Grátis</h3>
                   <p className="text-gray-500 leading-relaxed font-medium">
-                    Escolha sua carteira móvel e insira seu número.
+                    Aproveite nossa promoção de lançamento. Clique no botão abaixo para colocar seu anúncio no topo por 3 meses.
                   </p>
-               </div>
-
-               <div className="w-full space-y-5">
-                  <div className="grid grid-cols-3 gap-3">
-                      {OPERATORS.map(op => (
-                          <button
-                              key={op.id}
-                              onClick={() => setSelectedOperator(op.id)}
-                              className={`py-3 px-1 rounded-xl text-xs font-bold transition-all border-2 ${
-                                  selectedOperator === op.id 
-                                  ? `${op.bgColor} ${op.textColor} border-transparent shadow-md scale-105` 
-                                  : 'bg-white border-gray-100 text-gray-500 hover:border-gray-200'
-                              }`}
-                          >
-                              {op.name}
-                          </button>
-                      ))}
-                  </div>
-
-                  <div className="text-left">
-                    <label className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 block">Número da Carteira</label>
-                    <div className="relative">
-                        <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center gap-1.5 border-r border-gray-200 pr-3 mr-3">
-                          <span className="text-lg">🇲🇿</span>
-                          <span className="text-sm font-bold text-gray-500">+258</span>
-                        </div>
-                        <input 
-                            type="tel" 
-                            maxLength={9}
-                            className="w-full pl-28 pr-4 py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-primary outline-none font-bold text-gray-900"
-                            placeholder="8x xxx xxxx"
-                            value={phoneNumber}
-                            onChange={(e) => {
-                              const val = e.target.value.replace(/\D/g, '');
-                              if (val.length <= 9) setPhoneNumber(val);
-                            }}
-                        />
-                    </div>
-                  </div>
                </div>
             </div>
 
             <div className="mt-auto border-t border-gray-100 p-6 bg-white">
                 <button 
                 onClick={confirmPayment}
-                className="w-full bg-primary hover:bg-blue-700 active:scale-[0.98] transition-all text-white font-black text-xl py-5 rounded-2xl shadow-xl shadow-blue-600/30 flex items-center justify-center gap-3"
+                className="w-full bg-green-600 hover:bg-green-700 active:scale-[0.98] transition-all text-white font-black text-xl py-5 rounded-2xl shadow-xl shadow-green-600/30 flex items-center justify-center gap-3"
                 >
-                  Pagar {activePlan?.price} MT
+                  Ativar Grátis
                 </button>
             </div>
         </div>
