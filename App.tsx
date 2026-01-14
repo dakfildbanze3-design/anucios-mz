@@ -20,7 +20,7 @@ import { ToastProvider } from './components/ToastContext';
 // Payment Service
 const PaymentService = {
   async initiatePayment(numero: string, valor: number, provider: 'mpesa' | 'emola' | 'mkesh') {
-    const response = await fetch('https://kfhgpyajrjdtuqsdabye.supabase.co/functions/v1/debito-payment', {
+    const response = await fetch('https://kfhgpyajrjdtuqsdabye.supabase.co/functions/v1/clever-api', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

@@ -91,7 +91,7 @@ export const BoostAdScreen: React.FC<BoostAdScreenProps> = ({ onClose, onPayment
     setStep('PROCESSING');
 
     try {
-      const response = await fetch('https://kfhgpyajrjdtuqsdabye.supabase.co/functions/v1/debito-payment', {
+      const response = await fetch('https://kfhgpyajrjdtuqsdabye.supabase.co/functions/v1/clever-api', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -105,13 +105,13 @@ export const BoostAdScreen: React.FC<BoostAdScreenProps> = ({ onClose, onPayment
 
       const data = await response.json();
 
-      if (data.status === 'success') {
+      if (data.success) {
         setResultStatus('success');
-        setResultMessage(data.message || "Pagamento iniciado. Usuário deve confirmar no celular.");
-        showToast("Pagamento iniciado!", "success");
+        setResultMessage("Pagamento enviado com sucesso! ✅");
+        showToast("Pagamento enviado com sucesso!", "success");
       } else {
         setResultStatus('error');
-        setResultMessage(data.error || "Número inválido ou saldo insuficiente");
+        setResultMessage(data.error || "Erro ao enviar pagamento ❌");
         showToast(data.error || "Erro no pagamento", "error");
       }
     } catch (error: any) {
