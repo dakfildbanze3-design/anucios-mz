@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
+import { Routes, Route, useNavigate, useLocation, useParams } from 'react-router-dom';
 import { HomeScreen } from './screens/HomeScreen';
 import { CreateAdScreen } from './screens/CreateAdScreen';
 import { BoostAdScreen } from './screens/BoostAdScreen';
@@ -74,6 +74,27 @@ export default function App() {
     <ToastProvider>
       <MainApp />
     </ToastProvider>
+  );
+}
+
+function AdDetailsWrapper({ ads, selectedAd, navigate }: { ads: Ad[], selectedAd: Ad | undefined, navigate: any }) {
+  const { id } = useParams();
+  const ad = ads.find(a => a.id === id) || selectedAd;
+  
+  if (!ad) {
+    return (
+      <div className="min-h-screen bg-background-light flex flex-col items-center justify-center p-4">
+        <Loader2 className="animate-spin text-primary mb-4" size={40} />
+      </div>
+    );
+  }
+
+  return (
+    <AdDetailsScreen 
+      ad={ad} 
+      onBack={() => navigate('/')} 
+      onBoost={() => navigate('/boost')}
+    />
   );
 }
 
@@ -385,11 +406,7 @@ function MainApp() {
         } />
 
         <Route path="/ad/:id" element={
-          <AdDetailsScreen 
-            ad={ads.find(a => a.id === location.pathname.split('/').pop()) || selectedAd!} 
-            onBack={() => navigate('/')} 
-            onBoost={() => navigate('/boost')}
-          />
+          <AdDetailsWrapper ads={ads} selectedAd={selectedAd} navigate={navigate} />
         } />
 
         <Route path="/featured" element={
