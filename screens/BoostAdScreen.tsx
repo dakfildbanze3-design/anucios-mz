@@ -61,10 +61,11 @@ export const BoostAdScreen: React.FC<BoostAdScreenProps> = ({ onClose, onPayment
   // REAL SUPABASE DEBITO-PAYMENT INTEGRATION
   // ------------------------------------------------------------------
   const confirmPayment = async () => {
-    if (!adId || !activePlan) return;
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!adId || !activePlan || !user) return;
 
     setIsProcessing(true);
-    setStep('PROCESSING');
+    // setStep('PROCESSING'); // Removido para ser mais rápido
 
     try {
       const { error } = await supabase
@@ -77,12 +78,14 @@ export const BoostAdScreen: React.FC<BoostAdScreenProps> = ({ onClose, onPayment
       setResultStatus('success');
       setResultMessage("Destaque ativado com sucesso por 3 meses! 🚀");
       showToast("Destaque ativado com sucesso!", "success");
+      setStep('RESULT'); // Pula direto para o resultado
       
     } catch (error: any) {
       console.error("Boost Error:", error);
       setResultStatus('error');
       setResultMessage("Erro ao ativar o destaque. Tente novamente.");
       showToast("Erro ao processar", "error");
+      setStep('RESULT'); // Mostra erro no resultado
     } finally {
       setIsProcessing(false);
     }
@@ -254,19 +257,8 @@ export const BoostAdScreen: React.FC<BoostAdScreenProps> = ({ onClose, onPayment
     );
   }
 
-  // STEP 3: PROCESSING
-  if (step === 'PROCESSING') {
-    return (
-        <div className="fixed inset-0 z-50 bg-white/90 backdrop-blur-sm flex items-center justify-center p-6">
-           <div className="bg-white p-8 rounded-3xl shadow-2xl flex flex-col items-center text-center max-w-xs w-full animate-in zoom-in-95">
-              <Loader2 className="animate-spin text-primary mb-4" size={48} />
-              <h3 className="text-xl font-bold text-gray-900">Processando...</h3>
-              <p className="text-sm text-gray-500 mt-2">Aguarde a notificação no seu celular.</p>
-           </div>
-        </div>
-    );
-  }
-
+  // STEP 3: PROCESSING (Removido para ativação direta)
+  
   // STEP 4: RESULT
   if (step === 'RESULT') {
     const isSuccess = resultStatus === 'success';
