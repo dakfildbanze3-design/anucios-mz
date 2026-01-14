@@ -64,8 +64,20 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
     return dateB - dateA;
   });
 
-  const featuredAds = filteredAds.filter(ad => ad.isFeatured);
-  const recentAds = filteredAds; // Featured ads will also show in the main list with a badge
+  // Sort ads: Featured first, then by date
+  const sortedAds = [...filteredAds].sort((a, b) => {
+    // Prioritize featured ads
+    if (a.isFeatured && !b.isFeatured) return -1;
+    if (!a.isFeatured && b.isFeatured) return 1;
+    
+    // Within the same group (featured or not), sort by date (newest first)
+    const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+    const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+    return dateB - dateA;
+  });
+
+  const featuredAds = sortedAds.filter(ad => ad.isFeatured);
+  const recentAds = sortedAds; // All ads including featured ones at the top
 
   const handleSupportClick = () => {
     window.open('https://wa.me/258855767005', '_blank');
