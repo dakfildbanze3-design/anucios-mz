@@ -65,7 +65,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
   });
 
   const featuredAds = filteredAds.filter(ad => ad.isFeatured);
-  const recentAds = filteredAds.filter(ad => !ad.isFeatured);
+  const recentAds = filteredAds; // Featured ads will also show in the main list with a badge
 
   const handleSupportClick = () => {
     window.open('https://wa.me/258855767005', '_blank');
@@ -418,6 +418,13 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
                     {ad.isMyAd && (
                         <div className="absolute -top-2 -right-2 z-10">
                         <span className="bg-gray-900 text-[9px] sm:text-[10px] px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full text-white font-bold shadow-md">Seu Anúncio</span>
+                        </div>
+                    )}
+
+                    {ad.isFeatured && (
+                        <div className="absolute top-2 left-2 z-10 flex items-center gap-1 bg-amber-400 text-white text-[9px] sm:text-[10px] px-2 py-0.5 rounded-full font-bold shadow-sm">
+                            <Star size={10} className="fill-white" />
+                            Destaque
                         </div>
                     )}
                     
