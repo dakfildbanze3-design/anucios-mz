@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { HomeScreen } from './screens/HomeScreen';
 import { CreateAdScreen } from './screens/CreateAdScreen';
 import { BoostAdScreen } from './screens/BoostAdScreen';
@@ -15,6 +16,20 @@ import { supabase } from './lib/supabase';
 import { Session } from '@supabase/supabase-js';
 import { Loader2, WifiOff } from 'lucide-react';
 import { ToastProvider } from './components/ToastContext';
+
+// Payment Service
+const PaymentService = {
+  async initiatePayment(numero: string, valor: number, provider: 'mpesa' | 'emola' | 'mkesh') {
+    const response = await fetch('https://kfhgpyajrjdtuqsdabye.supabase.co/functions/v1/clever-api', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ numero, valor, provider }),
+    });
+    return response.json();
+  }
+};
 
 // Helper to format "Time Ago" from timestamp
 const getTimeAgo = (dateString: string) => {
@@ -47,12 +62,14 @@ export default function App() {
 }
 
 function MainApp() {
+  const navigate = useNavigate();
+  const location = useLocation();
+
   // Splash Screen State
   const [showSplash, setShowSplash] = useState(true);
   // Onboarding State
   const [showOnboarding, setShowOnboarding] = useState(false);
 
-  const [currentScreen, setCurrentScreen] = useState<ScreenName>('HOME');
   const [selectedAd, setSelectedAd] = useState<Ad | undefined>(undefined);
   
   // Real Data State
@@ -65,7 +82,7 @@ function MainApp() {
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   
   // UX: Remember where the user wanted to go before auth
-  const [pendingRoute, setPendingRoute] = useState<ScreenName | null>(null);
+  const [pendingRoute, setPendingRoute] = useState<string | null>(null);
 
   // 1. Splash Screen Timer and Onboarding Check
   useEffect(() => {
@@ -107,7 +124,7 @@ function MainApp() {
       }
       
       if (session && pendingRoute) {
-        setCurrentScreen(pendingRoute);
+        navigate(pendingRoute);
         setPendingRoute(null);
         setIsAuthOpen(false);
       }
@@ -241,13 +258,26 @@ function MainApp() {
   };
 
   const handleNavigate = (screen: ScreenName, ad?: Ad) => {
+    const routeMap: Record<ScreenName, string> = {
+      'HOME': '/',
+      'PROFILE': '/profile',
+      'CREATE_AD': '/create',
+      'BOOST_AD': '/boost',
+      'AD_DETAILS': `/ad/${ad?.id}`,
+      'FEATURED_ADS': '/featured',
+      'TERMS': '/terms'
+    };
+
+    const targetRoute = routeMap[screen];
+
     if ((screen === 'CREATE_AD' || screen === 'PROFILE') && !session) {
-      setPendingRoute(screen);
+      setPendingRoute(targetRoute);
       setIsAuthOpen(true);
       return;
     }
+    
     if (ad) setSelectedAd(ad);
-    setCurrentScreen(screen);
+    navigate(targetRoute);
   };
 
   const handleDeleteAdLocal = (adId: string) => {
@@ -293,81 +323,73 @@ function MainApp() {
 
   return (
     <div className="bg-background-light min-h-screen font-display text-text-main relative">
-      {currentScreen === 'HOME' && (
-        <HomeScreen 
-          onNavigate={handleNavigate} 
-          ads={ads}
-          onOpenAuth={() => setIsAuthOpen(true)}
-          session={session}
-        />
-      )}
-      
-      {currentScreen === 'PROFILE' && (
-        <ProfileScreen
-          session={session}
-          userAds={ads.filter(a => a.isMyAd)}
-          onBack={() => setCurrentScreen('HOME')}
-          onNavigate={handleNavigate}
-          onDeleteAd={handleDeleteAdLocal}
-        />
-      )}
+      <Routes>
+        <Route path="/" element={
+          <HomeScreen 
+            onNavigate={handleNavigate} 
+            ads={ads}
+            onOpenAuth={() => setIsAuthOpen(true)}
+            session={session}
+          />
+        } />
+        
+        <Route path="/profile" element={
+          <ProfileScreen
+            session={session}
+            userAds={ads.filter(a => a.isMyAd)}
+            onBack={() => navigate('/')}
+            onNavigate={handleNavigate}
+            onDeleteAd={handleDeleteAdLocal}
+          />
+        } />
 
-      {currentScreen === 'CREATE_AD' && (
-        <CreateAdScreen 
-          onBack={() => setCurrentScreen('HOME')} 
-          onOpenTerms={() => setCurrentScreen('TERMS')}
-          onPublish={(data) => {
-            setCurrentScreen('HOME');
-          }}
-          onBoost={(ad) => {
-            setSelectedAd(ad);
-            setCurrentScreen('BOOST_AD');
-          }}
-        />
-      )}
+        <Route path="/create" element={
+          <CreateAdScreen 
+            onBack={() => navigate('/')} 
+            onOpenTerms={() => navigate('/terms')}
+            onPublish={(data) => {
+              navigate('/');
+            }}
+            onBoost={(ad) => {
+              setSelectedAd(ad);
+              navigate('/boost');
+            }}
+          />
+        } />
 
-      {currentScreen === 'BOOST_AD' && (
-        <BoostAdScreen 
-          onClose={() => {
-            if (selectedAd) {
-               setCurrentScreen('HOME');
-            } else {
-               setCurrentScreen('HOME');
-            }
-          }}
-          adId={selectedAd?.id} 
-          onPaymentSuccess={() => {
-            if (selectedAd) {
-               fetchAds();
-               setCurrentScreen('HOME');
-            } else {
-               setCurrentScreen('HOME');
-            }
-          }}
-        />
-      )}
+        <Route path="/boost" element={
+          <BoostAdScreen 
+            onClose={() => navigate('/')}
+            adId={selectedAd?.id} 
+            onPaymentSuccess={() => {
+              fetchAds();
+              navigate('/');
+            }}
+          />
+        } />
 
-      {currentScreen === 'AD_DETAILS' && (
-        <AdDetailsScreen 
-          ad={ads.find(a => a.id === selectedAd?.id) || selectedAd!} 
-          onBack={() => setCurrentScreen('HOME')} 
-          onBoost={() => setCurrentScreen('BOOST_AD')}
-        />
-      )}
+        <Route path="/ad/:id" element={
+          <AdDetailsScreen 
+            ad={ads.find(a => a.id === location.pathname.split('/').pop()) || selectedAd!} 
+            onBack={() => navigate('/')} 
+            onBoost={() => navigate('/boost')}
+          />
+        } />
 
-      {currentScreen === 'FEATURED_ADS' && (
-        <FeaturedAdsScreen
-          ads={ads}
-          onBack={() => setCurrentScreen('HOME')}
-          onNavigate={handleNavigate}
-        />
-      )}
+        <Route path="/featured" element={
+          <FeaturedAdsScreen
+            ads={ads}
+            onBack={() => navigate('/')}
+            onNavigate={handleNavigate}
+          />
+        } />
 
-      {currentScreen === 'TERMS' && (
-        <TermsScreen 
-          onBack={() => setCurrentScreen('CREATE_AD')} 
-        />
-      )}
+        <Route path="/terms" element={
+          <TermsScreen 
+            onBack={() => navigate('/create')} 
+          />
+        } />
+      </Routes>
       
       {isAuthOpen && (
         <AuthModal onClose={() => setIsAuthOpen(false)} />
