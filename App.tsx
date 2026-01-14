@@ -97,6 +97,22 @@ function AdDetailsWrapper({ ads, selectedAd, navigate }: { ads: Ad[], selectedAd
   );
 }
 
+function BoostWrapper({ ads, selectedAd, navigate, fetchAds }: { ads: Ad[], selectedAd: Ad | undefined, navigate: any, fetchAds: any }) {
+  const { id } = useParams();
+  const ad = ads.find(a => a.id === id) || selectedAd;
+  
+  return (
+    <BoostAdScreen 
+      onClose={() => navigate('/')}
+      adId={ad?.id} 
+      onPaymentSuccess={() => {
+        fetchAds();
+        navigate('/');
+      }}
+    />
+  );
+}
+
 function MainApp() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -243,7 +259,7 @@ function MainApp() {
       'HOME': '/',
       'PROFILE': '/profile',
       'CREATE_AD': '/create',
-      'BOOST_AD': '/boost',
+      'BOOST_AD': ad ? `/boost/${ad.id}` : '/boost',
       'AD_DETAILS': `/ad/${ad?.id}`,
       'FEATURED_ADS': '/featured',
       'TERMS': '/terms'
@@ -338,15 +354,8 @@ function MainApp() {
           />
         } />
 
-        <Route path="/boost" element={
-          <BoostAdScreen 
-            onClose={() => navigate('/')}
-            adId={selectedAd?.id} 
-            onPaymentSuccess={() => {
-              fetchAds();
-              navigate('/');
-            }}
-          />
+        <Route path="/boost/:id" element={
+          <BoostWrapper ads={ads} selectedAd={selectedAd} navigate={navigate} fetchAds={fetchAds} />
         } />
 
         <Route path="/ad/:id" element={
