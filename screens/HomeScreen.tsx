@@ -64,20 +64,22 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
     return dateB - dateA;
   });
 
-  // Sort ads: Featured first, then by date
   const sortedAds = [...filteredAds].sort((a, b) => {
-    // Prioritize featured ads
+    // 1. Destaques sempre no topo
     if (a.isFeatured && !b.isFeatured) return -1;
     if (!a.isFeatured && b.isFeatured) return 1;
     
-    // Within the same group (featured or not), sort by date (newest first)
+    // 2. Entre dois destaques ou dois normais, o mais recente primeiro
     const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
     const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-    return dateB - dateA;
+    
+    // Se as datas forem iguais ou não existirem, manter a ordem original
+    if (dateB !== dateA) return dateB - dateA;
+    return 0;
   });
 
   const featuredAds = sortedAds.filter(ad => ad.isFeatured);
-  const recentAds = sortedAds; // All ads including featured ones at the top
+  const recentAds = sortedAds; // Todos os anúncios, com destaques garantidos no topo
 
   const handleSupportClick = () => {
     window.open('https://wa.me/258855767005', '_blank');
