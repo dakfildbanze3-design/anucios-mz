@@ -166,6 +166,15 @@ export const AdDetailsScreen: React.FC<AdDetailsScreenProps> = ({ ad, onBack, on
                             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                         />
                         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors" />
+                        
+                        {idx === 0 && ad.isFeatured && (
+                          <div className="absolute top-4 left-4">
+                            <div className="flex h-7 items-center justify-center gap-x-1.5 rounded-full bg-amber-500 px-3 py-1 shadow-md border border-amber-400/50 backdrop-blur-md animate-in zoom-in duration-300">
+                                <Star className="text-white fill-white" size={14} />
+                                <p className="text-white text-xs font-bold leading-normal uppercase tracking-wider">Destaque</p>
+                            </div>
+                          </div>
+                        )}
                     </div>
                 ))}
             </div>
