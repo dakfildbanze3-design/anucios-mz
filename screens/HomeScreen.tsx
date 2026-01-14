@@ -308,7 +308,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
 
             {/* Featured Section */}
             {featuredAds.length > 0 && (
-            <section className="mt-2 lg:mt-6 px-4 lg:px-6">
+            <section className="mt-2 lg:mt-6 px-4 lg:px-6 overflow-hidden">
                 <div className="flex items-center justify-between mb-4">
                 <h2 className="text-xl md:text-2xl font-display font-bold text-gray-900 flex items-center gap-2">
                     <Zap className="text-amber-500 fill-amber-500" size={24} />
@@ -322,13 +322,13 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
                 </button>
                 </div>
                 
-                {/* Scroll container on mobile, Grid on desktop */}
-                <div className="flex gap-4 overflow-x-auto no-scrollbar pb-6 px-1 -mx-1 md:grid md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 md:overflow-visible snap-x snap-mandatory">
+                {/* Horizontal scroll on all screens */}
+                <div className="flex gap-4 overflow-x-auto no-scrollbar pb-6 px-1 -mx-1 snap-x snap-mandatory">
                 {featuredAds.map((ad) => (
                     <div 
                     key={ad.id}
                     onClick={() => onNavigate('AD_DETAILS', ad)}
-                    className="min-w-[280px] w-[280px] md:w-full bg-white rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.08)] border border-gray-100 overflow-hidden group flex flex-col cursor-pointer hover:shadow-lg hover:-translate-y-1 transition-all duration-300 snap-start"
+                    className="min-w-[280px] w-[280px] bg-white rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.08)] border border-gray-100 overflow-hidden group flex flex-col cursor-pointer hover:shadow-lg hover:-translate-y-1 transition-all duration-300 snap-start"
                     >
                     <div className="relative h-40 md:h-44 w-full overflow-hidden">
                         <div className="absolute top-3 left-3 bg-white/90 backdrop-blur text-amber-600 text-[10px] font-bold px-2 py-1 rounded shadow-sm z-10 uppercase tracking-wider border border-amber-200 flex items-center gap-1">
