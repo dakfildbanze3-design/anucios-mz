@@ -150,32 +150,62 @@ export const AdDetailsScreen: React.FC<AdDetailsScreenProps> = ({ ad, onBack, on
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {images.map((img, idx) => (
+            <div className="grid grid-cols-4 grid-rows-2 gap-2 aspect-[4/3] md:aspect-[16/9] rounded-2xl overflow-hidden bg-gray-200">
+                {/* Main large image */}
+                <div 
+                    className="col-span-2 row-span-2 relative cursor-zoom-in group"
+                    onClick={() => {
+                        setActiveImageIndex(0);
+                        setShowFullScreen(true);
+                    }}
+                >
+                    <img 
+                        src={images[0]} 
+                        alt={`${ad.title} - 1`} 
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
+                    
+                    {ad.isFeatured && (
+                      <div className="absolute top-4 left-4">
+                        <div className="flex h-7 items-center justify-center gap-x-1.5 rounded-full bg-amber-500 px-3 py-1 shadow-md border border-amber-400/50 backdrop-blur-md">
+                            <Star className="text-white fill-white" size={14} />
+                            <p className="text-white text-xs font-bold uppercase tracking-wider">Destaque</p>
+                        </div>
+                      </div>
+                    )}
+                </div>
+
+                {/* Smaller images side grid */}
+                {images.slice(1, 5).map((img, idx) => (
                     <div 
-                        key={idx}
-                        className={`relative rounded-2xl overflow-hidden bg-white shadow-sm cursor-zoom-in group transition-all hover:shadow-md ${idx === 0 ? 'sm:col-span-2 aspect-[16/9]' : 'aspect-square'}`}
+                        key={idx + 1}
+                        className="relative cursor-zoom-in group overflow-hidden"
                         onClick={() => {
-                            setActiveImageIndex(idx);
+                            setActiveImageIndex(idx + 1);
                             setShowFullScreen(true);
                         }}
                     >
                         <img 
                             src={img} 
-                            alt={`${ad.title} - ${idx + 1}`} 
+                            alt={`${ad.title} - ${idx + 2}`} 
                             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                         />
-                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors" />
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
                         
-                        {idx === 0 && ad.isFeatured && (
-                          <div className="absolute top-4 left-4">
-                            <div className="flex h-7 items-center justify-center gap-x-1.5 rounded-full bg-amber-500 px-3 py-1 shadow-md border border-amber-400/50 backdrop-blur-md animate-in zoom-in duration-300">
-                                <Star className="text-white fill-white" size={14} />
-                                <p className="text-white text-xs font-bold leading-normal uppercase tracking-wider">Destaque</p>
+                        {/* More images overlay on the last slot */}
+                        {idx === 3 && images.length > 5 && (
+                            <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center text-white">
+                                <span className="text-2xl font-black">+{images.length - 5}</span>
+                                <span className="text-[10px] font-bold uppercase">Ver todas</span>
                             </div>
-                          </div>
                         )}
                     </div>
+                ))}
+                
+                {/* Fallback empty slots to maintain grid shape if less than 5 images */}
+                {images.length < 5 && Array.from({ length: 5 - images.length }).map((_, i) => (
+                    <div key={`empty-${i}`} className="bg-gray-100 hidden sm:block"></div>
                 ))}
             </div>
         </div>
