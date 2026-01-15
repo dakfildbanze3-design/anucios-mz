@@ -394,6 +394,10 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
                             <MapPin size={14} />
                             <span className="truncate">{ad.location}</span>
                         </div>
+                        <div className="flex items-center gap-1 text-[10px] sm:text-xs text-gray-500">
+                            <Clock size={14} />
+                            <span>{formatMozDate(ad.createdAt)}</span>
+                        </div>
                         </div>
 
                         <div className="mt-auto">
