@@ -61,9 +61,15 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
   ];
 
   const filteredAds = ads.filter(ad => {
+    // Search in title, location, category and description for global reach
+    const searchLower = searchQuery.toLowerCase();
+    const matchesSearch = searchQuery === '' || 
+                          ad.title.toLowerCase().includes(searchLower) || 
+                          ad.location.toLowerCase().includes(searchLower) ||
+                          ad.description?.toLowerCase().includes(searchLower) ||
+                          ad.category.toLowerCase().includes(searchLower);
+
     const matchesCategory = activeCategory === 'all' || ad.category === activeCategory;
-    const matchesSearch = ad.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          ad.location.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesMinPrice = priceRange.min === '' || ad.price >= Number(priceRange.min);
     const matchesMaxPrice = priceRange.max === '' || ad.price <= Number(priceRange.max);
     const matchesLocation = locationFilter === '' || ad.location.toLowerCase().includes(locationFilter.toLowerCase());
