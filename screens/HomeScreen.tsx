@@ -46,7 +46,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
   const [priceRange, setPriceRange] = useState({ min: '', max: '' });
   const [sortBy, setSortBy] = useState<'recent' | 'oldest' | 'price-asc' | 'price-desc'>('recent');
   const [locationFilter, setLocationFilter] = useState('');
-  const [timeFilter, setTimeFilter] = useState<'all' | '24h' | '7d' | '30d'>('all');
+  const [timeFilter, setTimeFilter] = useState<'all' | '24h'>('all');
   const [currentTime, setCurrentTime] = useState(new Date());
 
   useEffect(() => {
@@ -89,12 +89,9 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
       const adDate = new Date(ad.createdAt).getTime();
       const now = currentTime.getTime();
       const diffMs = now - adDate;
-      const oneHour = 1000 * 60 * 60;
-      const oneDay = oneHour * 24;
+      const oneDay = 1000 * 60 * 60 * 24;
       
       if (timeFilter === '24h') matchesTime = diffMs <= oneDay;
-      else if (timeFilter === '7d') matchesTime = diffMs <= oneDay * 7;
-      else if (timeFilter === '30d') matchesTime = diffMs <= oneDay * 30;
     }
     
     return matchesCategory && matchesSearch && matchesMinPrice && matchesMaxPrice && matchesLocation && matchesTime;
@@ -436,8 +433,6 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
                       >
                         <option value="all">Todo o tempo</option>
                         <option value="24h">Últimas 24 horas</option>
-                        <option value="7d">Últimos 7 dias</option>
-                        <option value="30d">Últimos 30 dias</option>
                       </select>
                       <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
                     </div>
