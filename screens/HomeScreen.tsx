@@ -420,7 +420,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
 
                   <div className="relative shrink-0">
                     <button 
-                      onClick={() => session ? onNavigate('PROFILE') : setIsMenuOpen(!isMenuOpen)}
+                      onClick={() => onOpenAuth()}
                       className="p-1 rounded-full hover:bg-gray-100 transition-all border border-transparent hover:border-gray-200"
                     >
                       <div className={`size-10 rounded-full flex items-center justify-center overflow-hidden shadow-sm border border-gray-200 ${session ? 'bg-white' : 'bg-gray-100 text-gray-500'}`}>

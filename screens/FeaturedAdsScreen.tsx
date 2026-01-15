@@ -89,7 +89,7 @@ export const FeaturedAdsScreen: React.FC<FeaturedAdsScreenProps> = ({ ads, onBac
                 </p>
                 <button 
                   onClick={() => setShowPaymentInfo(true)}
-                  className="mt-2 w-fit rounded-full bg-white text-primary px-4 py-2 text-sm font-bold shadow-sm hover:bg-gray-50"
+                  className="mt-2 w-fit rounded-full bg-white text-primary px-4 py-2 text-sm font-bold shadow-sm hover:bg-gray-50 active:scale-95 transition-all"
                 >
                     Saber mais
                 </button>
