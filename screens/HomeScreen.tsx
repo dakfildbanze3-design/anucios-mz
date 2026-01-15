@@ -46,6 +46,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
   const [priceRange, setPriceRange] = useState({ min: '', max: '' });
   const [sortBy, setSortBy] = useState<'recent' | 'oldest' | 'price-asc' | 'price-desc'>('recent');
   const [locationFilter, setLocationFilter] = useState('');
+  const [timeFilter, setTimeFilter] = useState<'all' | '24h' | '7d' | '30d'>('all');
   
   // Menu States
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -74,7 +75,19 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
     const matchesMaxPrice = priceRange.max === '' || ad.price <= Number(priceRange.max);
     const matchesLocation = locationFilter === '' || ad.location.toLowerCase().includes(locationFilter.toLowerCase());
     
-    return matchesCategory && matchesSearch && matchesMinPrice && matchesMaxPrice && matchesLocation;
+    let matchesTime = true;
+    if (timeFilter !== 'all' && ad.createdAt) {
+      const now = new Date();
+      const adDate = new Date(ad.createdAt);
+      const diffMs = now.getTime() - adDate.getTime();
+      const diffHours = diffMs / (1000 * 60 * 60);
+      
+      if (timeFilter === '24h') matchesTime = diffHours <= 24;
+      else if (timeFilter === '7d') matchesTime = diffHours <= 24 * 7;
+      else if (timeFilter === '30d') matchesTime = diffHours <= 24 * 30;
+    }
+    
+    return matchesCategory && matchesSearch && matchesMinPrice && matchesMaxPrice && matchesLocation && matchesTime;
   });
 
   // Featured carousel specifically for featured ads, newest boost/creation first
@@ -400,6 +413,25 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
                       <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
                     </div>
                   </div>
+
+                  {/* Time Filter */}
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Período</label>
+                    <div className="relative">
+                      <Clock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                      <select 
+                        value={timeFilter}
+                        onChange={(e) => setTimeFilter(e.target.value as any)}
+                        className="w-full pl-9 pr-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:ring-1 focus:ring-primary outline-none appearance-none cursor-pointer"
+                      >
+                        <option value="all">Todo o tempo</option>
+                        <option value="24h">Últimas 24 horas</option>
+                        <option value="7d">Últimos 7 dias</option>
+                        <option value="30d">Últimos 30 dias</option>
+                      </select>
+                      <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                    </div>
+                  </div>
                 </div>
                 
                 <div className="max-w-4xl mx-auto mt-4 pt-4 border-t border-gray-50 flex justify-end gap-3">
@@ -408,6 +440,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
                       setPriceRange({ min: '', max: '' });
                       setLocationFilter('');
                       setSortBy('recent');
+                      setTimeFilter('all');
                     }}
                     className="px-4 py-2 text-sm font-bold text-gray-500 hover:text-gray-700"
                    >
