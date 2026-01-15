@@ -80,19 +80,51 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
     try {
       if (navigator.share) {
         await navigator.share(shareData);
-        // In a real app, we'd track this via backend
         const shares = parseInt(localStorage.getItem('appShares') || '0');
-        localStorage.setItem('appShares', (shares + 1).toString());
+        const newShares = shares + 1;
+        localStorage.setItem('appShares', newShares.toString());
         
-        if (shares + 1 >= 10) {
-          alert('Parabéns! Você compartilhou para 10 pessoas. Entre em contato com o suporte para resgatar seu mês de destaque grátis!');
+        if (newShares >= 10) {
+          await activateAutoBoost();
+        } else {
+          alert(`Excelente! Partilhou com sucesso. Faltam apenas ${10 - newShares} pessoas para ganhar o seu mês de destaque grátis!`);
         }
       } else {
         await navigator.clipboard.writeText(shareData.url);
-        alert('Link copiado para a área de transferência! Compartilhe com 10 amigos para ganhar um mês de destaque.');
+        const shares = parseInt(localStorage.getItem('appShares') || '0');
+        alert(`Link copiado! Partilhe com os seus amigos. Atualmente partilhou com ${shares} pessoas. Faltam ${Math.max(0, 10 - shares)} para o seu prémio!`);
       }
     } catch (err) {
       console.error('Error sharing:', err);
+    }
+  };
+
+  const activateAutoBoost = async () => {
+    if (!session?.user?.id) {
+      alert('Parabéns! Já atingiu o limite de 10 partilhas. Entre na sua conta para ativar o seu destaque grátis em todos os seus anúncios!');
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('ads')
+        .update({ is_featured: true })
+        .eq('user_id', session.user.id);
+
+      if (error) throw error;
+      alert('Incrível! Como partilhou com 10 pessoas, todos os seus anúncios foram movidos para o topo e destacados gratuitamente por um mês!');
+    } catch (err) {
+      console.error('Error boosting ads:', err);
+      alert('Concluiu as 10 partilhas! Entre em contacto com o suporte para ativar o seu destaque manual.');
+    }
+  };
+
+  const handleGainFreeMonth = () => {
+    const shares = parseInt(localStorage.getItem('appShares') || '0');
+    if (shares >= 10) {
+      activateAutoBoost();
+    } else {
+      alert(`Ainda não atingiu o limite de 10 partilhas. Atualmente partilhou com ${shares} ${shares === 1 ? 'pessoa' : 'pessoas'}. Partilhe com mais ${10 - shares} para ganhar o seu destaque grátis!`);
     }
   };
 
@@ -254,7 +286,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
                 </button>
 
                 <button 
-                    onClick={handleShareApp}
+                    onClick={handleGainFreeMonth}
                     className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-bold text-amber-600 bg-amber-50 hover:bg-amber-100 transition-colors border border-amber-200 mt-2"
                 >
                     <Star size={18} className="fill-amber-500" />
