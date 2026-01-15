@@ -250,6 +250,7 @@ export const CreateAdScreen: React.FC<CreateAdScreenProps> = ({
       onPublish({}); // Proceed to home as per original logic, but we already called it or will
     }
   };
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (files && files.length > 0) {
       const newItems = Array.from(files).map((file: File) => ({
