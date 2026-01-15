@@ -73,8 +73,8 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
   const handleShareApp = async () => {
     const shareData = {
       title: 'Anúncios MZ',
-      text: 'Confira o Anúncios MZ - O melhor lugar para comprar e vender em Moçambique! Compartilhe com 10 amigos e ganhe um mês de destaque grátis!',
-      url: window.location.origin,
+      text: '📢 Descobri um app grátis para anunciar e encontrar serviços em Moçambique 🇲🇿\nPublique anúncios, encontre clientes e oportunidades perto de você.',
+      url: 'https://anunciosmz.vercel.app',
     };
 
     try {
@@ -92,7 +92,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
       } else {
         await navigator.clipboard.writeText(shareData.url);
         const shares = parseInt(localStorage.getItem('appShares') || '0');
-        alert(`Link copiado! Partilhe com os seus amigos. Atualmente partilhou com ${shares} pessoas. Faltam ${Math.max(0, 10 - shares)} para o seu prémio!`);
+        alert(`Link copiado! Partilhe com os seus amigos: ${shareData.url}. Atualmente partilhou com ${shares} pessoas. Faltam ${Math.max(0, 10 - shares)} para o seu prémio!`);
       }
     } catch (err) {
       console.error('Error sharing:', err);

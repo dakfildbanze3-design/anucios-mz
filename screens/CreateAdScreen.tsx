@@ -20,7 +20,8 @@ import {
   CheckCircle2,
   Search,
   Download,
-  Globe
+  Globe,
+  Share2
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { Ad } from '../types';
@@ -52,6 +53,7 @@ export const CreateAdScreen: React.FC<CreateAdScreenProps> = ({
   const [contact, setContact] = useState('');
   const [showUpsellModal, setShowUpsellModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showShareSuggestion, setShowShareSuggestion] = useState(false);
 
   // HTML Import Modal State
   const [showHtmlImport, setShowHtmlImport] = useState(false);
@@ -226,7 +228,28 @@ export const CreateAdScreen: React.FC<CreateAdScreenProps> = ({
     setSelectedCandidates(new Set());
   };
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleShareApp = async () => {
+    const shareData = {
+      title: 'Anúncios MZ',
+      text: '📢 Descobri um app grátis para anunciar e encontrar serviços em Moçambique 🇲🇿\nPublique anúncios, encontre clientes e oportunidades perto de você.',
+      url: 'https://anunciosmz.vercel.app',
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+        showToast("Obrigado por partilhar!", "success");
+      } else {
+        await navigator.clipboard.writeText(shareData.url);
+        showToast("Link copiado! Partilhe com os seus amigos.", "success");
+      }
+    } catch (err) {
+      console.error('Error sharing:', err);
+    } finally {
+      setShowShareSuggestion(false);
+      onPublish({}); // Proceed to home as per original logic, but we already called it or will
+    }
+  };
     const files = event.target.files;
     if (files && files.length > 0) {
       const newItems = Array.from(files).map((file: File) => ({
@@ -375,7 +398,11 @@ export const CreateAdScreen: React.FC<CreateAdScreenProps> = ({
         onBoost(newAd);
       } else {
         showToast("Anúncio publicado com sucesso!", "success");
-        onPublish(newAd);
+        setShowShareSuggestion(true);
+        // We delay the actual onPublish navigation to let them see the share suggestion
+        setTimeout(() => {
+          if (!showShareSuggestion) onPublish(newAd);
+        }, 500);
       }
 
     } catch (error: any) {
@@ -829,6 +856,35 @@ export const CreateAdScreen: React.FC<CreateAdScreenProps> = ({
           </div>
         )}
       </div>
+
+      {/* Share Suggestion Modal */}
+      {showShareSuggestion && (
+        <div className="fixed inset-0 z-[100] bg-black/60 flex items-center justify-center p-6 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="bg-white rounded-3xl p-8 text-center max-w-sm w-full shadow-2xl animate-in zoom-in duration-300">
+            <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <Share2 size={40} className="text-primary" />
+            </div>
+            <h3 className="text-2xl font-bold text-gray-900 mb-2">Gostou do app?</h3>
+            <p className="text-gray-500 mb-8 text-lg">Compartilhe com um amigo 👇</p>
+            
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={handleShareApp}
+                className="w-full bg-primary text-white font-black py-4 rounded-2xl text-xl flex items-center justify-center gap-2 hover:bg-blue-700 transition-all active:scale-95 shadow-lg shadow-blue-500/20"
+              >
+                <Share2 size={24} />
+                Compartilhar app
+              </button>
+              <button
+                onClick={() => onPublish({})}
+                className="w-full text-gray-400 font-bold py-2 hover:text-gray-600 transition-colors"
+              >
+                Agora não
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
