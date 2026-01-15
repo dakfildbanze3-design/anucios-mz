@@ -417,6 +417,22 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
               
               {/* Search Bar - Row 2 on Mobile, Row 1 (Centered/Expanded) on Desktop */}
               <div className="w-full lg:flex-1 lg:max-w-2xl lg:mx-auto flex items-center gap-2">
+                {!session && (
+                  <div className="flex items-center gap-2 mr-2 lg:hidden">
+                    <button 
+                      onClick={onOpenAuth}
+                      className="whitespace-nowrap bg-primary text-white px-3 py-2 rounded-xl text-xs font-bold hover:bg-blue-700 transition-colors shadow-sm"
+                    >
+                      Entrar
+                    </button>
+                    <button 
+                      onClick={onOpenAuth}
+                      className="whitespace-nowrap bg-white border border-gray-200 text-gray-700 px-3 py-2 rounded-xl text-xs font-bold hover:bg-gray-50 transition-colors shadow-sm"
+                    >
+                      Criar Conta
+                    </button>
+                  </div>
+                )}
                 <div className="relative group flex-1">
                   <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400 group-focus-within:text-primary transition-colors">
                     <Search size={18} />
@@ -436,6 +452,22 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
                   <SlidersHorizontal size={20} />
                   <span className="hidden md:inline text-sm font-bold">Filtros</span>
                 </button>
+                {!session && (
+                  <div className="hidden lg:flex items-center gap-2 ml-4">
+                    <button 
+                      onClick={onOpenAuth}
+                      className="whitespace-nowrap bg-primary text-white px-4 py-2.5 rounded-xl text-sm font-bold hover:bg-blue-700 transition-colors shadow-lg shadow-blue-500/20"
+                    >
+                      Entrar
+                    </button>
+                    <button 
+                      onClick={onOpenAuth}
+                      className="whitespace-nowrap bg-white border border-gray-200 text-gray-700 px-4 py-2.5 rounded-xl text-sm font-bold hover:bg-gray-50 transition-colors shadow-sm"
+                    >
+                      Criar Conta
+                    </button>
+                  </div>
+                )}
               </div>
 
             </div>
