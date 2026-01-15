@@ -136,15 +136,10 @@ function MainApp() {
   // UX: Remember where the user wanted to go before auth
   const [pendingRoute, setPendingRoute] = useState<string | null>(null);
 
-  // 1. Splash Screen Timer and Onboarding Check
+  // 1. Splash Screen Timer
   useEffect(() => {
-    const hasSeenOnboarding = localStorage.getItem('hasSeenOnboarding');
-    
     const timer = setTimeout(() => {
       setShowSplash(false);
-      if (!hasSeenOnboarding) {
-        setShowOnboarding(true);
-      }
     }, 5000); // 5 seconds delay
 
     return () => clearTimeout(timer);
@@ -157,6 +152,10 @@ function MainApp() {
 
   // 2. Fetch Initial Data and Session
   useEffect(() => {
+    const hasSeenOnboarding = localStorage.getItem('hasSeenOnboarding');
+    if (!hasSeenOnboarding && !showSplash) {
+      setShowOnboarding(true);
+    }
     // Auth Session - Handle potential network errors
     supabase.auth.getSession()
       .then(({ data }) => {
@@ -273,6 +272,14 @@ function MainApp() {
       return;
     }
     
+    // Trigger onboarding after viewing an ad if not seen yet
+    if (screen === 'AD_DETAILS') {
+      const hasSeenOnboarding = localStorage.getItem('hasSeenOnboarding');
+      if (!hasSeenOnboarding) {
+        setShowOnboarding(true);
+      }
+    }
+
     if (ad) setSelectedAd(ad);
     navigate(targetRoute);
   };
@@ -284,11 +291,6 @@ function MainApp() {
   // Render Splash Screen if active
   if (showSplash) {
     return <SplashScreen />;
-  }
-
-  // Render Onboarding if active
-  if (showOnboarding) {
-    return <Onboarding onComplete={handleOnboardingComplete} />;
   }
 
   // Normal Loading State (only if data is still loading AFTER splash is done, usually splash covers this)
@@ -381,6 +383,11 @@ function MainApp() {
         <AuthModal onClose={() => setIsAuthOpen(false)} />
       )}
       <InstallPWA />
+      
+      {/* Render Onboarding if active */}
+      {showOnboarding && (
+        <Onboarding onComplete={handleOnboardingComplete} />
+      )}
     </div>
   );
 }
