@@ -50,7 +50,7 @@ export const CreateAdScreen: React.FC<CreateAdScreenProps> = ({
   const [category, setCategory] = useState('vehicle');
   const [description, setDescription] = useState('');
   const [location, setLocation] = useState('Maputo');
-  const [contact, setContact] = useState('258');
+  const [contact, setContact] = useState('');
   const [showUpsellModal, setShowUpsellModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showShareSuggestion, setShowShareSuggestion] = useState(false);
@@ -270,15 +270,11 @@ export const CreateAdScreen: React.FC<CreateAdScreenProps> = ({
     
     const numericPrice = parseFloat(price);
     
+    // Mozambique prefix is handled by UI, so we just prep the number for storage
+    const fullContact = contact.startsWith('258') ? contact : `258${contact}`;
+    
     if (!title.trim() || !price || isNaN(numericPrice) || !category || !description.trim() || !location.trim() || !contact.trim()) {
       showToast("Por favor, preencha todos os campos obrigatórios.", "error");
-      return;
-    }
-
-    // Mozambique prefix validation
-    const cleanContact = contact.replace(/\s+/g, '');
-    if (!cleanContact.startsWith('258') && !cleanContact.startsWith('+258')) {
-      showToast("O número de contacto deve começar com o prefixo de Moçambique (258).", "error");
       return;
     }
 
@@ -366,7 +362,7 @@ export const CreateAdScreen: React.FC<CreateAdScreenProps> = ({
         location: location,
         category: categoryTyped,
         description,
-        contact,
+        contact: fullContact,
         image: uploadedImageUrls[0],
         images: uploadedImageUrls,
         specs: Object.keys(specs).length > 0 ? specs : null,
@@ -660,25 +656,18 @@ export const CreateAdScreen: React.FC<CreateAdScreenProps> = ({
                         />
                     </div>
                     <div className="relative flex-1">
-                        <div className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center gap-2 pointer-events-none">
-                          <span className="text-lg">🇲🇿</span>
-                          <div className="h-4 w-[1px] bg-gray-300 mx-1"></div>
+                        <div className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center gap-1.5 pointer-events-none bg-gray-100 px-2 py-1 rounded-lg border border-gray-200">
+                          <span className="text-base">🇲🇿</span>
+                          <span className="text-xs font-bold text-gray-600">+258</span>
                         </div>
                         <input 
-                            className="w-full pl-16 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 text-sm font-medium outline-none focus:border-primary"
-                            placeholder="841234567"
+                            className="w-full pl-24 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 text-sm font-medium outline-none focus:border-primary"
+                            placeholder="84 123 4567"
                             value={contact}
                             onChange={(e) => {
                                 let val = e.target.value;
-                                // If they try to delete the prefix, keep it or at least handle it gracefully
-                                if (!val.startsWith('258') && !val.startsWith('+')) {
-                                  // Only allow re-adding if they are typing numbers
-                                  if (/^\d*$/.test(val)) {
-                                     val = '258' + val;
-                                  }
-                                }
-                                // Remove any non-numeric characters except +
-                                val = val.replace(/[^\d+]/g, '');
+                                // Remove any non-numeric characters
+                                val = val.replace(/\D/g, '');
                                 setContact(val);
                             }}
                             type="tel"
