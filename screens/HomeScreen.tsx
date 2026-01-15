@@ -74,7 +74,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
     const shareData = {
       title: 'Anúncios MZ',
       text: '📢 Descobri um app grátis para anunciar e encontrar serviços em Moçambique 🇲🇿\nPublique anúncios, encontre clientes e oportunidades perto de você.',
-      url: 'https://anunciosmz.vercel.app',
+      url: 'https://anucios-mz.vercel.app/',
     };
 
     try {
