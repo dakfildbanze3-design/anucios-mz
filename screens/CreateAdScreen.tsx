@@ -663,9 +663,14 @@ export const CreateAdScreen: React.FC<CreateAdScreenProps> = ({
                         <Phone className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
                         <input 
                             className="w-full pl-10 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 text-sm font-medium outline-none focus:border-primary"
-                            placeholder="Telefone (84/82...)"
+                            placeholder="Telefone (Ex: 841234567)"
                             value={contact}
-                            onChange={(e) => setContact(e.target.value)}
+                            onChange={(e) => {
+                                let val = e.target.value;
+                                // Remove any non-numeric characters except +
+                                val = val.replace(/[^\d+]/g, '');
+                                setContact(val);
+                            }}
                             type="tel"
                         />
                     </div>
