@@ -23,7 +23,10 @@ import {
   Smartphone, 
   ShoppingBag, 
   Grid, 
-  Globe
+  Globe,
+  SlidersHorizontal,
+  ArrowUpDown,
+  ChevronDown
 } from 'lucide-react';
 import { Ad, ScreenName } from '../types';
 import { Session } from '@supabase/supabase-js';
@@ -39,6 +42,10 @@ interface HomeScreenProps {
 export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenAuth, session }) => {
   const [activeCategory, setActiveCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [showFilters, setShowFilters] = useState(false);
+  const [priceRange, setPriceRange] = useState({ min: '', max: '' });
+  const [sortBy, setSortBy] = useState<'recent' | 'oldest' | 'price-asc' | 'price-desc'>('recent');
+  const [locationFilter, setLocationFilter] = useState('');
   
   // Menu States
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -57,27 +64,12 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
     const matchesCategory = activeCategory === 'all' || ad.category === activeCategory;
     const matchesSearch = ad.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           ad.location.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCategory && matchesSearch;
-  }).sort((a, b) => {
-    const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-    const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-    return dateB - dateA;
+    const matchesMinPrice = priceRange.min === '' || ad.price >= Number(priceRange.min);
+    const matchesMaxPrice = priceRange.max === '' || ad.price <= Number(priceRange.max);
+    const matchesLocation = locationFilter === '' || ad.location.toLowerCase().includes(locationFilter.toLowerCase());
+    
+    return matchesCategory && matchesSearch && matchesMinPrice && matchesMaxPrice && matchesLocation;
   });
-
-  // Helper to format date in Mozambique time (GMT+2)
-  const formatMozDate = (dateString?: string) => {
-    if (!dateString) return '';
-    const date = new Date(dateString);
-    return new Intl.DateTimeFormat('pt-PT', {
-      timeZone: 'Africa/Maputo',
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false
-    }).format(date);
-  };
 
   // Featured carousel specifically for featured ads, newest boost/creation first
   const featuredAds = [...ads]
@@ -90,9 +82,19 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
 
   // Recent ads: Global chronological order (newest first), regardless of featured status
   const recentAds = [...filteredAds].sort((a, b) => {
-    const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-    const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-    return dateB - dateA;
+    if (sortBy === 'recent') {
+      const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      return dateB - dateA;
+    }
+    if (sortBy === 'oldest') {
+      const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      return dateA - dateB;
+    }
+    if (sortBy === 'price-asc') return a.price - b.price;
+    if (sortBy === 'price-desc') return b.price - a.price;
+    return 0;
   });
 
   const handleSupportClick = () => {
@@ -121,6 +123,20 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
   // User Metadata Helper
   const userAvatar = session?.user?.user_metadata?.avatar_url;
   const userName = session?.user?.user_metadata?.full_name || session?.user?.email?.split('@')[0];
+
+  const formatMozDate = (dateString?: string) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat('pt-PT', {
+      timeZone: 'Africa/Maputo',
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    }).format(date);
+  };
 
   return (
     <div className="flex min-h-screen bg-background-light relative">
@@ -294,8 +310,8 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
               </div>
               
               {/* Search Bar - Row 2 on Mobile, Row 1 (Centered/Expanded) on Desktop */}
-              <div className="w-full lg:flex-1 lg:max-w-2xl lg:mx-auto">
-                <div className="relative group">
+              <div className="w-full lg:flex-1 lg:max-w-2xl lg:mx-auto flex items-center gap-2">
+                <div className="relative group flex-1">
                   <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400 group-focus-within:text-primary transition-colors">
                     <Search size={18} />
                   </span>
@@ -307,9 +323,98 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
                 </div>
+                <button 
+                  onClick={() => setShowFilters(!showFilters)}
+                  className={`p-2.5 rounded-xl border transition-all flex items-center gap-2 ${showFilters ? 'bg-primary text-white border-primary' : 'bg-white border-gray-200 text-gray-600 hover:border-primary/50'}`}
+                >
+                  <SlidersHorizontal size={20} />
+                  <span className="hidden md:inline text-sm font-bold">Filtros</span>
+                </button>
               </div>
 
             </div>
+
+            {/* Filter Panel */}
+            {showFilters && (
+              <div className="px-4 py-4 bg-white border-t border-gray-100 animate-in slide-in-from-top duration-300">
+                <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {/* Price Range */}
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Preço (MT)</label>
+                    <div className="flex items-center gap-2">
+                      <input 
+                        type="number" 
+                        placeholder="Mín"
+                        value={priceRange.min}
+                        onChange={(e) => setPriceRange({...priceRange, min: e.target.value})}
+                        className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:ring-1 focus:ring-primary outline-none"
+                      />
+                      <span className="text-gray-400">-</span>
+                      <input 
+                        type="number" 
+                        placeholder="Máx"
+                        value={priceRange.max}
+                        onChange={(e) => setPriceRange({...priceRange, max: e.target.value})}
+                        className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:ring-1 focus:ring-primary outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Location Filter */}
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Localização</label>
+                    <div className="relative">
+                      <MapPin size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                      <input 
+                        type="text" 
+                        placeholder="Cidade ou província"
+                        value={locationFilter}
+                        onChange={(e) => setLocationFilter(e.target.value)}
+                        className="w-full pl-9 pr-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:ring-1 focus:ring-primary outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Sorting */}
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Ordenar por</label>
+                    <div className="relative">
+                      <ArrowUpDown size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                      <select 
+                        value={sortBy}
+                        onChange={(e) => setSortBy(e.target.value as any)}
+                        className="w-full pl-9 pr-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:ring-1 focus:ring-primary outline-none appearance-none cursor-pointer"
+                      >
+                        <option value="recent">Mais recentes</option>
+                        <option value="oldest">Mais antigos</option>
+                        <option value="price-asc">Preço: Menor ao Maior</option>
+                        <option value="price-desc">Preço: Maior ao Menor</option>
+                      </select>
+                      <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="max-w-4xl mx-auto mt-4 pt-4 border-t border-gray-50 flex justify-end gap-3">
+                   <button 
+                    onClick={() => {
+                      setPriceRange({ min: '', max: '' });
+                      setLocationFilter('');
+                      setSortBy('recent');
+                    }}
+                    className="px-4 py-2 text-sm font-bold text-gray-500 hover:text-gray-700"
+                   >
+                    Limpar Filtros
+                   </button>
+                   <button 
+                    onClick={() => setShowFilters(false)}
+                    className="px-6 py-2 bg-gray-900 text-white rounded-lg text-sm font-bold hover:bg-black transition-colors"
+                   >
+                    Aplicar
+                   </button>
+                </div>
+              </div>
+            )}
           </div>
         </header>
 
