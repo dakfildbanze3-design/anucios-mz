@@ -80,7 +80,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
       const now = new Date();
       const adDate = new Date(ad.createdAt);
       const diffMs = now.getTime() - adDate.getTime();
-      const diffHours = diffMs / (1000 * 60 * 60);
+      const diffHours = Math.max(0, diffMs / (1000 * 60 * 60)); // Ensure no negative diffs
       
       if (timeFilter === '24h') matchesTime = diffHours <= 24;
       else if (timeFilter === '7d') matchesTime = diffHours <= 24 * 7;
