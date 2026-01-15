@@ -11,6 +11,7 @@ import {
   MessageCircle, 
   Info, 
   X, 
+  XCircle,
   CheckCircle2, 
   Plus, 
   User, 

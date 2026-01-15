@@ -9,7 +9,9 @@ import {
   Star, 
   MapPin, 
   Plus,
-  MessageCircle
+  MessageCircle,
+  Info,
+  XCircle
 } from 'lucide-react';
 import { Ad, ScreenName } from '../types';
 
@@ -21,6 +23,7 @@ interface FeaturedAdsScreenProps {
 
 export const FeaturedAdsScreen: React.FC<FeaturedAdsScreenProps> = ({ ads, onBack, onNavigate }) => {
   const [activeCategory, setActiveCategory] = useState('all');
+  const [showPaymentInfo, setShowPaymentInfo] = useState(false);
 
   const featuredAds = ads.filter(ad => ad.isFeatured);
   
@@ -84,7 +87,10 @@ export const FeaturedAdsScreen: React.FC<FeaturedAdsScreenProps> = ({ ads, onBac
                 <p className="text-white tracking-tight text-3xl font-display font-bold leading-tight">
                     Quer vender mais rápido? Destaque seu anúncio aqui.
                 </p>
-                <button className="mt-2 w-fit rounded-full bg-white text-primary px-4 py-2 text-sm font-bold shadow-sm hover:bg-gray-50">
+                <button 
+                  onClick={() => setShowPaymentInfo(true)}
+                  className="mt-2 w-fit rounded-full bg-white text-primary px-4 py-2 text-sm font-bold shadow-sm hover:bg-gray-50"
+                >
                     Saber mais
                 </button>
                 </div>
@@ -174,6 +180,79 @@ export const FeaturedAdsScreen: React.FC<FeaturedAdsScreenProps> = ({ ads, onBac
           <Plus size={30} />
         </button>
       </div>
+      {/* Payment Info Modal */}
+      {showPaymentInfo && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowPaymentInfo(false)}></div>
+          <div className="relative w-full max-w-lg bg-white rounded-2xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="p-5 border-b border-gray-100 flex items-center justify-between">
+              <h3 className="font-bold text-gray-900 text-lg">Como funciona o Destaque?</h3>
+              <button onClick={() => setShowPaymentInfo(false)} className="p-2 hover:bg-gray-100 rounded-full text-gray-400">
+                <XCircle size={24} />
+              </button>
+            </div>
+            <div className="p-6 overflow-y-auto space-y-6">
+              <section className="space-y-3">
+                <div className="flex items-center gap-2 text-primary">
+                  <Star size={20} className="fill-primary" />
+                  <h4 className="font-bold uppercase text-xs tracking-wider">Visibilidade Máxima</h4>
+                </div>
+                <p className="text-sm text-gray-600 leading-relaxed">
+                  Ao destacar um anúncio, ele será exibido no topo de todas as pesquisas e categorias, garantindo até 10x mais visualizações e contactos.
+                </p>
+              </section>
+
+              <section className="space-y-3">
+                <div className="flex items-center gap-2 text-amber-600">
+                  <Star size={20} className="fill-amber-500" />
+                  <h4 className="font-bold uppercase text-xs tracking-wider">Como Pagar?</h4>
+                </div>
+                <div className="bg-amber-50 border border-amber-100 rounded-xl p-4 space-y-3">
+                  <p className="text-sm text-gray-700 font-medium">
+                    Aceitamos pagamentos via:
+                  </p>
+                  <ul className="space-y-2 text-sm text-gray-600">
+                    <li className="flex items-center gap-2">
+                      <div className="size-1.5 rounded-full bg-amber-500"></div>
+                      M-Pesa (Vodacom)
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <div className="size-1.5 rounded-full bg-amber-500"></div>
+                      e-Mola (Movitel)
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <div className="size-1.5 rounded-full bg-amber-500"></div>
+                      Conta Móvel (BCI)
+                    </li>
+                  </ul>
+                </div>
+              </section>
+
+              <section className="space-y-3">
+                <div className="flex items-center gap-2 text-green-600">
+                  <MessageCircle size={20} />
+                  <h4 className="font-bold uppercase text-xs tracking-wider">Ativação</h4>
+                </div>
+                <p className="text-sm text-gray-600 leading-relaxed">
+                  Após o pagamento, envie o comprovativo para o nosso suporte no WhatsApp. A ativação é feita manualmente em menos de 10 minutos.
+                </p>
+              </section>
+            </div>
+            <div className="p-4 bg-gray-50 border-t border-gray-100">
+              <button 
+                onClick={() => {
+                  window.open('https://wa.me/258855767005', '_blank');
+                  setShowPaymentInfo(false);
+                }}
+                className="w-full bg-primary text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 hover:bg-blue-700 transition-colors"
+              >
+                <MessageCircle size={20} />
+                Falar com Suporte
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
