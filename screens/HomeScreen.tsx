@@ -35,7 +35,7 @@ import { supabase } from '../lib/supabase';
 interface HomeScreenProps {
   onNavigate: (screen: ScreenName, ad?: Ad) => void;
   ads: Ad[];
-  onOpenAuth: () => void;
+  onOpenAuth: (isSignUp?: boolean) => void;
   session: Session | null;
 }
 
@@ -420,13 +420,13 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
                 {!session && (
                   <div className="flex items-center gap-2 mr-2 lg:hidden">
                     <button 
-                      onClick={onOpenAuth}
+                      onClick={() => onOpenAuth(false)}
                       className="whitespace-nowrap bg-primary text-white px-3 py-2 rounded-xl text-xs font-bold hover:bg-blue-700 transition-colors shadow-sm"
                     >
                       Entrar
                     </button>
                     <button 
-                      onClick={onOpenAuth}
+                      onClick={() => onOpenAuth(true)}
                       className="whitespace-nowrap bg-white border border-gray-200 text-gray-700 px-3 py-2 rounded-xl text-xs font-bold hover:bg-gray-50 transition-colors shadow-sm"
                     >
                       Criar Conta
@@ -455,13 +455,13 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
                 {!session && (
                   <div className="hidden lg:flex items-center gap-2 ml-4">
                     <button 
-                      onClick={onOpenAuth}
+                      onClick={() => onOpenAuth(false)}
                       className="whitespace-nowrap bg-primary text-white px-4 py-2.5 rounded-xl text-sm font-bold hover:bg-blue-700 transition-colors shadow-lg shadow-blue-500/20"
                     >
                       Entrar
                     </button>
                     <button 
-                      onClick={onOpenAuth}
+                      onClick={() => onOpenAuth(true)}
                       className="whitespace-nowrap bg-white border border-gray-200 text-gray-700 px-4 py-2.5 rounded-xl text-sm font-bold hover:bg-gray-50 transition-colors shadow-sm"
                     >
                       Criar Conta

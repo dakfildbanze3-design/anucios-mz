@@ -132,6 +132,7 @@ function MainApp() {
   // Authentication State
   const [session, setSession] = useState<Session | null>(null);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const [initialAuthMode, setInitialAuthMode] = useState<'login' | 'signup'>('login');
   
   // UX: Remember where the user wanted to go before auth
   const [pendingRoute, setPendingRoute] = useState<string | null>(null);
@@ -268,6 +269,7 @@ function MainApp() {
 
     if ((screen === 'CREATE_AD' || screen === 'PROFILE') && !session) {
       setPendingRoute(targetRoute);
+      setInitialAuthMode('login');
       setIsAuthOpen(true);
       return;
     }
@@ -327,7 +329,10 @@ function MainApp() {
           <HomeScreen 
             onNavigate={handleNavigate} 
             ads={ads}
-            onOpenAuth={() => setIsAuthOpen(true)}
+            onOpenAuth={(isSignUp) => {
+              setInitialAuthMode(isSignUp ? 'signup' : 'login');
+              setIsAuthOpen(true);
+            }}
             session={session}
           />
         } />
@@ -380,7 +385,10 @@ function MainApp() {
       </Routes>
       
       {isAuthOpen && (
-        <AuthModal onClose={() => setIsAuthOpen(false)} />
+        <AuthModal 
+          onClose={() => setIsAuthOpen(false)} 
+          initialMode={initialAuthMode}
+        />
       )}
       <InstallPWA />
       

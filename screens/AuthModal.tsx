@@ -5,11 +5,12 @@ import { useToast } from '../components/ToastContext';
 
 interface AuthModalProps {
   onClose: () => void;
+  initialMode?: 'login' | 'signup';
 }
 
-export const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
+export const AuthModal: React.FC<AuthModalProps> = ({ onClose, initialMode = 'login' }) => {
   const { showToast } = useToast();
-  const [isSignUp, setIsSignUp] = useState(false);
+  const [isSignUp, setIsSignUp] = useState(initialMode === 'signup');
   const [loading, setLoading] = useState(false);
   
   // Form Fields
