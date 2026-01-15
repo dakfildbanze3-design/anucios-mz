@@ -64,16 +64,21 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
     return dateB - dateA;
   });
 
-  // Sort ads: Global chronological order (newest first), regardless of featured status
-  const sortedAds = [...filteredAds].sort((a, b) => {
+  // Featured carousel specifically for featured ads, newest boost/creation first
+  const featuredAds = [...ads]
+    .filter(ad => ad.isFeatured)
+    .sort((a, b) => {
+      const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      return dateB - dateA;
+    });
+
+  // Recent ads: Global chronological order (newest first), regardless of featured status
+  const recentAds = [...filteredAds].sort((a, b) => {
     const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
     const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
     return dateB - dateA;
   });
-
-  // Featured carousel still only shows featured ads, also newest first
-  const featuredAds = sortedAds.filter(ad => ad.isFeatured);
-  const recentAds = sortedAds; // All ads in one simple chronological list
 
   const handleSupportClick = () => {
     window.open('https://wa.me/258855767005', '_blank');
