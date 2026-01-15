@@ -78,7 +78,8 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
   });
 
   // Featured carousel specifically for featured ads, newest boost/creation first
-  const featuredAds = [...ads]
+  // Syncing with filters as requested
+  const featuredAds = filteredAds
     .filter(ad => ad.isFeatured)
     .sort((a, b) => {
       const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
