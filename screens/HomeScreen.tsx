@@ -70,6 +70,32 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
     { id: 'other', label: 'Outros', icon: ShoppingBag }
   ];
 
+  const handleShareApp = async () => {
+    const shareData = {
+      title: 'Anúncios MZ',
+      text: 'Confira o Anúncios MZ - O melhor lugar para comprar e vender em Moçambique! Compartilhe com 10 amigos e ganhe um mês de destaque grátis!',
+      url: window.location.origin,
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+        // In a real app, we'd track this via backend
+        const shares = parseInt(localStorage.getItem('appShares') || '0');
+        localStorage.setItem('appShares', (shares + 1).toString());
+        
+        if (shares + 1 >= 10) {
+          alert('Parabéns! Você compartilhou para 10 pessoas. Entre em contato com o suporte para resgatar seu mês de destaque grátis!');
+        }
+      } else {
+        await navigator.clipboard.writeText(shareData.url);
+        alert('Link copiado para a área de transferência! Compartilhe com 10 amigos para ganhar um mês de destaque.');
+      }
+    } catch (err) {
+      console.error('Error sharing:', err);
+    }
+  };
+
   const filteredAds = ads.filter(ad => {
     // Search in title, location, category and description for global reach
     const searchLower = searchQuery.toLowerCase();
@@ -225,6 +251,14 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
                 >
                     <Zap size={18} />
                     <span>Destaques</span>
+                </button>
+
+                <button 
+                    onClick={handleShareApp}
+                    className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-bold text-amber-600 bg-amber-50 hover:bg-amber-100 transition-colors border border-amber-200 mt-2"
+                >
+                    <Star size={18} className="fill-amber-500" />
+                    <span>Ganhar 1 Mês Grátis</span>
                 </button>
             </div>
 
@@ -482,6 +516,27 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
                 {cat.label}
                 </button>
             ))}
+            </div>
+
+            {/* Share Promotion Banner - Mobile only or visible on top of feed */}
+            <div className="px-4 mt-4">
+              <div className="bg-gradient-to-r from-amber-500 to-orange-600 rounded-2xl p-4 text-white shadow-lg relative overflow-hidden group cursor-pointer" onClick={handleShareApp}>
+                <div className="absolute top-0 right-0 p-4 opacity-20 group-hover:scale-110 transition-transform">
+                  <Crown size={64} />
+                </div>
+                <div className="relative z-10">
+                  <h3 className="font-black text-lg mb-1 flex items-center gap-2">
+                    <Star className="fill-white" size={20} />
+                    GANHE 1 MÊS DE DESTAQUE!
+                  </h3>
+                  <p className="text-white/90 text-sm leading-tight max-w-[80%]">
+                    Compartilhe o app com 10 pessoas e ganhe destaque grátis para suas vendas.
+                  </p>
+                  <button className="mt-3 bg-white text-orange-600 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider shadow-md active:scale-95 transition-all">
+                    Compartilhar Agora
+                  </button>
+                </div>
+              </div>
             </div>
 
             {/* Featured Section */}
