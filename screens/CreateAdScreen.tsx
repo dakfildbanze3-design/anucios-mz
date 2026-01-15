@@ -239,15 +239,21 @@ export const CreateAdScreen: React.FC<CreateAdScreenProps> = ({
       if (navigator.share) {
         await navigator.share(shareData);
         showToast("Obrigado por partilhar!", "success");
+        onPublish({}); // Move inside success
       } else {
         await navigator.clipboard.writeText(shareData.url);
         showToast("Link copiado! Partilhe com os seus amigos.", "success");
+        // For clipboard, we might still want to verify if they really shared, 
+        // but since we can't truly know, we'll guide them.
+        setTimeout(() => {
+          onPublish({});
+        }, 2000);
       }
     } catch (err) {
       console.error('Error sharing:', err);
+      showToast("Para continuar, por favor complete a partilha.", "error");
     } finally {
       setShowShareSuggestion(false);
-      onPublish({}); // Proceed to home as per original logic, but we already called it or will
     }
   };
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -404,10 +410,6 @@ export const CreateAdScreen: React.FC<CreateAdScreenProps> = ({
       } else {
         showToast("Anúncio publicado com sucesso!", "success");
         setShowShareSuggestion(true);
-        // We delay the actual onPublish navigation to let them see the share suggestion
-        setTimeout(() => {
-          if (!showShareSuggestion) onPublish(newAd);
-        }, 500);
       }
 
     } catch (error: any) {
