@@ -275,6 +275,13 @@ export const CreateAdScreen: React.FC<CreateAdScreenProps> = ({
       return;
     }
 
+    // Mozambique prefix validation
+    const cleanContact = contact.replace(/\s+/g, '');
+    if (!cleanContact.startsWith('258') && !cleanContact.startsWith('+258')) {
+      showToast("O número de contacto deve começar com o prefixo de Moçambique (258).", "error");
+      return;
+    }
+
     if (category === 'vehicle' && (!fuel || !transmission || !mileage)) {
       showToast("Por favor, preencha as especificações do veículo.", "error");
       return;
