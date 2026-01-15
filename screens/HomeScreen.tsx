@@ -86,13 +86,15 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
     
     let matchesTime = true;
     if (timeFilter !== 'all' && ad.createdAt) {
-      const adDate = new Date(ad.createdAt);
-      const diffMs = currentTime.getTime() - adDate.getTime();
-      const diffHours = diffMs / (1000 * 60 * 60);
+      const adDate = new Date(ad.createdAt).getTime();
+      const now = currentTime.getTime();
+      const diffMs = now - adDate;
+      const oneHour = 1000 * 60 * 60;
+      const oneDay = oneHour * 24;
       
-      if (timeFilter === '24h') matchesTime = diffHours <= 24;
-      else if (timeFilter === '7d') matchesTime = diffHours <= 24 * 7;
-      else if (timeFilter === '30d') matchesTime = diffHours <= 24 * 30;
+      if (timeFilter === '24h') matchesTime = diffMs <= oneDay;
+      else if (timeFilter === '7d') matchesTime = diffMs <= oneDay * 7;
+      else if (timeFilter === '30d') matchesTime = diffMs <= oneDay * 30;
     }
     
     return matchesCategory && matchesSearch && matchesMinPrice && matchesMaxPrice && matchesLocation && matchesTime;
