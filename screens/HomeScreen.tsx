@@ -64,6 +64,21 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
     return dateB - dateA;
   });
 
+  // Helper to format date in Mozambique time (GMT+2)
+  const formatMozDate = (dateString?: string) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat('pt-PT', {
+      timeZone: 'Africa/Maputo',
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    }).format(date);
+  };
+
   // Featured carousel specifically for featured ads, newest boost/creation first
   const featuredAds = [...ads]
     .filter(ad => ad.isFeatured)
@@ -459,7 +474,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
                             </div>
                             <div className="flex items-center gap-1 text-[10px] sm:text-xs text-gray-500">
                                 <Clock size={10} className="sm:size-3" />
-                                {ad.timeAgo}
+                                {formatMozDate(ad.createdAt)}
                             </div>
                         </div>
                         </div>
