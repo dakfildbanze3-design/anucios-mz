@@ -47,6 +47,15 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
   const [sortBy, setSortBy] = useState<'recent' | 'oldest' | 'price-asc' | 'price-desc'>('recent');
   const [locationFilter, setLocationFilter] = useState('');
   const [timeFilter, setTimeFilter] = useState<'all' | '24h' | '7d' | '30d'>('all');
+  const [currentTime, setCurrentTime] = useState(new Date());
+
+  useEffect(() => {
+    // Update current time every minute to keep time filters fresh in real-time
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 60000);
+    return () => clearInterval(timer);
+  }, []);
   
   // Menu States
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -77,9 +86,8 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
     
     let matchesTime = true;
     if (timeFilter !== 'all' && ad.createdAt) {
-      const now = new Date();
       const adDate = new Date(ad.createdAt);
-      const diffMs = now.getTime() - adDate.getTime();
+      const diffMs = currentTime.getTime() - adDate.getTime();
       const diffHours = Math.max(0, diffMs / (1000 * 60 * 60)); // Ensure no negative diffs
       
       if (timeFilter === '24h') matchesTime = diffHours <= 24;
