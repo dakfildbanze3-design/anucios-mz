@@ -71,6 +71,12 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
   ];
 
   const handleShareApp = async () => {
+    if (!session) {
+      alert('Por favor, entre na sua conta primeiro para podermos registar as suas partilhas e ativar o seu destaque grátis!');
+      onOpenAuth();
+      return;
+    }
+
     const shareData = {
       title: 'Anúncios MZ',
       text: '📢 Descobri um app grátis para anunciar e encontrar serviços em Moçambique 🇲🇿\nPublique anúncios, encontre clientes e oportunidades perto de você.',
@@ -80,9 +86,10 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
     try {
       if (navigator.share) {
         await navigator.share(shareData);
-        const shares = parseInt(localStorage.getItem('appShares') || '0');
+        const storageKey = `appShares_${session.user.id}`;
+        const shares = parseInt(localStorage.getItem(storageKey) || '0');
         const newShares = shares + 1;
-        localStorage.setItem('appShares', newShares.toString());
+        localStorage.setItem(storageKey, newShares.toString());
         
         if (newShares >= 10) {
           await activateAutoBoost();
@@ -91,7 +98,8 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
         }
       } else {
         await navigator.clipboard.writeText(shareData.url);
-        const shares = parseInt(localStorage.getItem('appShares') || '0');
+        const storageKey = `appShares_${session.user.id}`;
+        const shares = parseInt(localStorage.getItem(storageKey) || '0');
         alert(`Link copiado! Partilhe com os seus amigos: ${shareData.url}. Atualmente partilhou com ${shares} pessoas. Faltam ${Math.max(0, 10 - shares)} para o seu prémio!`);
       }
     } catch (err) {
@@ -120,7 +128,12 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
   };
 
   const handleGainFreeMonth = () => {
-    const shares = parseInt(localStorage.getItem('appShares') || '0');
+    if (!session) {
+      alert('Por favor, entre na sua conta para participar da promoção e ganhar um mês de destaque grátis!');
+      onOpenAuth();
+      return;
+    }
+    const shares = parseInt(localStorage.getItem(`appShares_${session.user.id}`) || '0');
     if (shares >= 10) {
       activateAutoBoost();
     } else {
