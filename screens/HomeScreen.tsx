@@ -78,6 +78,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
     return 0;
   });
 
+  // Filter and sort specifically for the featured carousel to ensure newest boost is first
   const featuredAds = sortedAds.filter(ad => ad.isFeatured);
   const recentAds = sortedAds; // Todos os anúncios, com destaques garantidos no topo
 
