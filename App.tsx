@@ -197,9 +197,22 @@ function MainApp() {
       )
       .subscribe();
 
+    // Cleanup Expired Boosts Periodically
+    const cleanupInterval = setInterval(async () => {
+      const now = new Date().toISOString();
+      const { error } = await supabase
+        .from('ads')
+        .update({ is_featured: false, featured_expires_at: null })
+        .lt('featured_expires_at', now)
+        .eq('is_featured', true);
+      
+      if (!error) fetchAds();
+    }, 60000); // Check every minute
+
     return () => {
       authListener.unsubscribe();
       supabase.removeChannel(adsChannel);
+      clearInterval(cleanupInterval);
     };
   }, [pendingRoute]); 
 

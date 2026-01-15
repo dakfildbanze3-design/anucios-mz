@@ -25,7 +25,7 @@ interface BoostAdScreenProps {
 }
 
 const PLANS: PricingPlan[] = [
-  { id: 'free_boost', name: 'Promocional', price: 0, duration: 90, features: ['Destaque por 3 Meses', 'Selo de Destaque', 'Topo da Página', 'Grátis (Período de Teste)'], isPopular: true },
+  { id: 'free_boost', name: 'Promocional', price: 0, duration: 30, features: ['Destaque por 1 Mês', 'Selo de Destaque', 'Topo da Página', 'Grátis por 30 dias'], isPopular: true },
 ];
 
 const OPERATORS = [
@@ -34,7 +34,7 @@ const OPERATORS = [
     name: 'Ativação Grátis', 
     bgColor: 'bg-green-600', 
     textColor: 'text-white',
-    instruction: 'Ative seu destaque gratuitamente por 3 meses',
+    instruction: 'Ative seu destaque gratuitamente por 30 dias',
     codePrefix: 'FREE'
   }
 ];
@@ -68,17 +68,23 @@ export const BoostAdScreen: React.FC<BoostAdScreenProps> = ({ onClose, onPayment
     // setStep('PROCESSING'); // Removido para ser mais rápido
 
     try {
+      const expirationDate = new Date();
+      expirationDate.setMonth(expirationDate.getMonth() + 1);
+
       const { error } = await supabase
         .from('ads')
-        .update({ is_featured: true })
+        .update({ 
+          is_featured: true,
+          featured_expires_at: expirationDate.toISOString()
+        })
         .eq('id', adId);
 
       if (error) throw error;
 
       setResultStatus('success');
-      setResultMessage("Destaque ativado com sucesso por 3 meses! 🚀");
+      setResultMessage("Destaque ativado com sucesso por 1 mês! 🚀\nO seu anúncio voltará ao normal automaticamente após este período.");
       showToast("Destaque ativado com sucesso!", "success");
-      setStep('RESULT'); // Pula direto para o resultado
+      setStep('RESULT'); 
       
     } catch (error: any) {
       console.error("Boost Error:", error);
@@ -154,7 +160,7 @@ export const BoostAdScreen: React.FC<BoostAdScreenProps> = ({ onClose, onPayment
                    <div>
                       <h3 className="font-bold text-gray-900 text-sm">Promoção de Lançamento</h3>
                       <p className="text-xs text-gray-600 mt-1 leading-relaxed">
-                        O sistema está a ser atualizado. Aproveite: destacar anúncios é <span className="font-bold text-amber-700">GRÁTIS por 3 meses!</span>
+                        O sistema está a ser atualizado. Aproveite: destacar anúncios é <span className="font-bold text-amber-700">GRÁTIS por 1 mês!</span>
                       </p>
                    </div>
                 </div>
@@ -239,8 +245,12 @@ export const BoostAdScreen: React.FC<BoostAdScreenProps> = ({ onClose, onPayment
                <div>
                   <h3 className="text-2xl font-black text-gray-900 mb-2">Ativar Destaque Grátis</h3>
                   <p className="text-gray-500 leading-relaxed font-medium">
-                    Aproveite nossa promoção de lançamento. Clique no botão abaixo para colocar seu anúncio no topo por 3 meses.
+                    Aproveite nossa promoção de lançamento. Clique no botão abaixo para colocar seu anúncio no topo por 1 mês (30 dias).
                   </p>
+                  <div className="mt-4 bg-blue-50 p-3 rounded-lg border border-blue-100 flex items-center justify-center gap-2 text-primary font-bold text-sm">
+                    <Clock size={18} />
+                    <span>Expira automaticamente em 30 dias</span>
+                  </div>
                </div>
             </div>
 

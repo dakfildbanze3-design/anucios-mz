@@ -13,17 +13,18 @@ import {
   Phone, 
   Rocket,
   ExternalLink,
-  MessageCircle,
-  Star,
-  Camera,
-  Palette,
-  X,
-  Facebook,
-  Twitter,
-  Mail,
-  Link as LinkIcon,
-  Copy,
-  Smartphone
+  MessageCircle, 
+  Star, 
+  Camera, 
+  Palette, 
+  X, 
+  Facebook, 
+  Twitter, 
+  Mail, 
+  Link as LinkIcon, 
+  Copy, 
+  Smartphone,
+  Clock
 } from 'lucide-react';
 import { Ad } from '../types';
 import { useToast } from '../components/ToastContext';

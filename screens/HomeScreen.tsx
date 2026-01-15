@@ -73,7 +73,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
   const handleShareApp = async () => {
     if (!session) {
       alert('Por favor, entre na sua conta primeiro para podermos registar as suas partilhas e ativar o seu destaque grátis!');
-      onOpenAuth();
+      onOpenAuth(false);
       return;
     }
 
@@ -114,13 +114,19 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
     }
 
     try {
+      const expirationDate = new Date();
+      expirationDate.setMonth(expirationDate.getMonth() + 1);
+
       const { error } = await supabase
         .from('ads')
-        .update({ is_featured: true })
+        .update({ 
+          is_featured: true,
+          featured_expires_at: expirationDate.toISOString()
+        })
         .eq('user_id', session.user.id);
 
       if (error) throw error;
-      alert('Incrível! Como partilhou com 10 pessoas, todos os seus anúncios foram movidos para o topo e destacados gratuitamente por um mês!');
+      alert('Incrível! Como partilhou com 10 pessoas, todos os seus anúncios foram movidos para o topo e destacados gratuitamente por um mês! Após esse período, voltarão à posição normal automaticamente.');
     } catch (err) {
       console.error('Error boosting ads:', err);
       alert('Concluiu as 10 partilhas! Entre em contacto com o suporte para ativar o seu destaque manual.');
@@ -130,7 +136,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
   const handleGainFreeMonth = () => {
     if (!session) {
       alert('Por favor, entre na sua conta para participar da promoção e ganhar um mês de destaque grátis!');
-      onOpenAuth();
+      onOpenAuth(false);
       return;
     }
     const shares = parseInt(localStorage.getItem(`appShares_${session.user.id}`) || '0');
