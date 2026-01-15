@@ -77,30 +77,42 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
       return;
     }
 
+    const today = new Date().toISOString().split('T')[0];
+    const lastShareKey = `lastShareDate_${session.user.id}`;
+    const lastShareDate = localStorage.getItem(lastShareKey);
+
+    if (lastShareDate === today) {
+      alert('Você já ganhou pontos por compartilhar hoje! Volte amanhã para ganhar mais.');
+    }
+
     const shareData = {
       title: 'Anúncios MZ',
-      text: '📢 Descobri um app grátis para anunciar e encontrar serviços em Moçambique 🇲🇿\nPublique anúncios, encontre clientes e oportunidades perto de você.',
+      text: '📢 App grátis para anunciar em Moçambique 🇲🇿',
       url: 'https://anucios-mz.vercel.app/',
     };
 
     try {
       if (navigator.share) {
         await navigator.share(shareData);
-        const storageKey = `appShares_${session.user.id}`;
-        const shares = parseInt(localStorage.getItem(storageKey) || '0');
-        const newShares = shares + 1;
-        localStorage.setItem(storageKey, newShares.toString());
         
-        if (newShares >= 10) {
-          await activateAutoBoost();
+        if (lastShareDate !== today) {
+          const storageKey = `appShares_${session.user.id}`;
+          const shares = parseInt(localStorage.getItem(storageKey) || '0');
+          const newShares = shares + 1;
+          localStorage.setItem(storageKey, newShares.toString());
+          localStorage.setItem(lastShareKey, today);
+          
+          if (newShares >= 10) {
+            await activateAutoBoost();
+          } else {
+            alert(`Excelente! Partilhou com sucesso. Ganhou +1 ponto! Faltam apenas ${10 - newShares} para o seu mês de destaque grátis!`);
+          }
         } else {
-          alert(`Excelente! Partilhou com sucesso. Faltam apenas ${10 - newShares} pessoas para ganhar o seu mês de destaque grátis!`);
+          alert('Obrigado por partilhar novamente!');
         }
       } else {
         await navigator.clipboard.writeText(shareData.url);
-        const storageKey = `appShares_${session.user.id}`;
-        const shares = parseInt(localStorage.getItem(storageKey) || '0');
-        alert(`Link copiado! Partilhe com os seus amigos: ${shareData.url}. Atualmente partilhou com ${shares} pessoas. Faltam ${Math.max(0, 10 - shares)} para o seu prémio!`);
+        alert(`Link copiado! Partilhe com os seus amigos: ${shareData.url}. Nota: Pontos automáticos só são atribuídos via menu de partilha do telemóvel.`);
       }
     } catch (err) {
       console.error('Error sharing:', err);
