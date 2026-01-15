@@ -270,9 +270,6 @@ export const CreateAdScreen: React.FC<CreateAdScreenProps> = ({
     
     const numericPrice = parseFloat(price);
     
-    // Mozambique prefix is handled by UI, so we just prep the number for storage
-    const fullContact = contact.startsWith('258') ? contact : `258${contact}`;
-    
     if (!title.trim() || !price || isNaN(numericPrice) || !category || !description.trim() || !location.trim() || !contact.trim()) {
       showToast("Por favor, preencha todos os campos obrigatórios.", "error");
       return;
@@ -297,6 +294,10 @@ export const CreateAdScreen: React.FC<CreateAdScreenProps> = ({
 
   const saveToSupabase = async (isBoosted: boolean) => {
     setIsSubmitting(true);
+    
+    // Mozambique prefix is handled by UI, so we just prep the number for storage
+    const fullContact = contact.startsWith('258') ? contact : `258${contact}`;
+
     try {
       // Get User ID
       const { data: { user } } = await supabase.auth.getUser();
