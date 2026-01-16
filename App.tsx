@@ -378,6 +378,10 @@ function MainApp() {
           <BoostWrapper ads={ads} selectedAd={selectedAd} navigate={navigate} fetchAds={fetchAds} />
         } />
 
+        <Route path="/boost" element={
+          <BoostWrapper ads={ads} selectedAd={selectedAd} navigate={navigate} fetchAds={fetchAds} />
+        } />
+
         <Route path="/ad/:id" element={
           <AdDetailsWrapper ads={ads} selectedAd={selectedAd} navigate={navigate} />
         } />
