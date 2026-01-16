@@ -75,16 +75,25 @@ export const BoostAdScreen: React.FC<BoostAdScreenProps> = ({ onClose, onPayment
         .from('ads')
         .update({ 
           is_featured: true,
-          featured_expires_at: expirationDate.toISOString()
+          featured_expires_at: expirationDate.toISOString(),
+          updated_at: new Date().toISOString()
         })
         .eq('id', adId);
 
       if (error) throw error;
 
+      // Log success for debugging
+      console.log('Ad boosted successfully:', adId);
+
       setResultStatus('success');
       setResultMessage("Destaque ativado com sucesso por 1 mês! 🚀\nO seu anúncio voltará ao normal automaticamente após este período.");
       showToast("Destaque ativado com sucesso!", "success");
       setStep('RESULT'); 
+      
+      // Notify parent component immediately
+      if (onPaymentSuccess) {
+        onPaymentSuccess();
+      }
       
     } catch (error: any) {
       console.error("Boost Error:", error);
