@@ -68,6 +68,14 @@ export const BoostAdScreen: React.FC<BoostAdScreenProps> = ({ onClose, onPayment
     // setStep('PROCESSING'); // Removido para ser mais rápido
 
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!adId || !activePlan || !user) {
+        showToast("Você precisa estar logado para destacar um anúncio.", "error");
+        return;
+      }
+
+      setIsProcessing(true);
+
       const expirationDate = new Date();
       expirationDate.setMonth(expirationDate.getMonth() + 1);
 
@@ -78,9 +86,13 @@ export const BoostAdScreen: React.FC<BoostAdScreenProps> = ({ onClose, onPayment
           featured_expires_at: expirationDate.toISOString(),
           updated_at: new Date().toISOString()
         })
-        .eq('id', adId);
+        .eq('id', adId)
+        .eq('user_id', user.id); // Garantir que o anúncio pertence ao usuário
 
-      if (error) throw error;
+      if (error) {
+        console.error("Supabase Error:", error);
+        throw error;
+      }
 
       // Log success for debugging
       console.log('Ad boosted successfully:', adId);
