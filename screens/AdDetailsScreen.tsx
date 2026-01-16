@@ -24,7 +24,8 @@ import {
   Link as LinkIcon, 
   Copy, 
   Smartphone,
-  Clock
+  Clock,
+  Timer
 } from 'lucide-react';
 import { Ad } from '../types';
 import { useToast } from '../components/ToastContext';
@@ -35,6 +36,72 @@ interface AdDetailsScreenProps {
   onBack: () => void;
   onBoost: () => void;
 }
+
+const CountdownTimer: React.FC<{ expiresAt: string }> = ({ expiresAt }) => {
+  const [timeLeft, setTimeLeft] = useState<{
+    days: number;
+    hours: number;
+    minutes: number;
+    seconds: number;
+  } | null>(null);
+
+  useEffect(() => {
+    const calculateTimeLeft = () => {
+      const difference = +new Date(expiresAt) - +new Date();
+      
+      if (difference > 0) {
+        setTimeLeft({
+          days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+          hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
+          minutes: Math.floor((difference / 1000 / 60) % 60),
+          seconds: Math.floor((difference / 1000) % 60),
+        });
+      } else {
+        setTimeLeft(null);
+      }
+    };
+
+    const timer = setInterval(calculateTimeLeft, 1000);
+    calculateTimeLeft();
+
+    return () => clearInterval(timer);
+  }, [expiresAt]);
+
+  if (!timeLeft) return null;
+
+  return (
+    <div className="flex flex-col gap-2 bg-amber-50 p-4 rounded-2xl border border-amber-200 animate-pulse">
+      <div className="flex items-center gap-2 text-amber-800 font-bold">
+        <Timer size={20} className="animate-spin-slow" />
+        <span>Destaque Ativo</span>
+      </div>
+      <div className="flex gap-3">
+        <div className="flex flex-col items-center">
+          <span className="text-2xl font-black text-amber-900 leading-none">{timeLeft.days}</span>
+          <span className="text-[10px] uppercase font-bold text-amber-600">Dias</span>
+        </div>
+        <div className="text-2xl font-black text-amber-300">:</div>
+        <div className="flex flex-col items-center">
+          <span className="text-2xl font-black text-amber-900 leading-none">{String(timeLeft.hours).padStart(2, '0')}</span>
+          <span className="text-[10px] uppercase font-bold text-amber-600">Horas</span>
+        </div>
+        <div className="text-2xl font-black text-amber-300">:</div>
+        <div className="flex flex-col items-center">
+          <span className="text-2xl font-black text-amber-900 leading-none">{String(timeLeft.minutes).padStart(2, '0')}</span>
+          <span className="text-[10px] uppercase font-bold text-amber-600">Min</span>
+        </div>
+        <div className="text-2xl font-black text-amber-300">:</div>
+        <div className="flex flex-col items-center">
+          <span className="text-2xl font-black text-amber-900 leading-none">{String(timeLeft.seconds).padStart(2, '0')}</span>
+          <span className="text-[10px] uppercase font-bold text-amber-600">Seg</span>
+        </div>
+      </div>
+      <p className="text-xs font-medium text-amber-700 mt-1">
+        Faltam {timeLeft.days} dias para o seu anúncio voltar ao normal.
+      </p>
+    </div>
+  );
+};
 
 export const AdDetailsScreen: React.FC<AdDetailsScreenProps> = ({ ad, onBack, onBoost }) => {
   const { showToast } = useToast();
@@ -223,6 +290,12 @@ export const AdDetailsScreen: React.FC<AdDetailsScreenProps> = ({ ad, onBack, on
                         <span>Partilhar</span>
                     </button>
                 </div>
+
+                {ad.isFeatured && (ad as any).featured_expires_at && (
+                  <div className="mb-6">
+                    <CountdownTimer expiresAt={(ad as any).featured_expires_at} />
+                  </div>
+                )}
 
                 <div className="flex flex-col gap-6">
                     <div>

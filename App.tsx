@@ -249,6 +249,7 @@ function MainApp() {
           isMyAd: currentSession?.user?.id === item.user_id,
           timeAgo: getTimeAgo(item.created_at),
           createdAt: item.created_at, // Map createdAt
+          featured_expires_at: item.featured_expires_at,
           category: item.category,
           specs: item.specs,
           contact: item.contact,

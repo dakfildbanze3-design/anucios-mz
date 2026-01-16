@@ -21,6 +21,7 @@ export interface Ad {
   description?: string;
   views?: number;
   contact?: string;
+  featured_expires_at?: string;
 }
 
 export type ScreenName = 'HOME' | 'CREATE_AD' | 'BOOST_AD' | 'AD_DETAILS' | 'FEATURED_ADS' | 'TERMS' | 'PROFILE';
