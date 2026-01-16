@@ -637,28 +637,6 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
             {/* Featured Section */}
             {featuredAds.length > 0 && (
             <section className="mt-2 lg:mt-6 px-4 lg:px-6 overflow-hidden">
-                <div className="bg-primary rounded-3xl p-6 text-white shadow-xl relative overflow-hidden mb-6 cursor-pointer" onClick={() => onNavigate('PAYMENT_INFO')}>
-                  <div className="relative z-10">
-                    <div className="flex items-center gap-2 mb-2">
-                      <ShieldCheck size={20} className="text-white/80" />
-                      <span className="text-[10px] font-bold uppercase tracking-widest text-white/80">Área Premium</span>
-                    </div>
-                    <h2 className="text-2xl font-black mb-4 max-w-[200px] leading-tight">Quer vender mais rápido? Destaque seu anúncio aqui.</h2>
-                    <button 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onNavigate('PAYMENT_INFO');
-                      }}
-                      className="bg-white text-primary px-6 py-2.5 rounded-full text-sm font-bold shadow-lg active:scale-95 transition-all"
-                    >
-                      Saber mais
-                    </button>
-                  </div>
-                  <div className="absolute -right-8 -bottom-8 opacity-10">
-                    <Zap size={180} />
-                  </div>
-                </div>
-
                 <div className="flex items-center justify-between mb-4">
                 <h2 className="text-xl md:text-2xl font-display font-bold text-gray-900 flex items-center gap-2">
                     <Zap className="text-amber-500 fill-amber-500" size={24} />
