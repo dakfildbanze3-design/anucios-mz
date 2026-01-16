@@ -85,22 +85,17 @@ export const BoostAdScreen: React.FC<BoostAdScreenProps> = ({ onClose, onPayment
       // Log success for debugging
       console.log('Ad boosted successfully:', adId);
 
-      setResultStatus('success');
-      setResultMessage("Destaque ativado com sucesso por 1 mês! 🚀\nO seu anúncio voltará ao normal automaticamente após este período.");
       showToast("Destaque ativado com sucesso!", "success");
-      setStep('RESULT'); 
       
-      // Notify parent component immediately
+      // Notify parent component immediately and close
       if (onPaymentSuccess) {
         onPaymentSuccess();
       }
+      onClose();
       
     } catch (error: any) {
       console.error("Boost Error:", error);
-      setResultStatus('error');
-      setResultMessage("Erro ao ativar o destaque. Tente novamente.");
-      showToast("Erro ao processar", "error");
-      setStep('RESULT'); // Mostra erro no resultado
+      showToast("Erro ao ativar o destaque. Tente novamente.", "error");
     } finally {
       setIsProcessing(false);
     }
