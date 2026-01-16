@@ -88,7 +88,7 @@ export const FeaturedAdsScreen: React.FC<FeaturedAdsScreenProps> = ({ ads, onBac
                     Quer vender mais rápido? Destaque seu anúncio aqui.
                 </p>
                 <button 
-                  onClick={() => onNavigate('PAYMENT_INFO')}
+                  onClick={() => setShowPaymentInfo(true)}
                   className="mt-2 w-fit rounded-full bg-white text-primary px-4 py-2 text-sm font-bold shadow-sm hover:bg-gray-50 active:scale-95 transition-all"
                 >
                     Saber mais
@@ -241,13 +241,13 @@ export const FeaturedAdsScreen: React.FC<FeaturedAdsScreenProps> = ({ ads, onBac
             <div className="p-4 bg-gray-50 border-t border-gray-100">
               <button 
                 onClick={() => {
-                  window.open('https://wa.me/258855767005', '_blank');
+                  onNavigate('PAYMENT_INFO');
                   setShowPaymentInfo(false);
                 }}
                 className="w-full bg-primary text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 hover:bg-blue-700 transition-colors"
               >
-                <MessageCircle size={20} />
-                Falar com Suporte
+                <Info size={20} />
+                Sistemas de Pagamento
               </button>
             </div>
           </div>
