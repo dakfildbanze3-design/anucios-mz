@@ -70,9 +70,8 @@ export const FeaturedAdsScreen: React.FC<FeaturedAdsScreenProps> = ({ ads, onBac
       <div className="max-w-[1920px] mx-auto w-full flex-1">
         {/* HeaderImage / CTA */}
         <div className="px-4 py-4">
-            <div 
-            onClick={() => onNavigate('BOOST_AD')}
-            className="relative overflow-hidden rounded-xl bg-primary shadow-lg group cursor-pointer transition-transform hover:scale-[1.005]"
+            <div className="relative overflow-hidden rounded-xl bg-primary shadow-lg group cursor-pointer transition-transform hover:scale-[1.005]"
+                 onClick={() => onNavigate('PAYMENT_INFO')}
             >
             <div 
                 className="absolute inset-0 bg-cover bg-center opacity-40 mix-blend-overlay" 
@@ -88,7 +87,10 @@ export const FeaturedAdsScreen: React.FC<FeaturedAdsScreenProps> = ({ ads, onBac
                     Quer vender mais rápido? Destaque seu anúncio aqui.
                 </p>
                 <button 
-                  onClick={() => onNavigate('PAYMENT_INFO')}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onNavigate('PAYMENT_INFO');
+                  }}
                   className="mt-2 w-fit rounded-full bg-white text-primary px-4 py-2 text-sm font-bold shadow-sm hover:bg-gray-50 active:scale-95 transition-all"
                 >
                     Saber mais

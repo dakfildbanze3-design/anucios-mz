@@ -27,7 +27,8 @@ import {
   Globe,
   SlidersHorizontal,
   ArrowUpDown,
-  ChevronDown
+  ChevronDown,
+  ShieldCheck
 } from 'lucide-react';
 import { Ad, ScreenName } from '../types';
 import { Session } from '@supabase/supabase-js';
@@ -380,7 +381,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
                 </div>
             ) : (
                 <button 
-                    onClick={onOpenAuth}
+                    onClick={() => onOpenAuth()}
                     className="w-full bg-gray-900 text-white py-2.5 rounded-lg text-sm font-bold hover:bg-black transition-colors"
                 >
                     Entrar na Conta
@@ -418,20 +419,18 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
                     </div>
                   </div>
 
-                  <div className="relative shrink-0">
                     <button 
-                      onClick={() => onOpenAuth()}
-                      className="p-1 rounded-full hover:bg-gray-100 transition-all border border-transparent hover:border-gray-200"
-                    >
-                      <div className={`size-10 rounded-full flex items-center justify-center overflow-hidden shadow-sm border border-gray-200 ${session ? 'bg-white' : 'bg-gray-100 text-gray-500'}`}>
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onOpenAuth();
+                      }}
+                      className={`size-10 rounded-full flex items-center justify-center overflow-hidden shadow-sm border border-gray-200 ${session ? 'bg-white' : 'bg-gray-100 text-gray-500'}`}>
                         {session && userAvatar ? (
                             <img src={userAvatar} alt="Profile" className="w-full h-full object-cover" />
                         ) : (
                             <User size={20} className={session ? "text-primary fill-primary/10" : "fill-current"} />
                         )}
-                      </div>
-                    </button>
-                  </div>
+                      </button>
               </div>
               
               {/* Search Bar - Row 2 on Mobile, Row 1 (Centered/Expanded) on Desktop */}
@@ -638,6 +637,28 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
             {/* Featured Section */}
             {featuredAds.length > 0 && (
             <section className="mt-2 lg:mt-6 px-4 lg:px-6 overflow-hidden">
+                <div className="bg-primary rounded-3xl p-6 text-white shadow-xl relative overflow-hidden mb-6 cursor-pointer" onClick={() => onNavigate('PAYMENT_INFO')}>
+                  <div className="relative z-10">
+                    <div className="flex items-center gap-2 mb-2">
+                      <ShieldCheck size={20} className="text-white/80" />
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-white/80">Área Premium</span>
+                    </div>
+                    <h2 className="text-2xl font-black mb-4 max-w-[200px] leading-tight">Quer vender mais rápido? Destaque seu anúncio aqui.</h2>
+                    <button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onNavigate('PAYMENT_INFO');
+                      }}
+                      className="bg-white text-primary px-6 py-2.5 rounded-full text-sm font-bold shadow-lg active:scale-95 transition-all"
+                    >
+                      Saber mais
+                    </button>
+                  </div>
+                  <div className="absolute -right-8 -bottom-8 opacity-10">
+                    <Zap size={180} />
+                  </div>
+                </div>
+
                 <div className="flex items-center justify-between mb-4">
                 <h2 className="text-xl md:text-2xl font-display font-bold text-gray-900 flex items-center gap-2">
                     <Zap className="text-amber-500 fill-amber-500" size={24} />
