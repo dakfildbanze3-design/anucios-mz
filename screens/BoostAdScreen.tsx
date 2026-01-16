@@ -79,35 +79,32 @@ export const BoostAdScreen: React.FC<BoostAdScreenProps> = ({ onClose, onPayment
       const expirationDate = new Date();
       expirationDate.setMonth(expirationDate.getMonth() + 1);
 
-      const { error } = await supabase
+      // Simplificando a query para evitar erros de sintaxe ou de permissão complexos
+      const { error: updateError } = await supabase
         .from('ads')
         .update({ 
           is_featured: true,
           featured_expires_at: expirationDate.toISOString(),
           updated_at: new Date().toISOString()
         })
-        .eq('id', adId)
-        .eq('user_id', user.id); // Garantir que o anúncio pertence ao usuário
+        .match({ id: adId, user_id: user.id });
 
-      if (error) {
-        console.error("Supabase Error:", error);
-        throw error;
+      if (updateError) {
+        console.error("Supabase Update Error Details:", updateError);
+        throw updateError;
       }
 
-      // Log success for debugging
       console.log('Ad boosted successfully:', adId);
-
       showToast("Destaque ativado com sucesso!", "success");
       
-      // Notify parent component immediately and close
       if (onPaymentSuccess) {
         onPaymentSuccess();
       }
       onClose();
       
     } catch (error: any) {
-      console.error("Boost Error:", error);
-      showToast("Erro ao ativar o destaque. Tente novamente.", "error");
+      console.error("Boost Exception:", error);
+      showToast("Erro ao processar: " + (error.message || "Tente novamente"), "error");
     } finally {
       setIsProcessing(false);
     }
