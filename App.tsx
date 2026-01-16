@@ -8,6 +8,7 @@ import { FeaturedAdsScreen } from './screens/FeaturedAdsScreen';
 import { TermsScreen } from './screens/TermsScreen';
 import { ProfileScreen } from './screens/ProfileScreen';
 import { SplashScreen } from './screens/SplashScreen';
+import { PaymentDescriptionsScreen } from './screens/PaymentDescriptionsScreen';
 import Onboarding from './screens/OnboardingScreen'; // Import Onboarding
 import { AuthModal } from './screens/AuthModal';
 import { InstallPWA } from './components/InstallPWA';
@@ -276,7 +277,8 @@ function MainApp() {
       'BOOST_AD': ad ? `/boost/${ad.id}` : '/boost',
       'AD_DETAILS': `/ad/${ad?.id}`,
       'FEATURED_ADS': '/featured',
-      'TERMS': '/terms'
+      'TERMS': '/terms',
+      'PAYMENT_INFO': '/payment-methods'
     };
 
     const targetRoute = routeMap[screen];
@@ -398,6 +400,12 @@ function MainApp() {
         <Route path="/terms" element={
           <TermsScreen 
             onBack={() => navigate('/create')} 
+          />
+        } />
+
+        <Route path="/payment-methods" element={
+          <PaymentDescriptionsScreen 
+            onBack={() => navigate(-1)} 
           />
         } />
       </Routes>

@@ -88,7 +88,7 @@ export const FeaturedAdsScreen: React.FC<FeaturedAdsScreenProps> = ({ ads, onBac
                     Quer vender mais rápido? Destaque seu anúncio aqui.
                 </p>
                 <button 
-                  onClick={() => setShowPaymentInfo(true)}
+                  onClick={() => onNavigate('PAYMENT_INFO')}
                   className="mt-2 w-fit rounded-full bg-white text-primary px-4 py-2 text-sm font-bold shadow-sm hover:bg-gray-50 active:scale-95 transition-all"
                 >
                     Saber mais
