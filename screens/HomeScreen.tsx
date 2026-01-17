@@ -734,14 +734,14 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
                 </div>
             ) : (
                 // Responsive Grid for Recent Ads
-                <div className="flex flex-col gap-10">
+                <div className="flex flex-col gap-10 -mx-4 lg:-mx-6">
                 {recentAds.map((ad) => (
                     <div 
                     key={ad.id}
                     onClick={() => onNavigate('AD_DETAILS', ad)}
                     className="relative flex flex-col gap-4 w-full cursor-pointer group"
                     >
-                    {/* Header: Title and Description - Outside */}
+                    {/* Header: Title and Description - Outside with Padding */}
                     <div className="px-4 lg:px-6">
                         <h3 className="text-xl sm:text-2xl font-bold text-gray-900 line-clamp-2 leading-tight group-hover:text-primary transition-colors">
                             {ad.title}
@@ -753,48 +753,51 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
                         )}
                     </div>
 
-                    {/* Main Image Card - 100% Width No Borders */}
-                    <div className="relative w-full aspect-[16/9] sm:h-[450px] overflow-hidden shadow-sm">
+                    {/* Main Image Card - 100% Width Taller */}
+                    <div className="relative w-full aspect-[4/5] sm:h-[600px] overflow-hidden shadow-sm">
                         {ad.isMyAd && (
-                            <div className="absolute top-4 right-4 z-10">
+                            <div className="absolute top-4 right-4 z-20">
                                 <span className="bg-gray-900 text-[10px] sm:text-xs px-3 py-1.5 rounded-full text-white font-bold shadow-md">Seu Anúncio</span>
                             </div>
                         )}
 
                         {ad.isFeatured && (
-                            <div className="absolute top-4 left-4 z-10 flex items-center gap-1.5 bg-amber-400 text-white text-[10px] sm:text-xs px-3 py-1.5 rounded-full font-bold shadow-sm">
+                            <div className="absolute top-4 left-4 z-20 flex items-center gap-1.5 bg-amber-400 text-white text-[10px] sm:text-xs px-3 py-1.5 rounded-full font-bold shadow-sm">
                                 <Star size={12} className="fill-white" />
                                 Destaque
                             </div>
                         )}
+
+                        {/* Avatar Overlay - Top Left */}
+                        <div className="absolute top-4 left-4 z-30 flex items-center gap-3">
+                             <div className="size-12 rounded-full bg-white/20 backdrop-blur-md border border-white/30 shadow-lg overflow-hidden flex-shrink-0">
+                                <User size={24} className="w-full h-full p-2.5 text-white" />
+                            </div>
+                        </div>
                         
                         <div 
                         className="w-full h-full bg-cover bg-center group-hover:scale-105 transition-transform duration-1000 ease-out" 
                         style={{ backgroundImage: `url(${ad.image})` }}
                         />
+
+                        {/* Dark Gradient Overlay for better readability of badges if needed */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/20 z-10" />
                     </div>
                     
-                    {/* Footer: User & Price Info - Outside */}
+                    {/* Footer: Price Info - Outside with Padding */}
                     <div className="flex items-center justify-between px-4 lg:px-6">
-                        <div className="flex items-center gap-4">
-                            {/* User Avatar - Outside */}
-                            <div className="size-14 rounded-full bg-gray-100 border-2 border-white shadow-sm overflow-hidden flex-shrink-0">
-                                <User size={28} className="w-full h-full p-3 text-gray-400" />
-                            </div>
-                            
-                            <div className="flex flex-col">
-                                <p className="text-2xl sm:text-3xl font-black text-primary tracking-tight">
-                                    {ad.currency} {ad.price.toLocaleString('pt-PT')}
-                                </p>
-                                <div className="flex items-center gap-4 text-sm text-gray-500 mt-1 font-medium">
-                                    <div className="flex items-center gap-1.5">
-                                        <MapPin size={16} className="text-gray-400" />
-                                        <span>{ad.location}</span>
-                                    </div>
-                                    <div className="flex items-center gap-1.5">
-                                        <Clock size={16} className="text-gray-400" />
-                                        <span>{formatMozDate(ad.createdAt)}</span>
-                                    </div>
+                        <div className="flex flex-col">
+                            <p className="text-2xl sm:text-3xl font-black text-primary tracking-tight">
+                                {ad.currency} {ad.price.toLocaleString('pt-PT')}
+                            </p>
+                            <div className="flex items-center gap-4 text-sm text-gray-500 mt-1 font-medium">
+                                <div className="flex items-center gap-1.5">
+                                    <MapPin size={16} className="text-gray-400" />
+                                    <span>{ad.location}</span>
+                                </div>
+                                <div className="flex items-center gap-1.5">
+                                    <Clock size={16} className="text-gray-400" />
+                                    <span>{formatMozDate(ad.createdAt)}</span>
                                 </div>
                             </div>
                         </div>
