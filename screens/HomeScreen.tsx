@@ -734,81 +734,88 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
                 </div>
             ) : (
                 // Responsive Grid for Recent Ads
-                <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3 sm:gap-4 px-[1px]">
+                <div className="flex flex-col gap-10 px-[1px]">
                 {recentAds.map((ad) => (
                     <div 
                     key={ad.id}
                     onClick={() => onNavigate('AD_DETAILS', ad)}
-                    className={`relative p-2 sm:p-3 rounded-xl sm:rounded-2xl shadow-sm border flex flex-col gap-2 sm:gap-4 h-auto cursor-pointer hover:shadow-md transition-all duration-300 group ${ad.isMyAd ? 'bg-blue-50/50 border-blue-100' : 'bg-white border-gray-100'}`}
+                    className="relative flex flex-col gap-4 w-full cursor-pointer group"
                     >
-                    {ad.isMyAd && (
-                        <div className="absolute -top-2 -right-2 z-10">
-                        <span className="bg-gray-900 text-[9px] sm:text-[10px] px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full text-white font-bold shadow-md">Seu Anúncio</span>
-                        </div>
-                    )}
+                    {/* Header: Title and Description - Outside */}
+                    <div className="px-1">
+                        <h3 className="text-xl sm:text-2xl font-bold text-gray-900 line-clamp-2 leading-tight group-hover:text-primary transition-colors">
+                            {ad.title}
+                        </h3>
+                        {ad.description && (
+                            <p className="text-base text-gray-500 mt-2 line-clamp-3 leading-relaxed">
+                                {ad.description}
+                            </p>
+                        )}
+                    </div>
 
-                    {ad.isFeatured && (
-                        <div className="absolute top-2 left-2 z-10 flex items-center gap-1 bg-amber-400 text-white text-[9px] sm:text-[10px] px-2 py-0.5 rounded-full font-bold shadow-sm">
-                            <Star size={10} className="fill-white" />
-                            Destaque
-                        </div>
-                    )}
-                    
-                    <div className="w-full aspect-square sm:aspect-auto sm:h-44 shrink-0 rounded-lg sm:rounded-xl bg-gray-100 overflow-hidden relative">
+                    {/* Main Image Card - 100% Width */}
+                    <div className="relative w-full aspect-[16/9] sm:h-[450px] rounded-3xl overflow-hidden shadow-xl border border-gray-100">
+                        {ad.isMyAd && (
+                            <div className="absolute top-4 right-4 z-10">
+                                <span className="bg-gray-900 text-[10px] sm:text-xs px-3 py-1.5 rounded-full text-white font-bold shadow-md">Seu Anúncio</span>
+                            </div>
+                        )}
+
+                        {ad.isFeatured && (
+                            <div className="absolute top-4 left-4 z-10 flex items-center gap-1.5 bg-amber-400 text-white text-[10px] sm:text-xs px-3 py-1.5 rounded-full font-bold shadow-sm">
+                                <Star size={12} className="fill-white" />
+                                Destaque
+                            </div>
+                        )}
+                        
                         <div 
-                        className="w-full h-full bg-cover bg-center group-hover:scale-105 transition-transform duration-500" 
+                        className="w-full h-full bg-cover bg-center group-hover:scale-105 transition-transform duration-1000 ease-out" 
                         style={{ backgroundImage: `url(${ad.image})` }}
                         />
                     </div>
                     
-                    <div className="flex flex-col justify-between flex-1">
-                        <div>
-                        <h3 className="text-[13px] sm:text-[15px] font-bold text-gray-900 line-clamp-2 leading-tight group-hover:text-primary transition-colors">{ad.title}</h3>
-                        
-                        <div className="flex flex-col gap-0.5 mt-1 sm:mt-1.5">
-                            <div className="flex items-center gap-1 text-[10px] sm:text-xs text-gray-500">
-                                <MapPin size={10} className="sm:size-3" />
-                                <span className="truncate">{ad.location}</span>
+                    {/* Footer: User & Price Info - Outside */}
+                    <div className="flex items-center justify-between px-1">
+                        <div className="flex items-center gap-4">
+                            {/* User Avatar - Outside */}
+                            <div className="size-14 rounded-full bg-gray-100 border-2 border-white shadow-sm overflow-hidden flex-shrink-0">
+                                <User size={28} className="w-full h-full p-3 text-gray-400" />
                             </div>
-                            <div className="flex items-center gap-1 text-[10px] sm:text-xs text-gray-500">
-                                <Clock size={10} className="sm:size-3" />
-                                {formatMozDate(ad.createdAt)}
-                            </div>
-                        </div>
-                        </div>
-                        
-                        <div className="mt-1.5 sm:mt-3">
-                        <p className="text-sm sm:text-base font-black text-primary">
-                            {ad.currency} {ad.price.toLocaleString('pt-PT')}
-                        </p>
-                        
-                        {ad.isMyAd && (
-                            <div className="mt-2">
-                                {!ad.isFeatured ? (
-                                    <button 
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        onNavigate('BOOST_AD', ad);
-                                    }}
-                                    className="w-full flex items-center justify-center gap-1 bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-1 rounded-lg shadow-md active:scale-95 transition-all"
-                                    >
-                                    <Rocket size={12} />
-                                    <span className="text-[10px] font-bold">Destacar</span>
-                                    </button>
-                                ) : (
-                                    <div className="w-full flex items-center justify-center gap-1 bg-amber-50 text-amber-600 py-1 rounded-lg border border-amber-100">
-                                        <Crown size={12} className="fill-amber-600" />
-                                        <span className="text-[10px] font-bold">Premium</span>
+                            
+                            <div className="flex flex-col">
+                                <p className="text-2xl sm:text-3xl font-black text-primary tracking-tight">
+                                    {ad.currency} {ad.price.toLocaleString('pt-PT')}
+                                </p>
+                                <div className="flex items-center gap-4 text-sm text-gray-500 mt-1 font-medium">
+                                    <div className="flex items-center gap-1.5">
+                                        <MapPin size={16} className="text-gray-400" />
+                                        <span>{ad.location}</span>
                                     </div>
-                                )}
+                                    <div className="flex items-center gap-1.5">
+                                        <Clock size={16} className="text-gray-400" />
+                                        <span>{formatMozDate(ad.createdAt)}</span>
+                                    </div>
+                                </div>
                             </div>
-                        )}
                         </div>
+
+                        {ad.isMyAd && !ad.isFeatured && (
+                            <button 
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    onNavigate('BOOST_AD', ad);
+                                }}
+                                className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-2.5 rounded-2xl shadow-lg shadow-blue-500/20 active:scale-95 transition-all"
+                            >
+                                <Rocket size={18} />
+                                <span className="text-sm font-bold">Destacar</span>
+                            </button>
+                        )}
                     </div>
                     </div>
                 ))}
                 </div>
-            )}
+            ) }
             </section>
         </div>
       </main>
