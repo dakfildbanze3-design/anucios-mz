@@ -741,20 +741,24 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
                     onClick={() => onNavigate('AD_DETAILS', ad)}
                     className="relative flex flex-col gap-4 w-full cursor-pointer group"
                     >
-                    {/* Header: Title and Description - Outside with Padding */}
-                    <div className="px-4 lg:px-6">
-                        <h3 className="text-xl sm:text-2xl font-bold text-gray-900 line-clamp-2 leading-tight group-hover:text-primary transition-colors">
-                            {ad.title}
-                        </h3>
-                        {ad.description && (
-                            <p className="text-base text-gray-500 mt-2 line-clamp-3 leading-relaxed">
-                                {ad.description}
-                            </p>
-                        )}
+                    {/* Header: Avatar and Description - Outside with Padding */}
+                    <div className="px-4 lg:px-6 flex items-start gap-4">
+                        {/* Avatar - Top Left of Description */}
+                        <div className="size-12 rounded-full bg-gray-100 border border-gray-200 shadow-sm overflow-hidden flex-shrink-0">
+                            <User size={24} className="w-full h-full p-2.5 text-gray-400" />
+                        </div>
+                        
+                        <div className="flex-1">
+                            {ad.description && (
+                                <p className="text-base text-gray-700 line-clamp-3 leading-relaxed">
+                                    {ad.description}
+                                </p>
+                            )}
+                        </div>
                     </div>
 
-                    {/* Main Image Card - 100% Width Taller */}
-                    <div className="relative w-full aspect-[4/5] sm:h-[600px] overflow-hidden shadow-sm">
+                    {/* Main Image Card - 100% Width Taller Touching Both Sides */}
+                    <div className="relative w-full aspect-[4/5] sm:h-[600px] overflow-hidden">
                         {ad.isMyAd && (
                             <div className="absolute top-4 right-4 z-20">
                                 <span className="bg-gray-900 text-[10px] sm:text-xs px-3 py-1.5 rounded-full text-white font-bold shadow-md">Seu Anúncio</span>
@@ -767,26 +771,19 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
                                 Destaque
                             </div>
                         )}
-
-                        {/* Avatar Overlay - Top Left */}
-                        <div className="absolute top-4 left-4 z-30 flex items-center gap-3">
-                             <div className="size-12 rounded-full bg-white/20 backdrop-blur-md border border-white/30 shadow-lg overflow-hidden flex-shrink-0">
-                                <User size={24} className="w-full h-full p-2.5 text-white" />
-                            </div>
-                        </div>
                         
                         <div 
                         className="w-full h-full bg-cover bg-center group-hover:scale-105 transition-transform duration-1000 ease-out" 
                         style={{ backgroundImage: `url(${ad.image})` }}
                         />
-
-                        {/* Dark Gradient Overlay for better readability of badges if needed */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/20 z-10" />
                     </div>
                     
-                    {/* Footer: Price Info - Outside with Padding */}
+                    {/* Footer: Title, Price Info - Outside with Padding */}
                     <div className="flex items-center justify-between px-4 lg:px-6">
-                        <div className="flex flex-col">
+                        <div className="flex flex-col gap-1">
+                            <h3 className="text-xl font-bold text-gray-900 line-clamp-1 group-hover:text-primary transition-colors">
+                                {ad.title}
+                            </h3>
                             <p className="text-2xl sm:text-3xl font-black text-primary tracking-tight">
                                 {ad.currency} {ad.price.toLocaleString('pt-PT')}
                             </p>
