@@ -734,7 +734,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
                 </div>
             ) : (
                 // Responsive Grid for Recent Ads
-                <div className="flex flex-col gap-10 px-[1px]">
+                <div className="flex flex-col gap-10">
                 {recentAds.map((ad) => (
                     <div 
                     key={ad.id}
@@ -742,7 +742,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
                     className="relative flex flex-col gap-4 w-full cursor-pointer group"
                     >
                     {/* Header: Title and Description - Outside */}
-                    <div className="px-1">
+                    <div className="px-4 lg:px-6">
                         <h3 className="text-xl sm:text-2xl font-bold text-gray-900 line-clamp-2 leading-tight group-hover:text-primary transition-colors">
                             {ad.title}
                         </h3>
@@ -753,8 +753,8 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
                         )}
                     </div>
 
-                    {/* Main Image Card - 100% Width */}
-                    <div className="relative w-full aspect-[16/9] sm:h-[450px] rounded-3xl overflow-hidden shadow-xl border border-gray-100">
+                    {/* Main Image Card - 100% Width No Borders */}
+                    <div className="relative w-full aspect-[16/9] sm:h-[450px] overflow-hidden shadow-sm">
                         {ad.isMyAd && (
                             <div className="absolute top-4 right-4 z-10">
                                 <span className="bg-gray-900 text-[10px] sm:text-xs px-3 py-1.5 rounded-full text-white font-bold shadow-md">Seu Anúncio</span>
@@ -775,7 +775,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
                     </div>
                     
                     {/* Footer: User & Price Info - Outside */}
-                    <div className="flex items-center justify-between px-1">
+                    <div className="flex items-center justify-between px-4 lg:px-6">
                         <div className="flex items-center gap-4">
                             {/* User Avatar - Outside */}
                             <div className="size-14 rounded-full bg-gray-100 border-2 border-white shadow-sm overflow-hidden flex-shrink-0">
