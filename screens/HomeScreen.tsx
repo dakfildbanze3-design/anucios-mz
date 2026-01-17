@@ -658,56 +658,50 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
                     onClick={() => onNavigate('AD_DETAILS', ad)}
                     className="min-w-[280px] w-[280px] bg-white rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.08)] border border-gray-100 overflow-hidden group flex flex-col cursor-pointer hover:shadow-lg hover:-translate-y-1 transition-all duration-300 snap-start"
                     >
-                    <div className="relative h-40 md:h-44 w-full overflow-hidden">
-                        <div className="absolute top-3 left-3 bg-white/90 backdrop-blur text-amber-600 text-[10px] font-bold px-2 py-1 rounded shadow-sm z-10 uppercase tracking-wider border border-amber-200 flex items-center gap-1">
-                        <Star size={10} className="fill-amber-600" />
-                        Destaque
+                    <div className="relative h-64 md:h-72 w-full overflow-hidden">
+                        {/* Status Badges */}
+                        <div className="absolute top-3 left-3 bg-white/90 backdrop-blur text-amber-600 text-[10px] font-bold px-2 py-1 rounded shadow-sm z-20 uppercase tracking-wider border border-amber-200 flex items-center gap-1">
+                          <Star size={10} className="fill-amber-600" />
+                          Destaque
                         </div>
 
                         {ad.isMyAd && (
-                            <div className="absolute top-3 right-3 bg-gray-900 text-white text-[10px] px-2 py-1 rounded-full font-bold shadow-md z-10">
+                            <div className="absolute top-3 right-3 bg-gray-900 text-white text-[10px] px-2 py-1 rounded-full font-bold shadow-md z-20">
                                 Seu Anúncio
                             </div>
                         )}
 
+                        {/* Background Image */}
                         <div 
-                        className="w-full h-full bg-cover bg-center group-hover:scale-105 transition-transform duration-500 ease-out" 
-                        style={{ backgroundImage: `url(${ad.image})` }}
+                          className="w-full h-full bg-cover bg-center group-hover:scale-105 transition-transform duration-500 ease-out" 
+                          style={{ backgroundImage: `url(${ad.image})` }}
                         />
-                    </div>
-                    <div className="p-4 flex flex-col flex-1">
-                        <div className="mb-1">
-                        <h3 className="text-base font-bold text-gray-900 line-clamp-1">{ad.title}</h3>
-                        </div>
-                        {ad.specs?.design && (
-                        <div className="flex items-center gap-1 text-xs text-gray-500 mb-1">
-                            <Palette size={12} />
-                            <span>{ad.specs.design}</span>
-                        </div>
-                        )}
-                        <p className="text-lg font-black text-primary mb-3">
-                        {ad.currency} {ad.price.toLocaleString('pt-PT')}
-                        </p>
-                        
-                        <div className="flex flex-col gap-1 mb-3">
-                        <div className="flex items-center gap-1 text-xs text-gray-500">
-                            <MapPin size={14} />
-                            <span className="truncate">{ad.location}</span>
-                        </div>
-                        <div className="flex items-center gap-1 text-[10px] sm:text-xs text-gray-500">
-                            <Clock size={14} />
-                            <span>{formatMozDate(ad.createdAt)}</span>
-                        </div>
-                        </div>
 
-                        <div className="mt-auto">
-                        <button 
-                            onClick={(e) => handleWhatsAppClick(e, ad)}
-                            className="w-full flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#1faa53] text-white py-2 rounded-lg text-sm font-semibold shadow-lg shadow-green-500/20 active:scale-[0.98] transition-all"
-                        >
-                            <MessageCircle size={16} />
-                            WhatsApp
-                        </button>
+                        {/* Dark Gradient Overlay */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10" />
+
+                        {/* Content Overlay */}
+                        <div className="absolute bottom-0 inset-x-0 p-4 z-20 flex flex-col">
+                            <h3 className="text-base font-bold text-white line-clamp-1 mb-0.5">{ad.title}</h3>
+                            
+                            <p className="text-xl font-black text-amber-400 mb-2">
+                              {ad.currency} {ad.price.toLocaleString('pt-PT')}
+                            </p>
+                            
+                            <div className="flex flex-col gap-1 mb-3">
+                              <div className="flex items-center gap-1 text-xs text-white/80">
+                                  <MapPin size={14} />
+                                  <span className="truncate">{ad.location}</span>
+                              </div>
+                            </div>
+
+                            <button 
+                                onClick={(e) => handleWhatsAppClick(e, ad)}
+                                className="w-full flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#1faa53] text-white py-2 rounded-lg text-sm font-semibold shadow-lg shadow-green-500/20 active:scale-[0.98] transition-all"
+                            >
+                                <MessageCircle size={16} />
+                                WhatsApp
+                            </button>
                         </div>
                     </div>
                     </div>
