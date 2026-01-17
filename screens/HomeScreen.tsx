@@ -755,7 +755,13 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
                                 )}
                             </div>
                             <div className="flex flex-col">
-                                <span className="text-sm font-bold text-gray-900">{ad.userName || 'Utilizador'}</span>
+                                <div className="flex items-center gap-2">
+                                    <span className="text-sm font-bold text-gray-900">{ad.userName || 'Utilizador'}</span>
+                                    <MapPin size={12} className="text-gray-400" />
+                                </div>
+                                {ad.createdAt && (
+                                    <span className="text-[10px] text-gray-500">{formatMozDate(ad.createdAt)}</span>
+                                )}
                             </div>
                         </div>
                         
@@ -798,12 +804,6 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
                             <p className="text-2xl sm:text-3xl font-black text-primary tracking-tight">
                                 {ad.currency} {ad.price.toLocaleString('pt-PT')}
                             </p>
-                            <div className="flex items-center gap-4 text-sm text-gray-500 mt-1 font-medium">
-                                <div className="flex items-center gap-1.5">
-                                    <MapPin size={16} className="text-gray-400" />
-                                    <span>{ad.location}</span>
-                                </div>
-                            </div>
                         </div>
 
                         {ad.isMyAd && !ad.isFeatured && (
