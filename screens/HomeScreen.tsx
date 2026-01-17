@@ -746,14 +746,10 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
                         <div className="flex items-center gap-3">
                             {/* Publisher Avatar */}
                             <div className="size-10 rounded-full bg-gray-100 border border-gray-200 shadow-sm overflow-hidden flex-shrink-0">
-                                {ad.userAvatar ? (
-                                    <img src={ad.userAvatar} alt={ad.userName} className="w-full h-full object-cover" />
-                                ) : (
-                                    <User size={20} className="w-full h-full p-2 text-gray-400" />
-                                )}
+                                <User size={20} className="w-full h-full p-2 text-gray-400" />
                             </div>
                             <div className="flex flex-col">
-                                <span className="text-sm font-bold text-gray-900">{ad.userName || 'Utilizador'}</span>
+                                <span className="text-sm font-bold text-gray-900">Utilizador</span>
                                 {ad.createdAt && (
                                     <span className="text-[10px] text-gray-500">{formatMozDate(ad.createdAt)}</span>
                                 )}
