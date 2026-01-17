@@ -741,11 +741,23 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
                     onClick={() => onNavigate('AD_DETAILS', ad)}
                     className="relative flex flex-col gap-4 w-full cursor-pointer group"
                     >
-                    {/* Header: Avatar and Description - Outside with Padding */}
-                    <div className="px-4 lg:px-6 flex items-start gap-4">
-                        {/* Avatar - Top Left of Description */}
-                        <div className="size-12 rounded-full bg-gray-100 border border-gray-200 shadow-sm overflow-hidden flex-shrink-0">
-                            <User size={24} className="w-full h-full p-2.5 text-gray-400" />
+                    {/* Header: Publisher Info - Outside with Padding */}
+                    <div className="px-4 lg:px-6 flex flex-col gap-2">
+                        <div className="flex items-center gap-3">
+                            {/* Publisher Avatar */}
+                            <div className="size-10 rounded-full bg-gray-100 border border-gray-200 shadow-sm overflow-hidden flex-shrink-0">
+                                {ad.userAvatar ? (
+                                    <img src={ad.userAvatar} alt={ad.userName} className="w-full h-full object-cover" />
+                                ) : (
+                                    <User size={20} className="w-full h-full p-2 text-gray-400" />
+                                )}
+                            </div>
+                            <div className="flex flex-col">
+                                <span className="text-sm font-bold text-gray-900">{ad.userName || 'Utilizador'}</span>
+                                {ad.createdAt && (
+                                    <span className="text-[10px] text-gray-500">{formatMozDate(ad.createdAt)}</span>
+                                )}
+                            </div>
                         </div>
                         
                         <div className="flex-1">
