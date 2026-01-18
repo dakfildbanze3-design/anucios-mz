@@ -215,7 +215,7 @@ function MainApp() {
       supabase.removeChannel(adsChannel);
       clearInterval(cleanupInterval);
     };
-  }, [pendingRoute]); 
+  }, []); 
 
   const fetchAds = async () => {
     try {
