@@ -362,6 +362,14 @@ export const CreateAdScreen: React.FC<CreateAdScreenProps> = ({
 
       const categoryTyped = category as 'vehicle' | 'real-estate' | 'electronics' | 'other';
 
+      // Calculate expiry for boosted ad
+      let featured_expires_at = null;
+      if (isBoosted) {
+        const date = new Date();
+        date.setMonth(date.getMonth() + 1);
+        featured_expires_at = date.toISOString();
+      }
+
       const payload = {
         title,
         price: numericPrice,
@@ -373,8 +381,11 @@ export const CreateAdScreen: React.FC<CreateAdScreenProps> = ({
         image: uploadedImageUrls[0],
         images: uploadedImageUrls,
         specs: Object.keys(specs).length > 0 ? specs : null,
-        is_featured: false,
-        user_id: user.id
+        is_featured: isBoosted,
+        featured_expires_at: featured_expires_at,
+        user_id: user.id,
+        views: 0,
+        created_at: new Date().toISOString()
       };
 
       const { data, error: insertError } = await supabase
@@ -396,21 +407,23 @@ export const CreateAdScreen: React.FC<CreateAdScreenProps> = ({
         isFeatured: data.is_featured,
         isMyAd: true,
         timeAgo: 'Agora mesmo',
-        createdAt: new Date().toISOString(),
+        createdAt: data.created_at,
         category: data.category,
         specs: data.specs,
         contact: data.contact,
         description: data.description,
-        views: data.views || 0
+        views: data.views || 0,
+        featured_expires_at: data.featured_expires_at
       };
 
       if (isBoosted) {
-        showToast("Anúncio salvo! Prossiga para ativar o destaque grátis.", "success");
-        onBoost(newAd);
+        showToast("Anúncio destacado por 1 mês!", "success");
       } else {
         showToast("Anúncio publicado com sucesso!", "success");
-        setShowShareSuggestion(true);
       }
+
+      // Important: Call onPublish to update local state and close/navigate
+      onPublish(newAd);
 
     } catch (error: any) {
       console.error('Error saving ad:', error);
@@ -687,13 +700,34 @@ export const CreateAdScreen: React.FC<CreateAdScreenProps> = ({
         </main>
 
         {/* Footer Action */}
-        <div className="fixed md:absolute bottom-0 z-20 w-full bg-white border-t border-gray-100 p-4 pb-8 md:pb-4 shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
+        <div className="fixed md:absolute bottom-0 z-20 w-full bg-white border-t border-gray-100 p-4 pb-8 md:pb-4 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] flex gap-3">
           <button 
-            onClick={handlePublishClick}
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-4 text-center font-bold text-white shadow-lg shadow-primary/25 transition-transform active:scale-[0.98] hover:bg-blue-700"
+            onClick={() => saveToSupabase(false)}
+            disabled={isSubmitting}
+            className="flex-1 items-center justify-center gap-2 rounded-xl bg-gray-900 py-4 text-center font-bold text-white shadow-lg transition-transform active:scale-[0.98] hover:bg-black disabled:opacity-50 flex"
           >
-            <span>Publicar Anúncio</span>
-            <Rocket size={20} />
+            {isSubmitting ? (
+              <Loader2 size={20} className="animate-spin" />
+            ) : (
+              <>
+                <CheckCircle2 size={20} />
+                <span>Publicar</span>
+              </>
+            )}
+          </button>
+          <button 
+            onClick={() => saveToSupabase(true)}
+            disabled={isSubmitting}
+            className="flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 py-4 text-center font-bold text-white shadow-lg shadow-orange-200 transition-transform active:scale-[0.98] hover:from-orange-600 hover:to-amber-600 disabled:opacity-50 flex"
+          >
+            {isSubmitting ? (
+              <Loader2 size={20} className="animate-spin" />
+            ) : (
+              <>
+                <Rocket size={20} />
+                <span>Destacar (1 mês grátis)</span>
+              </>
+            )}
           </button>
         </div>
 
