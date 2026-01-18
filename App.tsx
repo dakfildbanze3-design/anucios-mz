@@ -232,7 +232,24 @@ function MainApp() {
 
       const { data, error } = await supabase
         .from('ads')
-        .select('*')
+        .select(`
+          id,
+          title,
+          price,
+          views,
+          created_at,
+          currency,
+          location,
+          image,
+          images,
+          is_featured,
+          featured_expires_at,
+          category,
+          specs,
+          contact,
+          description,
+          profiles:user_id (full_name, avatar_url)
+        `)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -249,13 +266,17 @@ function MainApp() {
           isFeatured: item.is_featured,
           isMyAd: currentSession?.user?.id === item.user_id,
           timeAgo: getTimeAgo(item.created_at),
-          createdAt: item.created_at, // Map createdAt
+          createdAt: item.created_at,
           featured_expires_at: item.featured_expires_at,
           category: item.category,
           specs: item.specs,
           contact: item.contact,
           description: item.description,
-          views: item.views || 0
+          views: item.views || 0,
+          user: item.profiles ? {
+            name: item.profiles.full_name,
+            avatar: item.profiles.avatar_url
+          } : undefined
         }));
         setAds(formattedAds);
       }
