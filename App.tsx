@@ -221,33 +221,13 @@ function MainApp() {
     try {
       setLoadingAds(true);
       setConnectionError(false);
-      
-      let currentSession = null;
-      try {
-        const { data } = await supabase.auth.getSession();
-        currentSession = data.session;
-      } catch (e) {
-        console.warn("Could not fetch session for ad ownership check", e);
-      }
 
       const { data, error } = await supabase
         .from('ads')
         .select(`
-          id,
-          title,
-          price,
-          views,
-          created_at,
-          currency,
-          location,
-          image,
-          images,
-          is_featured,
-          featured_expires_at,
-          category,
-          specs,
-          contact,
-          description,
+          id, title, price, views, created_at, currency, location, 
+          image, images, is_featured, featured_expires_at, 
+          category, specs, contact, description,
           profiles:user_id (full_name, avatar_url)
         `)
         .order('created_at', { ascending: false });
@@ -264,7 +244,7 @@ function MainApp() {
           image: item.image,
           images: item.images,
           isFeatured: item.is_featured,
-          isMyAd: currentSession?.user?.id === item.user_id,
+          isMyAd: session?.user?.id === item.user_id,
           timeAgo: getTimeAgo(item.created_at),
           createdAt: item.created_at,
           featured_expires_at: item.featured_expires_at,
@@ -282,9 +262,7 @@ function MainApp() {
       }
     } catch (error: any) {
       console.error('Error fetching ads:', error);
-      if (error.message === 'Failed to fetch' || !navigator.onLine) {
-        setConnectionError(true);
-      }
+      setConnectionError(true);
     } finally {
       setLoadingAds(false);
     }
