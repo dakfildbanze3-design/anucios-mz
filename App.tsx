@@ -191,7 +191,7 @@ function MainApp() {
       .channel('public:ads')
       .on(
         'postgres_changes',
-        { event: '*', schema: 'public', table: 'ads' },
+        { event: 'INSERT', schema: 'public', table: 'ads' },
         () => {
           fetchAds();
         }
@@ -208,7 +208,7 @@ function MainApp() {
         .eq('is_featured', true);
       
       if (!error) fetchAds();
-    }, 60000); // Check every minute
+    }, 300000); // Check every 5 minutes instead of 1
 
     return () => {
       authListener.unsubscribe();
