@@ -232,7 +232,7 @@ function MainApp() {
 
       const { data, error } = await supabase
         .from('ads')
-        .select('*, profiles:user_id(full_name, avatar_url)')
+        .select('*, profiles!left:user_id(full_name, avatar_url)')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
