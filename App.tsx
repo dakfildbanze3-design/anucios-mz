@@ -232,7 +232,7 @@ function MainApp() {
 
       const { data, error } = await supabase
         .from('ads')
-        .select('*')
+        .select('*, profiles:user_id(full_name, avatar_url)')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -255,7 +255,9 @@ function MainApp() {
           specs: item.specs,
           contact: item.contact,
           description: item.description,
-          views: item.views || 0
+          views: item.views || 0,
+          userName: item.profiles?.full_name,
+          userAvatar: item.profiles?.avatar_url
         }));
         setAds(formattedAds);
       }
