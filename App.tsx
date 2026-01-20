@@ -9,7 +9,7 @@ import { TermsScreen } from './screens/TermsScreen';
 import { ProfileScreen } from './screens/ProfileScreen';
 import { SplashScreen } from './screens/SplashScreen';
 import { PaymentDescriptionsScreen } from './screens/PaymentDescriptionsScreen';
-import Onboarding from './screens/OnboardingScreen';
+import Onboarding from './screens/OnboardingScreen'; // Import Onboarding
 import { AuthModal } from './screens/AuthModal';
 import { InstallPWA } from './components/InstallPWA';
 import { Ad, ScreenName } from './types';
@@ -52,6 +52,8 @@ const getTimeAgo = (dateString: string) => {
   const date = new Date(dateString);
   const now = new Date();
   const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+  
+  // Prevent future dates glitch
   if (seconds < 0) return "Agora mesmo";
 
   let interval = seconds / 31536000;
@@ -78,7 +80,7 @@ export default function App() {
 function AdDetailsWrapper({ ads, selectedAd, navigate }: { ads: Ad[], selectedAd: Ad | undefined, navigate: any }) {
   const { id } = useParams();
   const ad = ads.find(a => a.id === id) || selectedAd;
-
+  
   if (!ad) {
     return (
       <div className="min-h-screen bg-background-light flex flex-col items-center justify-center p-4">
@@ -99,7 +101,7 @@ function AdDetailsWrapper({ ads, selectedAd, navigate }: { ads: Ad[], selectedAd
 function BoostWrapper({ ads, selectedAd, navigate, fetchAds }: { ads: Ad[], selectedAd: Ad | undefined, navigate: any, fetchAds: any }) {
   const { id } = useParams();
   const ad = ads.find(a => a.id === id) || selectedAd;
-
+  
   return (
     <BoostAdScreen 
       onClose={() => navigate('/')}
@@ -116,23 +118,31 @@ function MainApp() {
   const navigate = useNavigate();
   const location = useLocation();
 
+  // Splash Screen State
   const [showSplash, setShowSplash] = useState(true);
+  // Onboarding State
   const [showOnboarding, setShowOnboarding] = useState(false);
 
   const [selectedAd, setSelectedAd] = useState<Ad | undefined>(undefined);
+  
+  // Real Data State
   const [ads, setAds] = useState<Ad[]>([]);
   const [loadingAds, setLoadingAds] = useState(true);
   const [connectionError, setConnectionError] = useState(false);
-
+  
+  // Authentication State
   const [session, setSession] = useState<Session | null>(null);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [initialAuthMode, setInitialAuthMode] = useState<'login' | 'signup'>('login');
+  
+  // UX: Remember where the user wanted to go before auth
   const [pendingRoute, setPendingRoute] = useState<string | null>(null);
 
+  // 1. Splash Screen Timer
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowSplash(false);
-    }, 5000);
+    }, 5000); // 5 seconds delay
 
     return () => clearTimeout(timer);
   }, []);
@@ -142,12 +152,13 @@ function MainApp() {
     setShowOnboarding(false);
   };
 
+  // 2. Fetch Initial Data and Session
   useEffect(() => {
     const hasSeenOnboarding = localStorage.getItem('hasSeenOnboarding');
     if (!hasSeenOnboarding && !showSplash) {
       setShowOnboarding(true);
     }
-
+    // Auth Session - Handle potential network errors
     supabase.auth.getSession()
       .then(({ data }) => {
         if (data && data.session) {
@@ -160,9 +171,11 @@ function MainApp() {
 
     const { data: { subscription: authListener } } = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session);
+      
       if (event === 'SIGNED_IN') {
         fetchAds();
       }
+      
       if (session && pendingRoute) {
         navigate(pendingRoute);
         setPendingRoute(null);
@@ -170,8 +183,10 @@ function MainApp() {
       }
     });
 
+    // Fetch Ads
     fetchAds();
 
+    // Setup Realtime Subscription
     const adsChannel = supabase
       .channel('public:ads')
       .on(
@@ -187,7 +202,7 @@ function MainApp() {
       authListener.unsubscribe();
       supabase.removeChannel(adsChannel);
     };
-  }, []);
+  }, []); 
 
   const fetchAds = async () => {
     try {
@@ -199,8 +214,7 @@ function MainApp() {
         .select(`
           id, title, price, views, created_at, currency, location, 
           image, images, is_featured, featured_expires_at, 
-          category, specs, contact, description, user_id,
-          profiles ( full_name, avatar_url )
+          category, specs, contact, description, user_id
         `)
         .order('created_at', { ascending: false });
 
@@ -226,8 +240,8 @@ function MainApp() {
           description: item.description,
           views: item.views || 0,
           user: {
-            name: item.profiles?.full_name || 'Utilizador',
-            avatar: item.profiles?.avatar_url || ''
+            name: 'Utilizador',
+            avatar: ''
           }
         }));
         setAds(formattedAds);
@@ -260,7 +274,8 @@ function MainApp() {
       setIsAuthOpen(true);
       return;
     }
-
+    
+    // Trigger onboarding after viewing an ad if not seen yet
     if (screen === 'AD_DETAILS') {
       const hasSeenOnboarding = localStorage.getItem('hasSeenOnboarding');
       if (!hasSeenOnboarding) {
@@ -273,13 +288,15 @@ function MainApp() {
   };
 
   const handleDeleteAdLocal = (adId: string) => {
-    setAds((prev) => prev.filter(a => a.id !== adId));
+     setAds((prev) => prev.filter(a => a.id !== adId));
   };
 
+  // Render Splash Screen if active
   if (showSplash) {
     return <SplashScreen />;
   }
 
+  // Normal Loading State (only if data is still loading AFTER splash is done, usually splash covers this)
   if (loadingAds && ads.length === 0 && !connectionError) {
     return (
       <div className="min-h-screen bg-background-light flex flex-col items-center justify-center p-4">
@@ -386,6 +403,7 @@ function MainApp() {
       )}
       <InstallPWA />
       
+      {/* Render Onboarding if active */}
       {showOnboarding && (
         <Onboarding onComplete={handleOnboardingComplete} />
       )}
