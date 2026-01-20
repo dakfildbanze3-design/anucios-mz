@@ -759,69 +759,69 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, ads, onOpenA
                         </div>
                     </div>
 
-                    <div className="flex flex-col md:flex-row w-full h-full">
-                        {/* Image container with fixed height on mobile, flexible on desktop */}
-                        <div className="relative w-full md:w-72 h-64 md:h-48 shrink-0 overflow-hidden rounded-t-2xl md:rounded-l-2xl md:rounded-tr-none">
+                    <div className="flex flex-col w-full h-full">
+                      {/* Image container - Now full width with fixed height */}
+                      <div className="relative w-full h-64 md:h-80 shrink-0 overflow-hidden rounded-t-2xl">
                         <img 
-                            src={ad.image || 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?auto=format&fit=crop&q=80'} 
-                            alt={ad.title}
-                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                          src={ad.image || 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?auto=format&fit=crop&q=80'} 
+                          alt={ad.title}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                         />
                         {ad.isFeatured && (
-                            <div className="absolute top-4 right-4 bg-primary text-white px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5 shadow-lg backdrop-blur-md bg-opacity-90">
+                          <div className="absolute top-4 right-4 bg-primary text-white px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5 shadow-lg backdrop-blur-md bg-opacity-90">
                             <Zap size={10} className="fill-white" />
                             Destaque
-                            </div>
+                          </div>
                         )}
                         <div className="absolute bottom-4 left-4 flex gap-2">
-                            <div className="bg-black/60 backdrop-blur-md text-white px-3 py-1.5 rounded-lg text-[10px] font-bold flex items-center gap-1.5">
+                          <div className="bg-black/60 backdrop-blur-md text-white px-3 py-1.5 rounded-lg text-[10px] font-bold flex items-center gap-1.5">
                             <MapPin size={12} />
                             {ad.location}
-                            </div>
+                          </div>
                         </div>
-                        </div>
+                      </div>
 
-                        {/* Content Section */}
-                        <div className="flex-1 p-6 flex flex-col justify-between">
+                      {/* Content Section - Below the image */}
+                      <div className="flex-1 p-6 flex flex-col justify-between">
                         <div>
-                            <div className="flex flex-col mb-4">
+                          <div className="flex flex-col mb-4">
                             <p className="text-xs font-bold text-primary uppercase tracking-wider mb-1">{ad.user?.name || 'Utilizador'}</p>
                             <h3 className="text-xl font-bold text-gray-900 group-hover:text-primary transition-colors line-clamp-1">{ad.title}</h3>
                             <p className="text-sm text-gray-500 mt-2 line-clamp-2 leading-relaxed">{ad.description}</p>
-                            </div>
-                            
-                            <div className="flex items-center gap-2 mb-4">
+                          </div>
+                          
+                          <div className="flex items-center gap-2 mb-4">
                             <p className="text-2xl font-black text-primary leading-none">
                                 {ad.currency} {ad.price.toLocaleString('pt-PT')}
                             </p>
-                            </div>
+                          </div>
 
-                            <div className="flex flex-wrap gap-2 mb-6">
+                          <div className="flex flex-wrap gap-2 mb-6">
                             {ad.specs && Object.entries(ad.specs).slice(0, 3).map(([key, value]) => (
                                 <div key={key} className="bg-gray-50 px-3 py-1.5 rounded-lg text-[11px] font-medium text-gray-600 border border-gray-100">
                                 <span className="text-gray-400 mr-1">{key}:</span> {String(value)}
                                 </div>
                             ))}
-                            </div>
+                          </div>
                         </div>
 
                         <div className="flex items-center justify-between pt-4 border-t border-gray-50">
-                            <div className="flex items-center gap-4 text-gray-400">
+                          <div className="flex items-center gap-4 text-gray-400">
                             <div className="flex items-center gap-1.5">
-                                <Clock size={14} />
-                                <span className="text-xs font-medium">{ad.timeAgo}</span>
+                              <Clock size={14} />
+                              <span className="text-xs font-medium">{ad.timeAgo}</span>
                             </div>
-                            </div>
-                            
-                            <button 
+                          </div>
+                          
+                          <button 
                             onClick={(e) => handleWhatsAppClick(e, ad)}
                             className="bg-[#25D366] hover:bg-[#22c35e] text-white px-6 py-2.5 rounded-xl text-sm font-bold transition-all shadow-lg shadow-green-500/20 active:scale-95 flex items-center gap-2"
-                            >
+                          >
                             <MessageCircle size={18} />
                             <span>WhatsApp</span>
-                            </button>
+                          </button>
                         </div>
-                        </div>
+                      </div>
                     </div>
                     </div>
                 ))}
