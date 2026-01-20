@@ -1,46 +1,71 @@
 import React, { useState, useEffect } from 'react';
 import { Routes, Route, useNavigate, useLocation, useParams } from 'react-router-dom';
-
-import HomeScreen from './screens/HomeScreen';
-import CreateAdScreen from './screens/CreateAdScreen';
-import BoostAdScreen from './screens/BoostAdScreen';
-import AdDetailsScreen from './screens/AdDetailsScreen';
-import FeaturedAdsScreen from './screens/FeaturedAdsScreen';
-import TermsScreen from './screens/TermsScreen';
-import ProfileScreen from './screens/ProfileScreen';
-import SplashScreen from './screens/SplashScreen';
-import PaymentDescriptionsScreen from './screens/PaymentDescriptionsScreen';
+import { HomeScreen } from './screens/HomeScreen';
+import { CreateAdScreen } from './screens/CreateAdScreen';
+import { BoostAdScreen } from './screens/BoostAdScreen';
+import { AdDetailsScreen } from './screens/AdDetailsScreen';
+import { FeaturedAdsScreen } from './screens/FeaturedAdsScreen';
+import { TermsScreen } from './screens/TermsScreen';
+import { ProfileScreen } from './screens/ProfileScreen';
+import { SplashScreen } from './screens/SplashScreen';
+import { PaymentDescriptionsScreen } from './screens/PaymentDescriptionsScreen';
 import Onboarding from './screens/OnboardingScreen';
-import AuthModal from './screens/AuthModal';
-
-import InstallPWA from './components/InstallPWA';
-import { ToastProvider } from './components/ToastContext';
-
+import { AuthModal } from './screens/AuthModal';
+import { InstallPWA } from './components/InstallPWA';
+import { Ad, ScreenName } from './types';
 import { supabase } from './lib/supabase';
 import { Session } from '@supabase/supabase-js';
 import { Loader2, WifiOff } from 'lucide-react';
+import { ToastProvider } from './components/ToastContext';
 
-import { Ad, ScreenName } from './types';
-
-/* =========================
-   HELPERS
-========================= */
-
-const getTimeAgo = (dateString: string) => {
-  const date = new Date(dateString);
-  const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
-
-  if (seconds < 60) return 'Agora mesmo';
-  if (seconds < 3600) return `${Math.floor(seconds / 60)} min`;
-  if (seconds < 86400) return `${Math.floor(seconds / 3600)} horas`;
-  if (seconds < 2592000) return `${Math.floor(seconds / 86400)} dias`;
-  if (seconds < 31536000) return `${Math.floor(seconds / 2592000)} meses`;
-  return `${Math.floor(seconds / 31536000)} anos`;
+// Payment Service
+const PaymentService = {
+  async initiatePayment(numero: string, valor: number, provider: 'mpesa' | 'emola' | 'mkesh') {
+    const { data: { session } } = await supabase.auth.getSession();
+    const response = await fetch('https://kfhgpyajrjdtuqsdabye.supabase.co/functions/v1/payments-debit', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${session?.access_token}`,
+      },
+      body: JSON.stringify({ 
+        numero, 
+        valor, 
+        provider
+      }),
+    });
+    return response.json();
+  },
+  async checkStatus(paymentId: string) {
+    const { data: { session } } = await supabase.auth.getSession();
+    const response = await fetch(`https://kfhgpyajrjdtuqsdabye.supabase.co/functions/v1/payments-debit?id=${paymentId}`, {
+      headers: {
+        'Authorization': `Bearer ${session?.access_token}`,
+      }
+    });
+    return response.json();
+  }
 };
 
-/* =========================
-   APP
-========================= */
+// Helper to format "Time Ago" from timestamp
+const getTimeAgo = (dateString: string) => {
+  const date = new Date(dateString);
+  const now = new Date();
+  const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+  if (seconds < 0) return "Agora mesmo";
+
+  let interval = seconds / 31536000;
+  if (interval > 1) return Math.floor(interval) + " anos";
+  interval = seconds / 2592000;
+  if (interval > 1) return Math.floor(interval) + " meses";
+  interval = seconds / 86400;
+  if (interval > 1) return Math.floor(interval) + " dias";
+  interval = seconds / 3600;
+  if (interval > 1) return Math.floor(interval) + " horas";
+  interval = seconds / 60;
+  if (interval > 1) return Math.floor(interval) + " min";
+  return "Agora mesmo";
+};
 
 export default function App() {
   return (
@@ -50,33 +75,35 @@ export default function App() {
   );
 }
 
-/* =========================
-   WRAPPERS
-========================= */
-
-function AdDetailsWrapper({ ads, navigate }: { ads: Ad[]; navigate: any }) {
+function AdDetailsWrapper({ ads, selectedAd, navigate }: { ads: Ad[], selectedAd: Ad | undefined, navigate: any }) {
   const { id } = useParams();
-  const ad = ads.find(a => a.id === id);
+  const ad = ads.find(a => a.id === id) || selectedAd;
 
   if (!ad) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="animate-spin" size={40} />
+      <div className="min-h-screen bg-background-light flex flex-col items-center justify-center p-4">
+        <Loader2 className="animate-spin text-primary mb-4" size={40} />
       </div>
     );
   }
 
-  return <AdDetailsScreen ad={ad} onBack={() => navigate('/')} />;
+  return (
+    <AdDetailsScreen 
+      ad={ad} 
+      onBack={() => navigate('/')} 
+      onBoost={() => navigate('/boost')}
+    />
+  );
 }
 
-function BoostWrapper({ ads, navigate, fetchAds }: any) {
+function BoostWrapper({ ads, selectedAd, navigate, fetchAds }: { ads: Ad[], selectedAd: Ad | undefined, navigate: any, fetchAds: any }) {
   const { id } = useParams();
-  const ad = ads.find((a: Ad) => a.id === id);
+  const ad = ads.find(a => a.id === id) || selectedAd;
 
   return (
-    <BoostAdScreen
-      adId={ad?.id}
+    <BoostAdScreen 
       onClose={() => navigate('/')}
+      adId={ad?.id} 
       onPaymentSuccess={() => {
         fetchAds();
         navigate('/');
@@ -85,163 +112,283 @@ function BoostWrapper({ ads, navigate, fetchAds }: any) {
   );
 }
 
-/* =========================
-   MAIN APP
-========================= */
-
 function MainApp() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [session, setSession] = useState<Session | null>(null);
-  const [ads, setAds] = useState<Ad[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
-
-  const [showAuth, setShowAuth] = useState(false);
-  const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
-
   const [showSplash, setShowSplash] = useState(true);
   const [showOnboarding, setShowOnboarding] = useState(false);
 
-  /* SPLASH */
+  const [selectedAd, setSelectedAd] = useState<Ad | undefined>(undefined);
+  const [ads, setAds] = useState<Ad[]>([]);
+  const [loadingAds, setLoadingAds] = useState(true);
+  const [connectionError, setConnectionError] = useState(false);
+
+  const [session, setSession] = useState<Session | null>(null);
+  const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const [initialAuthMode, setInitialAuthMode] = useState<'login' | 'signup'>('login');
+  const [pendingRoute, setPendingRoute] = useState<string | null>(null);
+
   useEffect(() => {
-    const t = setTimeout(() => setShowSplash(false), 3000);
-    return () => clearTimeout(t);
+    const timer = setTimeout(() => {
+      setShowSplash(false);
+    }, 5000);
+
+    return () => clearTimeout(timer);
   }, []);
 
-  /* AUTH */
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session);
-    });
+  const handleOnboardingComplete = () => {
+    localStorage.setItem('hasSeenOnboarding', 'true');
+    setShowOnboarding(false);
+  };
 
-    const { data: listener } = supabase.auth.onAuthStateChange((_e, s) => {
-      setSession(s);
+  useEffect(() => {
+    const hasSeenOnboarding = localStorage.getItem('hasSeenOnboarding');
+    if (!hasSeenOnboarding && !showSplash) {
+      setShowOnboarding(true);
+    }
+
+    supabase.auth.getSession()
+      .then(({ data }) => {
+        if (data && data.session) {
+          setSession(data.session);
+        }
+      })
+      .catch(err => {
+        console.warn("Auth session check failed:", err);
+      });
+
+    const { data: { subscription: authListener } } = supabase.auth.onAuthStateChange((event, session) => {
+      setSession(session);
+      if (event === 'SIGNED_IN') {
+        fetchAds();
+      }
+      if (session && pendingRoute) {
+        navigate(pendingRoute);
+        setPendingRoute(null);
+        setIsAuthOpen(false);
+      }
     });
 
     fetchAds();
+
+    const adsChannel = supabase
+      .channel('public:ads')
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'ads' },
+        () => {
+          fetchAds();
+        }
+      )
+      .subscribe();
+
     return () => {
-      listener.subscription.unsubscribe();
+      authListener.unsubscribe();
+      supabase.removeChannel(adsChannel);
     };
   }, []);
 
-  /* FETCH ADS */
   const fetchAds = async () => {
     try {
-      setLoading(true);
-      setError(false);
+      setLoadingAds(true);
+      setConnectionError(false);
 
       const { data, error } = await supabase
         .from('ads')
-        .select('*')
+        .select(`
+          id, title, price, views, created_at, currency, location, 
+          image, images, is_featured, featured_expires_at, 
+          category, specs, contact, description, user_id,
+          profiles ( full_name, avatar_url )
+        `)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
 
-      const formatted: Ad[] = (data || []).map((item: any) => ({
-        id: item.id,
-        title: item.title,
-        price: item.price,
-        currency: item.currency || 'MT',
-        location: item.location || 'Moçambique',
-        image: item.image,
-        images: item.images,
-        category: item.category,
-        specs: item.specs,
-        contact: item.contact,
-        description: item.description,
-        views: item.views || 0,
-        isFeatured: item.is_featured,
-        createdAt: item.created_at,
-        timeAgo: getTimeAgo(item.created_at),
-        isMyAd: session?.user?.id === item.user_id,
-        user: {
-          name: 'Utilizador',
-          avatar: item.user_avatar || ''
-        }
-      }));
-
-      setAds(formatted);
-    } catch (e) {
-      console.error(e);
-      setError(true);
+      if (data) {
+        const formattedAds: Ad[] = data.map((item: any) => ({
+          id: item.id,
+          title: item.title,
+          price: item.price,
+          currency: item.currency || 'MT',
+          location: item.location || 'Moçambique',
+          image: item.image,
+          images: item.images,
+          isFeatured: item.is_featured,
+          isMyAd: session?.user?.id === item.user_id,
+          timeAgo: getTimeAgo(item.created_at),
+          createdAt: item.created_at,
+          featured_expires_at: item.featured_expires_at,
+          category: item.category,
+          specs: item.specs,
+          contact: item.contact,
+          description: item.description,
+          views: item.views || 0,
+          user: {
+            name: item.profiles?.full_name || 'Utilizador',
+            avatar: item.profiles?.avatar_url || ''
+          }
+        }));
+        setAds(formattedAds);
+      }
+    } catch (error: any) {
+      console.error('Error fetching ads:', error);
+      setConnectionError(true);
     } finally {
-      setLoading(false);
+      setLoadingAds(false);
     }
   };
 
-  /* LOADING */
-  if (showSplash) return <SplashScreen />;
+  const handleNavigate = (screen: ScreenName, ad?: Ad) => {
+    const routeMap: Record<ScreenName, string> = {
+      'HOME': '/',
+      'PROFILE': '/profile',
+      'CREATE_AD': '/create',
+      'BOOST_AD': ad ? `/boost/${ad.id}` : '/boost',
+      'AD_DETAILS': `/ad/${ad?.id}`,
+      'FEATURED_ADS': '/featured',
+      'TERMS': '/terms',
+      'PAYMENT_INFO': '/payment-methods'
+    };
 
-  if (loading && ads.length === 0) {
+    const targetRoute = routeMap[screen];
+
+    if ((screen === 'CREATE_AD' || screen === 'PROFILE') && !session) {
+      setPendingRoute(targetRoute);
+      setInitialAuthMode('login');
+      setIsAuthOpen(true);
+      return;
+    }
+
+    if (screen === 'AD_DETAILS') {
+      const hasSeenOnboarding = localStorage.getItem('hasSeenOnboarding');
+      if (!hasSeenOnboarding) {
+        setShowOnboarding(true);
+      }
+    }
+
+    if (ad) setSelectedAd(ad);
+    navigate(targetRoute);
+  };
+
+  const handleDeleteAdLocal = (adId: string) => {
+    setAds((prev) => prev.filter(a => a.id !== adId));
+  };
+
+  if (showSplash) {
+    return <SplashScreen />;
+  }
+
+  if (loadingAds && ads.length === 0 && !connectionError) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="animate-spin" size={40} />
+      <div className="min-h-screen bg-background-light flex flex-col items-center justify-center p-4">
+        <Loader2 className="animate-spin text-primary mb-4" size={40} />
       </div>
     );
   }
 
-  if (error) {
+  if (connectionError && ads.length === 0) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center">
-        <WifiOff size={48} />
-        <button onClick={fetchAds}>Tentar novamente</button>
+      <div className="min-h-screen bg-background-light flex flex-col items-center justify-center p-4 text-center">
+        <div className="size-20 bg-gray-100 rounded-full flex items-center justify-center mb-6 text-gray-400">
+          <WifiOff size={40} />
+        </div>
+        <h2 className="text-xl font-bold text-gray-900 mb-2">Erro de Conexão</h2>
+        <p className="text-gray-500 max-w-xs mb-8">Não foi possível conectar ao servidor. Verifique sua internet.</p>
+        <button 
+          onClick={fetchAds}
+          className="bg-primary text-white px-6 py-3 rounded-xl font-bold hover:bg-blue-700 transition-colors"
+        >
+          Tentar Novamente
+        </button>
       </div>
     );
   }
 
-  /* ROUTES */
   return (
-    <div className="min-h-screen">
+    <div className="bg-background-light min-h-screen font-display text-text-main relative">
       <Routes>
-        <Route
-          path="/"
-          element={
-            <HomeScreen
-              ads={ads}
-              session={session}
-              onNavigate={(screen: ScreenName) => {
-                if (!session && (screen === 'PROFILE' || screen === 'CREATE_AD')) {
-                  setAuthMode('login');
-                  setShowAuth(true);
-                  return;
-                }
+        <Route path="/" element={
+          <HomeScreen 
+            onNavigate={handleNavigate} 
+            ads={ads}
+            onOpenAuth={(isSignUp) => {
+              setInitialAuthMode(isSignUp ? 'signup' : 'login');
+              setIsAuthOpen(true);
+            }}
+            session={session}
+          />
+        } />
+        
+        <Route path="/profile" element={
+          <ProfileScreen
+            session={session}
+            userAds={ads.filter(a => a.isMyAd)}
+            onBack={() => navigate('/')}
+            onNavigate={handleNavigate}
+            onDeleteAd={handleDeleteAdLocal}
+          />
+        } />
 
-                const map: any = {
-                  HOME: '/',
-                  PROFILE: '/profile',
-                  CREATE_AD: '/create',
-                  FEATURED_ADS: '/featured'
-                };
+        <Route path="/create" element={
+          <CreateAdScreen 
+            onBack={() => navigate('/')} 
+            onOpenTerms={() => navigate('/terms')}
+            onPublish={(data) => {
+              navigate('/');
+            }}
+            onBoost={(ad) => {
+              setSelectedAd(ad);
+              navigate('/boost');
+            }}
+          />
+        } />
 
-                navigate(map[screen]);
-              }}
-            />
-          }
-        />
+        <Route path="/boost/:id" element={
+          <BoostWrapper ads={ads} selectedAd={selectedAd} navigate={navigate} fetchAds={fetchAds} />
+        } />
 
-        <Route
-          path="/profile"
-          element={
-            <ProfileScreen
-              session={session}
-              userAds={ads.filter(a => a.isMyAd)}
-              onBack={() => navigate('/')}
-            />
-          }
-        />
+        <Route path="/boost" element={
+          <BoostWrapper ads={ads} selectedAd={selectedAd} navigate={navigate} fetchAds={fetchAds} />
+        } />
 
-        <Route path="/create" element={<CreateAdScreen onBack={() => navigate('/')} />} />
-        <Route path="/ad/:id" element={<AdDetailsWrapper ads={ads} navigate={navigate} />} />
-        <Route path="/boost/:id" element={<BoostWrapper ads={ads} navigate={navigate} fetchAds={fetchAds} />} />
-        <Route path="/featured" element={<FeaturedAdsScreen ads={ads} onBack={() => navigate('/')} />} />
-        <Route path="/terms" element={<TermsScreen onBack={() => navigate('/')} />} />
-        <Route path="/payment-methods" element={<PaymentDescriptionsScreen onBack={() => navigate(-1)} />} />
+        <Route path="/ad/:id" element={
+          <AdDetailsWrapper ads={ads} selectedAd={selectedAd} navigate={navigate} />
+        } />
+
+        <Route path="/featured" element={
+          <FeaturedAdsScreen
+            ads={ads}
+            onBack={() => navigate('/')}
+            onNavigate={handleNavigate}
+          />
+        } />
+
+        <Route path="/terms" element={
+          <TermsScreen 
+            onBack={() => navigate('/create')} 
+          />
+        } />
+
+        <Route path="/payment-methods" element={
+          <PaymentDescriptionsScreen 
+            onBack={() => navigate(-1)} 
+          />
+        } />
       </Routes>
-
-      {showAuth && <AuthModal initialMode={authMode} onClose={() => setShowAuth(false)} />}
+      
+      {isAuthOpen && (
+        <AuthModal 
+          onClose={() => setIsAuthOpen(false)} 
+          initialMode={initialAuthMode}
+        />
+      )}
       <InstallPWA />
+      
+      {showOnboarding && (
+        <Onboarding onComplete={handleOnboardingComplete} />
+      )}
     </div>
   );
 }
