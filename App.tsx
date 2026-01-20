@@ -214,8 +214,7 @@ function MainApp() {
         .select(`
           id, title, price, views, created_at, currency, location, 
           image, images, is_featured, featured_expires_at, 
-          category, specs, contact, description,
-          profiles:user_id (full_name, avatar_url)
+          category, specs, contact, description, user_id
         `)
         .order('created_at', { ascending: false });
 
@@ -240,10 +239,10 @@ function MainApp() {
           contact: item.contact,
           description: item.description,
           views: item.views || 0,
-          user: item.profiles ? {
-            name: item.profiles.full_name,
-            avatar: item.profiles.avatar_url
-          } : undefined
+          user: {
+            name: 'Utilizador',
+            avatar: ''
+          }
         }));
         setAds(formattedAds);
       }
